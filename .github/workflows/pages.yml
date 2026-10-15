@@ -25,9 +25,14 @@ jobs:
           cache: npm
       - run: npm ci
       # сайт живёт в подпапке tema-mail.github.io/alex-krown/
+      # публичный показ: магазин «Вариант 1», новая главная и концепты; копия Тильды не публикуется
       - run: npm run build
         env:
           PUBLIC_BASE: /alex-krown
+          PUBLIC_SITE_URL: https://tema-mail.github.io
+          TILDA_COPY: '0'
+      - name: Убрать ресурсы копии Тильды из публикации
+        run: rm -rf dist/_t dist/no-leads.js
       - name: Закрыть копию от поисковиков
         run: |
           printf 'User-agent: *\nDisallow: /\n' > dist/robots.txt

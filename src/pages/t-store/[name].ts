@@ -22,6 +22,7 @@ var f=snap[JSON.stringify(p)];if(f)arguments[1]=dir+f+'.json'}}catch(e){}return 
 `;
 
 export function getStaticPaths() {
+  if (process.env.TILDA_COPY === '0') return [];
   const names = Object.values(index).map((f) => ({ params: { name: f + '.json' } }));
   return [...names, { params: { name: 'snapshot.js' } }];
 }

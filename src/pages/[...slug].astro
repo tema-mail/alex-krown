@@ -14,6 +14,8 @@ type Page = {
 };
 
 export function getStaticPaths() {
+  /* публичная сборка (GitHub Pages) – без копии Тильды: TILDA_COPY=0 */
+  if (process.env.TILDA_COPY === '0') return [];
   const files = import.meta.glob<Page>('../data/pages/*.json', { eager: true, import: 'default' });
   return Object.values(files).map((page) => ({ params: { slug: page.path || undefined }, props: { page } }));
 }
