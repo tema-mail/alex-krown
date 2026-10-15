@@ -1,0 +1,177 @@
+---
+/** «О бренде» магазина «Вариант 1»: основатель (фото бренда), манифест – текст со страницы «О бренде»
+    оригинала, хроника и пресса со ссылками на первоисточники, видео из Милана.
+    Факты хроники проверены 16.10.2026 по самим публикациям (ссылки ниже). */
+import V1 from '../../layouts/V1.astro';
+import '../../styles/about.css';
+import { v1, asset, BRAND } from '../site';
+
+const a = (n: string) => asset(`v1/about/${n}.webp`);
+const home = (n: string) => asset(`home/img/${n}.webp`);
+const yt = (id: string) => `https://www.youtube.com/watch?v=${id}`;
+
+/* хроника: дата – событие – источник */
+const chronicle = [
+  ['2021', 'Первая коллекция и магазин ALEX KROWN в Новосибирске', null, null],
+  ['21.04.2022', '«Дерзкий киберпанк»: «Новосибирские новости» – о том, как финансист стал дизайнером одежды', 'https://nsknews.info/materials/derzkiy-kiberpank-kak-finansist-iz-novosibirska-stal-dizaynerom-odezhdy/', 'Новосибирские новости'],
+  ['26.09.2022', 'Эфир «Оранжевое утро» на телеканале НСК 49', yt('XIAVBnQIqWo'), 'НСК 49'],
+  ['27.10.2022', '«Алексей Жоркин: финансист из Новосибирска стал дизайнером» – Babr24', 'https://babr24.com/?IDE=236549', 'Babr24'],
+  ['12.2022', 'Показ на Moscow Fashion Show', yt('zNu3B9CJWBc'), 'YouTube'],
+  ['02.2024', 'Показ коллекции в Милане на Promenade della Moda, Luiss Hub, в дни Milano Fashion Week', yt('5qB69kdtpbg'), 'Promenade della Moda'],
+  ['04.03.2024', 'The Way Magazine (Италия) – о показе ALEX KROWN в Милане', 'https://www.thewaymagazine.it/fashion/promenade-della-moda-2024-un-mosaico-di-stili/', 'The Way Magazine'],
+  ['2025', 'Milan Fashion Week 2025 – образ ALEX KROWN на улицах Милана', 'https://vkvideo.ru/clip-211857116_456239073', 'VK ALEX KROWN'],
+] as const;
+
+const videos = [
+  ['5qB69kdtpbg', 'Fashion Show by Alex Krown', 'Promenade della Moda, Милан'],
+  ['cZJVJtHzq-E', 'Alex Krown – интервью', 'Promenade della Moda, Милан'],
+  ['zNu3B9CJWBc', 'Moscow Fashion Show, декабрь 2022', 'YouTube'],
+  ['XIAVBnQIqWo', '«Оранжевое утро», 26.09.2022', 'Телеканал НСК 49'],
+] as const;
+
+const ld = [
+  {
+    '@context': 'https://schema.org', '@type': 'AboutPage', name: `О бренде ${BRAND}`,
+    about: {
+      '@type': 'Organization', name: BRAND, foundingLocation: 'Новосибирск',
+      founder: { '@type': 'Person', name: 'Алексей Жоркин', alternateName: 'Alex Krown', jobTitle: 'Основатель и дизайнер' },
+    },
+    subjectOf: chronicle.filter(([, , u]) => u).map(([d, t, u]) => ({ '@type': 'CreativeWork', name: t, url: u })),
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+    itemListElement: [['Главная', ''], ['О бренде', 'about']].map(([n, p], i) => ({ '@type': 'ListItem', position: i + 1, name: n, item: new URL(v1(p), Astro.site).href })),
+  },
+];
+---
+
+<V1 title="О бренде ALEX KROWN – основатель Алексей Жоркин, показы и пресса" description="ALEX KROWN – бренд дизайнерской одежды Алексея Жоркина из Новосибирска: киберпанк и футуризм, монохром и асимметрия. Показы в Милане и Москве, публикации в прессе." path="about" ld={ld} image={a('founder')}>
+  <main class="ab">
+    <section class="ab-hero">
+      <div class="ab-hero__text">
+        <nav aria-label="Хлебные крошки"><ol class="crumbs"><li><a href={v1('')}>Главная</a></li><li><span aria-current="page">О бренде</span></li></ol></nav>
+        <p class="label">Основатель и дизайнер</p>
+        <h1 class="ab-hero__name"><span>Алексей Жоркин</span><span class="ab-hero__alias" aria-hidden="true">Alex Krown</span></h1>
+        <p class="ab-hero__lead">Одежда для тех, кто создаёт свои правила. Новосибирск – Москва – Милан.</p>
+      </div>
+      <figure class="ab-hero__photo ab-hero__photo--frame glitch" style={`--src:url(${a('founder')})`}>
+        <img src={a('founder')} width="605" height="807" alt="Алексей Жоркин в магазине ALEX KROWN" fetchpriority="high" />
+      </figure>
+      <p class="ab-hero__word" aria-hidden="true">NO RULES</p>
+    </section>
+
+    <section class="ab-story wrap">
+      <figure class="ab-story__photo">
+        <img data-src={home('cat-man')} width="768" height="816" alt="Образ ALEX KROWN: куртка и худи бренда" loading="lazy" />
+        <figcaption>Образ ALEX KROWN</figcaption>
+      </figure>
+      <div class="ab-story__text">
+        <p class="ab-story__big">Долгое время я мучился поиском одежды, которая бы отражала мой внутренний мир и подчёркивала индивидуальность. Но таких вещей не было.</p>
+        <p>Тогда я стал создавать одежду для себя и делал это долгие 5 лет. Но когда друг попросил сшить для него куртку и примерил её, я почувствовал абсолютный кайф. Понял, что я счастлив создавать вещи для других и дарить им уверенность в себе. 2 года я готовился, изучал и продумывал детали. И вот настал момент представить вам свою коллекцию!</p>
+        <blockquote class="ab-quote">
+          <p>«Моя одежда – это смесь киберпанка и футуризма»</p>
+          <cite><a href="https://babr24.com/?IDE=236549" target="_blank" rel="noopener">Алексей Жоркин, Babr24</a></cite>
+        </blockquote>
+      </div>
+    </section>
+
+    <section class="ab-for wrap" aria-labelledby="for-title">
+      <h2 class="label" id="for-title">Моя одежда для тех, кто</h2>
+      <ul class="ab-for__list" data-reveal>
+        <li>устал жить и одеваться по чужим правилам</li>
+        <li>хочет, чтобы одежда отражала его характер и свободный дух</li>
+        <li>мечтает одеваться стильно, дерзко и качественно</li>
+      </ul>
+      <p class="ab-for__after">Надевая мою одежду, я хочу, чтобы ты чувствовал, что весь мир и вся Вселенная созданы ради тебя – ты хозяин своей жизни.</p>
+    </section>
+
+    <section class="ab-craft wrap" aria-labelledby="craft-title">
+      <h2 class="h2" id="craft-title">Ткани и фурнитура</h2>
+      <div class="ab-craft__grid">
+        <p><b>Итальянские ткани.</b> Я всегда доверял только европейским тканям. Они долговечны в носке.</p>
+        <p><b>Европейская фурнитура.</b> Италия, Швейцария, Великобритания. Прослужит долгие годы, сохраняя цвет и блеск.</p>
+        <p><b>Свой почерк.</b> Монохром, асимметрия, чёткие геометрические линии. И дерзость.</p>
+      </div>
+    </section>
+
+    <section class="ab-idol" aria-label="Слоганы бренда">
+      <div class="ab-idol__track" aria-hidden="true">
+        <span>I AM YOUR IDOL</span><span>Я ТВОЯ РЕЛИГИЯ</span><span>NO RULES</span><span>I AM YOUR IDOL</span><span>Я ТВОЯ РЕЛИГИЯ</span><span>NO RULES</span>
+      </div>
+      <p class="wrap ab-idol__text">Я хочу, чтобы, надевая мою одежду, человек прочувствовал слоганы «I Am Your Idol» и «Я твоя религия», с гордостью их нёс и транслировал как часть меня.</p>
+    </section>
+
+    <section class="ab-milan wrap" aria-labelledby="milan-title">
+      <figure class="ab-milan__film">
+        <img data-src={asset('concepts/video/milan-mfw2025-street.webp')} width="720" height="1280" alt="Образ ALEX KROWN на улицах Милана во время недели моды" />
+        <video data-film={asset('concepts/video/milan-mfw2025-street.mp4')} muted loop playsinline preload="none" aria-hidden="true"></video>
+      </figure>
+      <div class="ab-milan__text">
+        <p class="label">Милан</p>
+        <h2 class="h2" id="milan-title">Подиум Promenade della Moda</h2>
+        <p>В феврале 2024 года ALEX KROWN показал коллекцию в Милане – на международном показе Promenade della Moda в Luiss Hub в дни Milano Fashion Week.</p>
+        <blockquote class="ab-quote">
+          <p>«Il mio cliente è una persona del 21° secolo»</p>
+          <cite>Мой клиент – человек XXI века. <a href="https://www.thewaymagazine.it/fashion/promenade-della-moda-2024-un-mosaico-di-stili/" target="_blank" rel="noopener">The Way Magazine, 04.03.2024</a></cite>
+        </blockquote>
+        <a class="btn btn--solid" href={yt('5qB69kdtpbg')} target="_blank" rel="noopener">Смотреть показ</a>
+      </div>
+    </section>
+
+    <section class="ab-chron wrap" aria-labelledby="chron-title">
+      <h2 class="h2" id="chron-title">Хроника</h2>
+      <ol class="ab-chron__list">
+        {
+          chronicle.map(([d, t, u, src]) => (
+            <li data-reveal>
+              <time datetime={d.includes('.') ? d.split('.').reverse().join('-') : d}>{d}</time>
+              <p>{u ? <a href={u} target="_blank" rel="noopener">{t}</a> : t}</p>
+              {src && <span class="ab-chron__src">{src} <span aria-hidden="true">↗</span></span>}
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+
+    <section class="ab-press wrap" aria-labelledby="press-title">
+      <h2 class="h2" id="press-title">Пресса и видео</h2>
+      <div class="ab-press__grid">
+        <a class="clip clip--paper" href="https://nsknews.info/materials/derzkiy-kiberpank-kak-finansist-iz-novosibirska-stal-dizaynerom-odezhdy/" target="_blank" rel="noopener">
+          <span class="clip__mast">Новосибирские новости</span>
+          <span class="clip__title clip__title--big">Дерзкий киберпанк: как финансист из Новосибирска стал дизайнером одежды</span>
+          <span class="clip__meta">21.04.2022 · Новосибирск</span>
+        </a>
+        <a class="clip clip--paper clip--tilt" href="https://babr24.com/?IDE=236549" target="_blank" rel="noopener">
+          <span class="clip__mast">Babr24</span>
+          <span class="clip__title clip__title--big">Алексей Жоркин: финансист из Новосибирска стал дизайнером</span>
+          <span class="clip__meta">27.10.2022 · Культура, Новосибирск</span>
+        </a>
+        <a class="clip clip--paper" href="https://www.thewaymagazine.it/fashion/promenade-della-moda-2024-un-mosaico-di-stili/" target="_blank" rel="noopener">
+          <span class="clip__mast">The Way Magazine</span>
+          <span class="clip__title clip__title--big">Promenade della Moda 2024: un mosaico di stili</span>
+          <span class="clip__meta">04.03.2024 · Милан, Италия</span>
+        </a>
+        {
+          videos.map(([id, t, src]) => (
+            <a class="clip clip--video" href={yt(id)} target="_blank" rel="noopener">
+              <span class="clip__thumb">
+                <img data-src={a('yt-' + id)} width="480" height="360" alt="" />
+                <span class="clip__play" aria-hidden="true">▶</span>
+              </span>
+              <span class="clip__title">{t}</span>
+              <span class="clip__meta">{src}</span>
+            </a>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="ab-end wrap">
+      <p class="ab-end__fish">Мёртвая рыба плывёт по течению, и только живая рыба плывёт против.</p>
+      <div class="hero__cta">
+        <a class="btn btn--solid" href={v1('catalog/man')}>Мужское</a>
+        <a class="btn" href={v1('catalog/woman')}>Женское</a>
+      </div>
+    </section>
+  </main>
+</V1>

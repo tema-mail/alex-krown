@@ -4,6 +4,7 @@
 import Catalog from '../../v1/views/Catalog.astro';
 import ProductPage from '../../v1/views/ProductPage.astro';
 import Info from '../../v1/views/Info.astro';
+import About from '../../v1/views/About.astro';
 import { products, sections, infoPages } from '../../v1/site';
 
 export function getStaticPaths() {
@@ -18,4 +19,4 @@ const props = Astro.props;
 
 {props.kind === 'section' && <Catalog s={props.s} />}
 {props.kind === 'product' && <ProductPage p={props.p} />}
-{props.kind === 'info' && <Info pg={props.pg} />}
+{props.kind === 'info' && (props.pg.path === 'about' ? <About /> : <Info pg={props.pg} />)}

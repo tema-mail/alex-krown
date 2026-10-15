@@ -1,0 +1,442 @@
+/* «О бренде» магазина «Вариант 1»: основатель с глитч-эффектом, манифест, хроника, газетные вырезки.
+   Токены и общие классы – home.css / v1.css. */
+.ab {
+  overflow: hidden;
+}
+.ab section {
+  padding-top: clamp(72px, 9vw, 140px);
+}
+
+/* ---------- первый экран ---------- */
+.ab-hero {
+  position: relative;
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  align-items: end;
+  padding: 96px var(--gut) 0 !important;
+  isolation: isolate;
+}
+.ab-hero__text {
+  padding-bottom: clamp(40px, 8vh, 96px);
+  z-index: 2;
+}
+.ab-hero__name {
+  margin-top: 14px;
+  display: grid;
+  font: 400 clamp(46px, 7.4vw, 124px) / 0.95 var(--serif);
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+.ab-hero__alias {
+  font-style: italic;
+  text-transform: none;
+  color: var(--mute);
+  font-size: 0.42em;
+  margin-top: 0.3em;
+}
+.ab-hero__lead {
+  margin-top: 24px;
+  max-width: 32ch;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #c9c9c5;
+}
+.ab-hero__photo {
+  position: relative;
+  align-self: end;
+  justify-self: center;
+  width: min(100%, 620px);
+  z-index: 1;
+}
+.ab-hero__photo img {
+  width: 100%;
+  height: auto;
+  filter: grayscale(1) contrast(1.1);
+}
+.ab-hero__word {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.12em;
+  z-index: 0;
+  text-align: center;
+  font: 400 clamp(90px, 22vw, 380px) / 1 var(--serif);
+  white-space: nowrap;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(244, 244, 242, 0.16);
+  pointer-events: none;
+}
+
+.ab-hero__photo--frame {
+  width: min(100%, 460px);
+  margin-bottom: clamp(40px, 8vh, 96px);
+}
+.ab-hero__photo--frame img {
+  border-radius: 2px;
+}
+
+/* глитч: две копии фото через маску по форме вырезанной фигуры, красная и голубая, со сдвигом и
+   «рваными» полосами (clip-path). Короткие вспышки раз в несколько секунд, под курсором – постоянно. */
+.glitch::before,
+.glitch::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  -webkit-mask: var(--src) center / contain no-repeat;
+  mask: var(--src) center / contain no-repeat;
+  mix-blend-mode: screen;
+  opacity: 0;
+  pointer-events: none;
+}
+.glitch::before {
+  background: #ff2a4d;
+  animation: glitch-a 5s steps(1) infinite;
+}
+.glitch::after {
+  background: #22e3ff;
+  animation: glitch-b 5s steps(1) infinite;
+}
+.glitch:hover::before,
+.glitch:hover::after {
+  animation-duration: 0.9s;
+}
+@keyframes glitch-a {
+  0%, 86%, 100% { opacity: 0; transform: none; clip-path: inset(0); }
+  87% { opacity: 0.7; transform: translate(-6px, 2px); clip-path: inset(12% 0 64% 0); }
+  89% { opacity: 0.7; transform: translate(5px, -3px); clip-path: inset(48% 0 30% 0); }
+  91% { opacity: 0.6; transform: translate(-3px, 0); clip-path: inset(72% 0 8% 0); }
+  93% { opacity: 0.7; transform: translate(8px, 1px); clip-path: inset(30% 0 52% 0); }
+  95% { opacity: 0; }
+}
+@keyframes glitch-b {
+  0%, 86%, 100% { opacity: 0; transform: none; clip-path: inset(0); }
+  88% { opacity: 0.7; transform: translate(6px, -2px); clip-path: inset(58% 0 22% 0); }
+  90% { opacity: 0.6; transform: translate(-7px, 2px); clip-path: inset(6% 0 78% 0); }
+  92% { opacity: 0.7; transform: translate(3px, 0); clip-path: inset(36% 0 40% 0); }
+  94% { opacity: 0; }
+}
+
+/* ---------- история ---------- */
+.ab-story {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: clamp(28px, 5vw, 80px);
+  align-items: start;
+}
+.ab-story__photo img {
+  width: 100%;
+  height: auto;
+  filter: grayscale(1) contrast(1.08);
+  border-radius: 2px;
+}
+.ab-story__photo figcaption {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--mute);
+}
+.ab-story__text {
+  display: grid;
+  gap: 22px;
+  font-size: 16px;
+  line-height: 1.75;
+  color: #d0d0cc;
+}
+.ab-story__big {
+  font: 400 clamp(24px, 2.6vw, 38px) / 1.3 var(--serif);
+  color: var(--paper);
+}
+.ab-quote {
+  border-left: 2px solid var(--paper);
+  padding: 6px 0 6px 22px;
+  display: grid;
+  gap: 8px;
+}
+.ab-quote p {
+  font: italic 400 clamp(22px, 2.2vw, 32px) / 1.25 var(--serif);
+  color: var(--paper);
+}
+.ab-quote cite {
+  font-style: normal;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--mute);
+}
+.ab-quote a {
+  text-decoration: underline;
+}
+
+/* ---------- для тех, кто ---------- */
+.ab-for__list {
+  list-style: none;
+  margin-top: 22px;
+  display: grid;
+  border-top: 1px solid var(--line);
+}
+.ab-for__list li {
+  font: 400 clamp(26px, 4.2vw, 68px) / 1.12 var(--serif);
+  padding: 18px 0;
+  border-bottom: 1px solid var(--line);
+  transition: padding 0.5s var(--ease), color 0.3s;
+}
+.ab-for__list li:hover {
+  padding-left: 24px;
+  color: #fff;
+}
+.ab-for__after {
+  margin-top: 28px;
+  max-width: 52ch;
+  font-size: 16px;
+  line-height: 1.7;
+  color: #c9c9c5;
+}
+
+/* ---------- ткани ---------- */
+.ab-craft__grid {
+  margin-top: 28px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.ab-craft__grid p {
+  padding: 26px;
+  background: var(--ink-2);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 1.65;
+  color: #c9c9c5;
+}
+.ab-craft__grid b {
+  display: block;
+  margin-bottom: 8px;
+  font: 400 22px/1.2 var(--serif);
+  color: var(--paper);
+}
+
+/* ---------- слоганы ---------- */
+.ab-idol__track {
+  display: flex;
+  gap: 0.6em;
+  width: max-content;
+  font: 400 clamp(56px, 11vw, 180px) / 1 var(--serif);
+  white-space: nowrap;
+  animation: idol 32s linear infinite;
+}
+.ab-idol__track span:nth-child(even) {
+  color: transparent;
+  -webkit-text-stroke: 1px var(--paper);
+  font-style: italic;
+}
+@keyframes idol {
+  to {
+    transform: translateX(-50%);
+  }
+}
+.ab-idol__text {
+  margin-top: 28px;
+  max-width: 62ch;
+  font-size: 16px;
+  line-height: 1.7;
+  color: #c9c9c5;
+}
+
+/* ---------- Милан ---------- */
+.ab-milan {
+  display: grid;
+  grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr);
+  gap: clamp(28px, 5vw, 80px);
+  align-items: center;
+}
+.ab-milan__film {
+  position: relative;
+  aspect-ratio: 9 / 16;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--ink-2);
+}
+.ab-milan__film img,
+.ab-milan__film video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.06);
+}
+.ab-milan__film video {
+  opacity: 0;
+  transition: opacity 0.6s;
+}
+.ab-milan__film video.is-on {
+  opacity: 1;
+}
+.ab-milan__text {
+  display: grid;
+  gap: 20px;
+  justify-items: start;
+  font-size: 16px;
+  line-height: 1.7;
+  color: #d0d0cc;
+}
+
+/* ---------- хроника ---------- */
+.ab-chron__list {
+  list-style: none;
+  margin-top: 32px;
+  border-top: 1px solid var(--line);
+}
+.ab-chron__list li {
+  display: grid;
+  grid-template-columns: 140px 1fr auto;
+  gap: 24px;
+  align-items: baseline;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--line);
+}
+.ab-chron__list time {
+  font: 400 22px/1 var(--serif);
+  color: var(--paper);
+}
+.ab-chron__list p {
+  font-size: 16px;
+  line-height: 1.5;
+}
+.ab-chron__list a {
+  text-decoration: underline;
+  text-decoration-color: rgba(244, 244, 242, 0.35);
+  text-underline-offset: 3px;
+}
+.ab-chron__list a:hover {
+  text-decoration-color: var(--paper);
+}
+.ab-chron__src {
+  font-size: 12px;
+  color: var(--mute);
+  white-space: nowrap;
+}
+
+/* ---------- пресса: вырезки ---------- */
+.ab-press__grid {
+  margin-top: 32px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 18px;
+  align-items: start;
+}
+.clip {
+  display: grid;
+  gap: 12px;
+  transition: transform 0.4s var(--ease);
+}
+.clip:hover {
+  transform: translateY(-4px) rotate(-0.4deg);
+}
+.clip--paper {
+  padding: 22px 20px 20px;
+  background: #ecebe6;
+  color: #151515;
+  border-radius: 1px;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
+  /* рваный нижний край вырезки */
+  clip-path: polygon(0 0, 100% 0, 100% 96%, 94% 100%, 88% 97%, 80% 100%, 71% 97%, 62% 100%, 52% 97%, 41% 100%, 31% 97%, 21% 100%, 12% 97%, 5% 100%, 0 97%);
+}
+.clip--tilt {
+  transform: rotate(-1.2deg);
+}
+.clip__mast {
+  font: 400 13px/1 var(--serif);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  border-bottom: 1px solid #151515;
+  padding-bottom: 10px;
+}
+.clip--paper img {
+  width: 100%;
+  height: auto;
+  filter: grayscale(1) contrast(1.05);
+}
+.clip__title {
+  font: 400 18px/1.3 var(--serif);
+}
+.clip__title--big {
+  font-size: 26px;
+  line-height: 1.15;
+}
+.clip__meta {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: #5a5a58;
+}
+.clip--video .clip__meta {
+  color: var(--mute);
+}
+.clip__thumb {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--ink-2);
+}
+.clip__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1);
+  transition: filter 0.5s;
+}
+.clip--video:hover img {
+  filter: none;
+}
+.clip__play {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 30px;
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.8);
+}
+
+/* ---------- финал ---------- */
+.ab-end {
+  display: grid;
+  gap: 28px;
+  justify-items: center;
+  text-align: center;
+}
+.ab-end__fish {
+  font: italic 400 clamp(26px, 3.4vw, 52px) / 1.2 var(--serif);
+  max-width: 24ch;
+}
+
+@media (max-width: 900px) {
+  .ab-hero,
+  .ab-story,
+  .ab-milan {
+    grid-template-columns: 1fr;
+  }
+  .ab-hero__text {
+    padding-bottom: 0;
+  }
+  .ab-hero__photo {
+    width: 86%;
+  }
+  .ab-craft__grid {
+    grid-template-columns: 1fr;
+  }
+  .ab-milan__film {
+    max-width: 360px;
+  }
+  .ab-chron__list li {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .glitch::before,
+  .glitch::after,
+  .ab-idol__track {
+    animation: none;
+  }
+}
