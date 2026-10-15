@@ -1,0 +1,14 @@
+---
+/** Избранное магазина «Вариант 1» – остров FavPage (сохранённые вещи из localStorage). */
+import V1 from '../../layouts/V1.astro';
+import FavPage from '../../v1/islands/FavPage';
+import { v1 } from '../../v1/site';
+---
+
+<V1 title="Избранное | ALEX KROWN" description="Сохранённые вещи ALEX KROWN." path="favorites">
+  <main class="page">
+    <nav aria-label="Хлебные крошки"><ol class="crumbs"><li><a href={v1('')}>Главная</a></li><li><span aria-current="page">Избранное</span></li></ol></nav>
+    <header class="cat-head"><h1>Избранное</h1></header>
+    <FavPage client:load catalogHref={v1('catalog')} />
+  </main>
+</V1>
