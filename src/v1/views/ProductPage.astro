@@ -1,0 +1,106 @@
+---
+/** Карточка товара: галерея, цена, размеры и покупка (остров ProductBuy), описание и состав бренда,
+    таблица размеров, доставка, уход, похожие товары. SEO: title/description из фактов товара,
+    JSON-LD Product (офер на каждый размер, политика возврата) и BreadcrumbList. */
+import V1 from '../../layouts/V1.astro';
+import ProductCard from '../ProductCard.astro';
+import ProductBuy from '../islands/ProductBuy';
+import { v1, img, srcset, rub, byUid, homeSection, sectionName, sections, infoPages, metaDescription, minPrice, priceVaries, BRAND, type Product } from '../site';
+
+interface Props { p: Product }
+const { p } = Astro.props;
+const home = homeSection(p);
+const parent = home && home.path.split('/').length > 2 ? sections.find((x) => x.path === home.path.split('/').slice(0, 2).join('/')) : undefined;
+const crumbs: [string, string][] = [['Главная', ''], ['Каталог', 'catalog'], ...(parent ? ([[sectionName(parent), parent.path]] as [string, string][]) : []), ...(home ? ([[sectionName(home), home.path]] as [string, string][]) : []), [p.title, p.path]];
+const related = (home ? home.uids : []).filter((u) => u !== p.uid).map((u) => byUid.get(u)!).filter(Boolean).slice(0, 8);
+const delivery = infoPages.find((x) => x.path === 'payment_and_delivery')?.paras.slice(0, 2).join('\n\n') ?? '';
+const care = infoPages.find((x) => x.path === 'recomendation')?.paras.slice(1, 5).join('\n') ?? '';
+const off = p.priceOld && p.priceOld > p.price ? p.priceOld : null;
+const site = Astro.site!;
+const abs = (x: string) => new URL(x, site).href;
+const description = metaDescription(p);
+const offers = (p.sizes.length ? p.sizes : [{ size: '', price: p.price, priceOld: p.priceOld }]).map((s) => ({
+  '@type': 'Offer',
+  sku: s.size ? `${p.uid}-${s.size}` : p.uid,
+  ...(s.size ? { name: `${p.title}, размер ${s.size}` } : {}),
+  price: s.price,
+  priceCurrency: 'RUB',
+  availability: 'https://schema.org/InStock',
+  itemCondition: 'https://schema.org/NewCondition',
+  url: abs(v1(p.path)),
+  hasMerchantReturnPolicy: {
+    '@type': 'MerchantReturnPolicy', applicableCountry: 'RU', returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+    merchantReturnDays: 7,
+  },
+}));
+const ld = [
+  {
+    '@context': 'https://schema.org', '@type': 'Product', name: p.title, sku: p.uid, productID: p.uid,
+    description: p.descr || description, image: p.photos.map((ph) => abs(img(ph.name))),
+    brand: { '@type': 'Brand', name: BRAND }, ...(p.color ? { color: p.color } : {}), ...(p.composition ? { material: p.composition } : {}),
+    ...(p.kind ? { category: p.kind } : {}), ...(p.sizes.length ? { size: p.sizes.map((s) => s.size).join(', ') } : {}), offers,
+  },
+  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: crumbs.map(([n, x], i) => ({ '@type': 'ListItem', position: i + 1, name: n, item: abs(v1(x)) })) },
+];
+const first = p.photos[0];
+---
+
+<V1
+  title={`${p.title} – купить за ${priceVaries(p) ? 'от ' : ''}${rub(minPrice(p))} | ${BRAND}`} description={description} path={p.path} ld={ld}
+  image={first ? img(first.name) : undefined} ogType="product"
+  lcp={first ? { href: img(first.name + '-s'), srcset: srcset(first), sizes: '(max-width: 900px) 82vw, 52vw' } : undefined}
+>
+  <main class="page">
+    <nav aria-label="Хлебные крошки">
+      <ol class="crumbs">{crumbs.map(([n, x], i) => <li>{i < crumbs.length - 1 ? <a href={v1(x)}>{n}</a> : <span aria-current="page">{n}</span>}</li>)}</ol>
+    </nav>
+    <div class="pp">
+      <div class="pp__gallery">
+        {
+          p.photos.map((ph, i) => (
+            <figure>
+              <img
+                src={img(ph.name + '-s')} srcset={srcset(ph)} sizes={i === 0 ? '(max-width: 900px) 82vw, 52vw' : '(max-width: 900px) 82vw, 26vw'}
+                width={ph.w} height={ph.h} alt={i === 0 ? p.title : `${p.title}, фото ${i + 1}`}
+                loading={i === 0 ? 'eager' : 'lazy'} fetchpriority={i === 0 ? 'high' : undefined} decoding="async"
+              />
+            </figure>
+          ))
+        }
+      </div>
+      <div class="pp__info">
+        <h1>{p.title}</h1>
+        <p class="pp__price" data-base-price>{priceVaries(p) ? `от ${rub(minPrice(p))}` : rub(p.price)}{off && <s>{rub(off)}</s>}</p>
+        <ProductBuy
+          client:visible
+          p={{ uid: p.uid, title: p.title, price: p.price, priceOld: p.priceOld, img: first ? img(first.name + '-s') : '', path: v1(p.path), sizes: p.sizes, orderHref: v1('order') }}
+        />
+        <div class="acc">
+          {p.descr && <details open><summary>Описание</summary><div class="acc__body">{p.descr}</div></details>}
+          {(p.composition || p.color || p.kind) && (
+            <details open={!p.descr}>
+              <summary>Характеристики</summary>
+              <div class="acc__body">{[p.kind && `Вид товара: ${p.kind}`, p.composition && `Состав: ${p.composition}`, p.color && `Цвет: ${p.color}`, p.sizes.length && `Размеры: ${p.sizes.map((s) => s.size).join(', ')}`].filter(Boolean).join('\n')}</div>
+            </details>
+          )}
+          {p.sizeChart && (
+            <details>
+              <summary>Таблица размеров</summary>
+              <div class="acc__body"><img data-src={img(p.sizeChart.name)} width={p.sizeChart.w} height={p.sizeChart.h} alt={`Таблица размеров: ${p.title}`} loading="lazy" /></div>
+            </details>
+          )}
+          {delivery && <details><summary>Доставка и оплата</summary><div class="acc__body">{delivery}{'\n'}<a href={v1('payment_and_delivery')}>Подробнее о доставке</a></div></details>}
+          {care && <details><summary>Уход</summary><div class="acc__body">{care}{'\n'}<a href={v1('recomendation')}>Все рекомендации</a></div></details>}
+        </div>
+      </div>
+    </div>
+    {
+      related.length > 0 && (
+        <section class="related" aria-labelledby="rel-title">
+          <h2 class="h2" id="rel-title">Вам может понравиться</h2>
+          <div class="grid">{related.map((r) => <ProductCard p={r} />)}</div>
+        </section>
+      )
+    }
+  </main>
+</V1>

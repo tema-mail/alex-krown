@@ -1,0 +1,21 @@
+---
+/** Все страницы магазина «Вариант 1» по адресам оригинала: разделы каталога, карточки товаров,
+    текстовые страницы. Главная, избранное, заказ и фиды – отдельные файлы в src/pages/v1/. */
+import Catalog from '../../v1/views/Catalog.astro';
+import ProductPage from '../../v1/views/ProductPage.astro';
+import Info from '../../v1/views/Info.astro';
+import { products, sections, infoPages } from '../../v1/site';
+
+export function getStaticPaths() {
+  return [
+    ...sections.map((s) => ({ params: { path: s.path }, props: { kind: 'section' as const, s } })),
+    ...products.map((p) => ({ params: { path: p.path }, props: { kind: 'product' as const, p } })),
+    ...infoPages.map((pg) => ({ params: { path: pg.path }, props: { kind: 'info' as const, pg } })),
+  ];
+}
+const props = Astro.props;
+---
+
+{props.kind === 'section' && <Catalog s={props.s} />}
+{props.kind === 'product' && <ProductPage p={props.p} />}
+{props.kind === 'info' && <Info pg={props.pg} />}
