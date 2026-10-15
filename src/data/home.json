@@ -1,0 +1,115 @@
+{
+ "products": [
+  {
+   "title": "Платье B & W",
+   "price": 5900,
+   "priceOld": null,
+   "url": "/catalog/woman/tproduct/330897489422-plate-b-amp-w",
+   "imgs": [
+    "p-330897489422-1",
+    "p-330897489422-2"
+   ]
+  },
+  {
+   "title": "Кроп топ “Black”",
+   "price": 2800,
+   "priceOld": null,
+   "url": "/catalog/woman/tproduct/732749178242-krop-top-black",
+   "imgs": [
+    "p-732749178242-1",
+    "p-732749178242-2"
+   ]
+  },
+  {
+   "title": "Худи белая",
+   "price": 9500,
+   "priceOld": null,
+   "url": "/catalog/woman/tproduct/797620854102-hudi-belaya",
+   "imgs": [
+    "p-797620854102-1",
+    "p-797620854102-2"
+   ]
+  },
+  {
+   "title": "Худи “Geometry women White”",
+   "price": 6900,
+   "priceOld": null,
+   "url": "/catalog/woman/tproduct/678238180382-hudi-geometry-women-white",
+   "imgs": [
+    "p-678238180382-1",
+    "p-678238180382-2"
+   ]
+  },
+  {
+   "title": "Худи “White Lightning woman”",
+   "price": 9900,
+   "priceOld": null,
+   "url": "/catalog/woman/tproduct/119034214372-hudi-white-lightning-woman",
+   "imgs": [
+    "p-119034214372-1",
+    "p-119034214372-2"
+   ]
+  },
+  {
+   "title": "Худи “White Shot woman”",
+   "price": 9900,
+   "priceOld": null,
+   "url": "/catalog/woman/tproduct/209766000592-hudi-white-shot-woman",
+   "imgs": [
+    "p-209766000592-1",
+    "p-209766000592-2"
+   ]
+  },
+  {
+   "title": "Лосины",
+   "price": 8900,
+   "priceOld": null,
+   "url": "/catalog/woman/tproduct/634469130762-losini",
+   "imgs": [
+    "p-634469130762-1",
+    "p-634469130762-2"
+   ]
+  },
+  {
+   "title": "Джоггеры White man (утепленные)",
+   "price": 9500,
+   "priceOld": null,
+   "url": "/catalog/man/tproduct/550765990892-dzhoggeri-white-man-uteplennie",
+   "imgs": [
+    "p-550765990892-1",
+    "p-550765990892-2"
+   ]
+  },
+  {
+   "title": "Мантия White men",
+   "price": 9900,
+   "priceOld": null,
+   "url": "/catalog/man/tproduct/604455289852-mantiya-white-men",
+   "imgs": [
+    "p-604455289852-1",
+    "p-604455289852-2"
+   ]
+  },
+  {
+   "title": "Мантия “Geometric gray”",
+   "price": 9900,
+   "priceOld": null,
+   "url": "/catalog/man/tproduct/252816217932-mantiya-geometric-gray",
+   "imgs": [
+    "p-252816217932-1",
+    "p-252816217932-2"
+   ]
+  },
+  {
+   "title": "Лосины «Black dragon»",
+   "price": 6400,
+   "priceOld": 7500,
+   "url": "/catalog/woman/tproduct/984801477262-losini-black-dragon",
+   "imgs": [
+    "p-984801477262-1",
+    "p-984801477262-2"
+   ]
+  }
+ ],
+ "gallery": 16
+}
