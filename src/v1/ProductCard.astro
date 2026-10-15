@@ -1,0 +1,46 @@
+---
+/** Карточка товара в сетке (каталог, главная, «похожие»): два фото (второе – при наведении),
+    сердечко избранного (v1/client.ts), название, цена и старая цена, бейдж скидки.
+    eager – для карточек первого экрана; остальные картинки ставит скрипт за 600 px до появления. */
+import { v1, img, srcset, rub, minPrice, priceVaries, type Product } from './site';
+
+interface Props {
+  p: Product;
+  eager?: boolean;
+  sizes?: string;
+  /** видео при наведении (data-hover-video) – адрес mp4 */
+  video?: string;
+  /** чёрно-белое фото с цветом при наведении (главная); в каталоге – цветное: покупателю важен цвет вещи */
+  bw?: boolean;
+  /** уровень заголовка карточки: h2 – в сетке сразу под H1 страницы, h3 – под заголовком блока */
+  level?: 'h2' | 'h3';
+  /** самая первая карточка страницы – кандидат LCP, грузится с высоким приоритетом */
+  first?: boolean;
+}
+const { p, eager = false, sizes = '(max-width: 900px) 46vw, 23vw', video, bw = false, level = 'h3', first = false } = Astro.props;
+const H = level;
+const href = v1(p.path);
+const [a, b] = p.photos;
+const fav = JSON.stringify({ uid: p.uid, title: p.title, price: p.price, priceOld: p.priceOld, img: a ? img(a.name + '-s') : '', path: href });
+const off = p.priceOld && p.priceOld > p.price ? Math.round((1 - p.price / p.priceOld) * 100) : 0;
+const attrs = (ph: typeof a) =>
+  eager ? { src: img(ph.name + '-s'), srcset: srcset(ph), loading: 'eager' as const } : { 'data-src': img(ph.name + '-s'), 'data-srcset': srcset(ph), loading: 'lazy' as const };
+---
+
+<article class="prod">
+  <a href={href} class="prod__img" data-hover-video={video} aria-label={p.title}>
+    {off > 0 && <span class="prod__badge">−{off}%</span>}
+    {a && <img class={bw ? 'bw' : undefined} {...attrs(a)} fetchpriority={first ? 'high' : undefined} sizes={sizes} width={a.w} height={a.h} alt={p.title} decoding="async" />}
+    {/* второе фото видно только при наведении мыши – грузится при первом наведении (v1/client.ts) */}
+    {b && <img class={bw ? 'bw' : undefined} data-hover-src={img(b.name + '-s')} data-hover-srcset={srcset(b)} sizes={sizes} width={b.w} height={b.h} alt="" decoding="async" />}
+    {!a && <span class="prod__nophoto">{p.title}</span>}
+  </a>
+  <button type="button" class="prod__fav" aria-pressed="false" aria-label={`В избранное: ${p.title}`} data-fav={fav}>♡</button>
+  <a href={href}>
+    <H class="prod__name">{p.title}</H>
+    <p class="prod__price">
+      {priceVaries(p) ? `от ${rub(minPrice(p))}` : rub(p.price)}
+      {off > 0 && <s>{rub(p.priceOld!)}</s>}
+    </p>
+  </a>
+</article>
