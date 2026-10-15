@@ -10,13 +10,13 @@ const tape = Array(12).fill('ALEX KROWN');
 <ConceptLayout n={3} title="Крест" theme="light">
   <header class="hd">
     <nav class="hd__nav">
-      <a class="pill" href={`${base}/catalog/man`}>Мужское</a>
-      <a class="pill" href={`${base}/catalog/woman`}>Женское</a>
-      <a class="pill hd__hide" href={`${base}/about`}>О нас</a>
+      <a class="pill" href={`${base}/v1/catalog/man/`}>Мужское</a>
+      <a class="pill" href={`${base}/v1/catalog/woman/`}>Женское</a>
+      <a class="pill hd__hide" href={`${base}/v1/about/`}>О нас</a>
     </nav>
-    <a class="hd__logo" href={`${base}/`} aria-label="ALEX KROWN"><span class="ak-logo"></span></a>
+    <a class="hd__logo" href={`${base}/v1/`} aria-label="ALEX KROWN"><span class="ak-logo"></span></a>
     <nav class="hd__tools">
-      <a href={`${base}/catalog`} class="hd__hide">Каталог</a>
+      <a href={`${base}/v1/catalog/`} class="hd__hide">Каталог</a>
       <a href="#">Корзина 0</a>
     </nav>
   </header>
@@ -42,8 +42,8 @@ const tape = Array(12).fill('ALEX KROWN');
       <h1>Для тех, кто создаёт свои&nbsp;правила</h1>
       <p>Дизайнерская одежда собственного производства. Доставка по России и СНГ.</p>
       <div class="hero__cta">
-        <a class="btn btn--solid" href={`${base}/catalog/man`}>Мужское</a>
-        <a class="btn" href={`${base}/catalog/woman`}>Женское</a>
+        <a class="btn btn--solid" href={`${base}/v1/catalog/man/`}>Мужское</a>
+        <a class="btn" href={`${base}/v1/catalog/woman/`}>Женское</a>
       </div>
     </div>
   </main>

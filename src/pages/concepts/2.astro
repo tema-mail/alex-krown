@@ -17,10 +17,10 @@ const index = [
 
 <ConceptLayout n={2} title="Кадр" theme="light">
   <header class="hd">
-    <a href={`${base}/`} aria-label="ALEX KROWN"><span class="ak-logo"></span></a>
+    <a href={`${base}/v1/`} aria-label="ALEX KROWN"><span class="ak-logo"></span></a>
     <nav>
-      <a href={`${base}/catalog`}>Каталог</a>
-      <a href={`${base}/about`} class="hd__hide">О бренде</a>
+      <a href={`${base}/v1/catalog/`}>Каталог</a>
+      <a href={`${base}/v1/about/`} class="hd__hide">О бренде</a>
       <a href="#">Корзина 0</a>
     </nav>
   </header>
@@ -35,7 +35,7 @@ const index = [
         {
           index.map(([name, href], i) => (
             <li style={`--i:${i}`}>
-              <a href={`${base}${href}`}>
+              <a href={`${base}/v1${href}/`}>
                 <span>{name}</span>
                 <span class="index__arrow" aria-hidden="true">
                   →
