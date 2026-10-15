@@ -1,0 +1,123 @@
+---
+/** Каркас страниц магазина «Вариант 1»: SEO-теги, шапка, полноэкранное меню, подвал, шторки корзины
+    и избранного (остров Sheets). Стиль – новая главная «Подиум» (home.css, home-blocks.css) + v1.css. */
+import '@fontsource/playfair-display/cyrillic-400.css';
+import '@fontsource/playfair-display/latin-400.css';
+import '@fontsource/playfair-display/cyrillic-400-italic.css';
+import '@fontsource/playfair-display/latin-400-italic.css';
+import pfLatin from '@fontsource/playfair-display/files/playfair-display-latin-400-normal.woff2?url';
+import '../styles/home.css';
+import '../styles/home-blocks.css';
+import '../styles/v1.css';
+import Sheets from '../v1/islands/Sheets';
+import { v1, asset, MENU, FOOTER, SOCIAL } from '../v1/site';
+
+interface Props {
+  title: string;
+  description: string;
+  /** путь страницы магазина без /v1/ ('' – главная) */
+  path: string;
+  image?: string;
+  /** JSON-LD объекты страницы */
+  ld?: object[];
+  /** главная с видео-экраном: прозрачная шапка и предзагрузка шрифта слова ALEX KROWN */
+  hero?: boolean;
+  ogType?: string;
+  /** главное фото страницы (LCP) – предзагрузка с высоким приоритетом */
+  lcp?: { href: string; srcset: string; sizes: string };
+}
+const { title, description, path, image, ld = [], hero = false, ogType = 'website', lcp } = Astro.props;
+const canonical = new URL(v1(path), Astro.site).href;
+/* показ на GitHub Pages закрыт от поиска (дубль живого сайта); на боевом домене PUBLIC_INDEX=1 */
+const noindex = process.env.PUBLIC_INDEX !== '1';
+const ogImage = image ? new URL(image, Astro.site).href : undefined;
+const org = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'ALEX KROWN',
+  url: new URL(v1(''), Astro.site).href,
+  logo: new URL(asset('concepts/img/logo.svg'), Astro.site).href,
+  sameAs: SOCIAL.filter(([n]) => n !== 'WhatsApp').map(([, h]) => h),
+};
+---
+
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content="ALEX KROWN" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    <meta property="og:locale" content="ru_RU" />
+    <meta name="theme-color" content="#0d0d0d" />
+    <link rel="icon" href={asset('concepts/img/logo.svg')} type="image/svg+xml" />
+    {hero && <link rel="preload" href={pfLatin} as="font" type="font/woff2" crossorigin />}
+    {lcp && <link rel="preload" as="image" href={lcp.href} imagesrcset={lcp.srcset} imagesizes={lcp.sizes} fetchpriority="high" />}
+    <script type="application/ld+json" set:html={JSON.stringify(path === '' ? [org, ...ld] : ld)} />
+  </head>
+  <body style={`--logo:url(${asset('concepts/img/logo.svg')})`}>
+    <header class:list={['hd', { 'is-solid': !hero }]} data-hd data-hero-page={hero ? '' : undefined}>
+      <nav>
+        <a href={v1('catalog/man')}>Мужское</a>
+        <a href={v1('catalog/woman')}>Женское</a>
+        <a href={v1('about')} class="hd__hide">О нас</a>
+      </nav>
+      <a href={v1('')} aria-label="ALEX KROWN – на главную"><span class="logo"></span></a>
+      <nav class="hd__right">
+        <a href={v1('catalog')} class="hd__hide">Каталог</a>
+        <button type="button" data-open-sheet="fav" class="hd__hide">Избранное <span data-fav-count>0</span></button>
+        <button type="button" data-open-sheet="cart">Корзина <span data-cart-count>0</span></button>
+        <button type="button" data-menu-open aria-expanded="false" aria-controls="menu">Меню</button>
+      </nav>
+    </header>
+
+    <div class="menu" id="menu" data-menu aria-hidden="true">
+      <button type="button" class="menu__close" data-menu-close>Закрыть</button>
+      <nav class="menu__main" aria-label="Разделы магазина">{MENU.map(([t, p]) => <a href={v1(p)}>{t}</a>)}</nav>
+      <div class="menu__side">
+        <p class="menu__idol">I am your idol</p>
+        <div>
+          <p class="label">Информация</p>
+          <ul style="margin-top:14px">
+            <li><a href={v1('favorites')}>Избранное</a></li>
+            {FOOTER.flatMap(([, l]) => l).filter(([, p], i, a) => a.findIndex(([, q]) => q === p) === i).map(([t, p]) => <li><a href={v1(p)}>{t}</a></li>)}
+          </ul>
+        </div>
+        <div class="ft__social">{SOCIAL.map(([t, h]) => <a href={h} target="_blank" rel="noopener">{t}</a>)}</div>
+      </div>
+    </div>
+
+    <slot />
+
+    <footer class="ft">
+      <div class="ft__top">
+        <div>
+          <a href={v1('')} aria-label="ALEX KROWN – на главную"><span class="logo" style="width:44px"></span></a>
+          <div class="ft__social">{SOCIAL.map(([t, h]) => <a href={h} target="_blank" rel="noopener">{t}</a>)}</div>
+          <a class="ft__by" href="https://deford-studio.ru/" target="_blank" rel="noopener">Design by Deford</a>
+        </div>
+        {
+          FOOTER.map(([h, links]) => (
+            <div>
+              <h2 class="ft__h">{h}</h2>
+              <ul>{links.map(([t, l]) => <li><a href={v1(l)}>{t}</a></li>)}</ul>
+            </div>
+          ))
+        }
+      </div>
+      <p class="ft__word" aria-hidden="true">ALEX KROWN</p>
+    </footer>
+
+    <Sheets client:idle catalogHref={v1('catalog')} orderHref={v1('order')} favHref={v1('favorites')} />
+    <script>
+      import '../v1/client';
+    </script>
+  </body>
+</html>
