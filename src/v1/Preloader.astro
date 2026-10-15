@@ -1,0 +1,311 @@
+---
+/** Заставка-глитч с логотипом – 5 вариантов на выбор владельцу. Показ по ссылке ?intro=1…5
+    (пока вариант не выбран – на сайте её нет, скорость не страдает). Выбранный вариант потом
+    включается одной константой DEFAULT (раз за визит, sessionStorage).
+    Чистый CSS + 30 строк скрипта; страница под заставкой грузится параллельно; клик – пропустить;
+    «уменьшить движение» – без заставки. */
+const DEFAULT = 0; // 0 – заставка выключена; 1…5 – номер варианта для всех посетителей
+---
+
+<script is:inline define:vars={{ DEFAULT }}>
+  (function () {
+    var q = +new URLSearchParams(location.search).get('intro');
+    var seen = false;
+    try {
+      seen = sessionStorage.getItem('ak_intro') === '1';
+    } catch (e) {}
+    var n = q >= 1 && q <= 5 ? q : DEFAULT && !seen ? DEFAULT : 0;
+    if (!n || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    document.documentElement.classList.add('pl-on', 'pl-' + n);
+    try {
+      sessionStorage.setItem('ak_intro', '1');
+    } catch (e) {}
+  })();
+</script>
+
+<div class="pl" aria-hidden="true" data-pl>
+  <div class="pl__scan"></div>
+  <canvas class="pl__noise" width="160" height="90" data-pl-noise></canvas>
+  <div class="pl__stage">
+    <div class="pl__logo"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <p class="pl__word" data-text="ALEX KROWN">ALEX KROWN</p>
+    <p class="pl__slogan" data-pl-slogan>I AM YOUR IDOL</p>
+  </div>
+  <div class="pl__flash">
+    <span>NO RULES</span><span>I AM YOUR IDOL</span><span>Я ТВОЯ РЕЛИГИЯ</span><span>ALEX KROWN</span><span>NO RULES</span>
+  </div>
+</div>
+
+<script is:inline>
+  (function () {
+    var root = document.documentElement;
+    if (!root.classList.contains('pl-on')) return;
+    var pl = document.querySelector('[data-pl]');
+    var done = function () {
+      root.classList.add('pl-out');
+      setTimeout(function () {
+        root.classList.remove('pl-on', 'pl-out', 'pl-1', 'pl-2', 'pl-3', 'pl-4', 'pl-5');
+      }, 520);
+    };
+    pl.addEventListener('click', done);
+    if (root.classList.contains('pl-5')) document.querySelector('[data-pl-slogan]').textContent = 'NO RULES';
+    setTimeout(done, 2600);
+    /* шум для варианта 5: маленький холст, растянутый на экран */
+    if (root.classList.contains('pl-5')) {
+      var c = document.querySelector('[data-pl-noise]').getContext('2d');
+      var img = c.createImageData(160, 90);
+      var tick = function () {
+        if (!root.classList.contains('pl-on')) return;
+        for (var i = 0; i < img.data.length; i += 4) {
+          var v = Math.random() * 255;
+          img.data[i] = img.data[i + 1] = img.data[i + 2] = v;
+          img.data[i + 3] = 46;
+        }
+        c.putImageData(img, 0, 0);
+        requestAnimationFrame(tick);
+      };
+      tick();
+    }
+    /* перебор знаков в слове – варианты 3 и 4 */
+    if (root.classList.contains('pl-3') || root.classList.contains('pl-4')) {
+      var w = document.querySelector('.pl__word');
+      var target = w.dataset.text;
+      var glyphs = '#%&@!?/<>\\|*+=01ΔΞΨ§';
+      var t0 = performance.now();
+      var scr = function (now) {
+        var k = Math.min(1, (now - t0) / 1500);
+        var fixed = Math.floor(k * target.length);
+        w.textContent = target
+          .split('')
+          .map(function (ch, i) {
+            return i < fixed || ch === ' ' ? ch : glyphs[(Math.random() * glyphs.length) | 0];
+          })
+          .join('');
+        if (k < 1) requestAnimationFrame(scr);
+      };
+      requestAnimationFrame(scr);
+    }
+  })();
+</script>
+
+<style is:global>
+  .pl {
+    display: none;
+  }
+  .pl-on .pl {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: grid;
+    place-items: center;
+    background: #0a0a0a;
+    color: #f4f4f2;
+    cursor: pointer;
+    overflow: hidden;
+  }
+  .pl-on {
+    overflow: hidden;
+  }
+  .pl-out .pl {
+    animation: pl-out 0.5s cubic-bezier(0.7, 0, 0.3, 1) forwards;
+  }
+  @keyframes pl-out {
+    to {
+      clip-path: inset(0 0 100% 0);
+    }
+  }
+  .pl__stage {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: 18px;
+  }
+  .pl__logo {
+    position: relative;
+    width: clamp(84px, 12vw, 140px);
+    aspect-ratio: 72 / 81;
+  }
+  /* логотип из 6 горизонтальных полос – каждая может «рваться» отдельно */
+  .pl__logo i {
+    position: absolute;
+    inset: 0;
+    background: currentColor;
+    -webkit-mask: var(--logo) center / contain no-repeat;
+    mask: var(--logo) center / contain no-repeat;
+  }
+  .pl__logo i:nth-child(1) { clip-path: inset(0 0 83% 0); }
+  .pl__logo i:nth-child(2) { clip-path: inset(17% 0 66% 0); }
+  .pl__logo i:nth-child(3) { clip-path: inset(34% 0 49% 0); }
+  .pl__logo i:nth-child(4) { clip-path: inset(51% 0 32% 0); }
+  .pl__logo i:nth-child(5) { clip-path: inset(68% 0 15% 0); }
+  .pl__logo i:nth-child(6) { clip-path: inset(85% 0 0 0); }
+  .pl__word {
+    font: 400 clamp(26px, 4vw, 44px) / 1 'Playfair Display', serif;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+  }
+  .pl__slogan {
+    font: 500 11px/1 'Montserrat Variable', 'Montserrat', Arial, sans-serif;
+    letter-spacing: 0.4em;
+    color: #9a9a96;
+  }
+  .pl__scan,
+  .pl__noise,
+  .pl__flash {
+    display: none;
+  }
+
+  /* ---------- 1. Сбой сигнала: RGB-сдвиг и рывки полос ---------- */
+  .pl-1 .pl__logo {
+    filter: drop-shadow(-4px 0 0 rgba(255, 42, 77, 0.85)) drop-shadow(4px 0 0 rgba(34, 227, 255, 0.85));
+    animation: pl1-rgb 2.2s steps(1) forwards;
+  }
+  .pl-1 .pl__logo i:nth-child(odd) { animation: pl1-l 0.18s steps(2) 8; }
+  .pl-1 .pl__logo i:nth-child(even) { animation: pl1-r 0.22s steps(2) 7; }
+  .pl-1 .pl__word { animation: pl1-word 2.2s steps(1) forwards; }
+  @keyframes pl1-l { 50% { transform: translateX(-10px); } }
+  @keyframes pl1-r { 50% { transform: translateX(12px); } }
+  @keyframes pl1-rgb {
+    0% { opacity: 0; }
+    6% { opacity: 1; transform: translate(3px, -2px) skewX(-8deg); }
+    18% { transform: translate(-4px, 1px) skewX(6deg); }
+    30% { transform: none; }
+    44% { transform: translate(6px, 0) scaleY(1.1); }
+    52%, 100% { transform: none; filter: none; }
+  }
+  @keyframes pl1-word {
+    0%, 30% { opacity: 0; }
+    32% { opacity: 1; transform: translateX(-8px); text-shadow: 3px 0 #ff2a4d, -3px 0 #22e3ff; }
+    36% { transform: translateX(6px); }
+    40%, 100% { opacity: 1; transform: none; text-shadow: none; }
+  }
+
+  /* ---------- 2. ЭЛТ: включение старого экрана, строки развёртки, слоган печатается ---------- */
+  .pl-2 .pl__scan {
+    display: block;
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.05) 0 1px, transparent 1px 3px);
+    animation: pl2-roll 0.6s linear infinite;
+    pointer-events: none;
+  }
+  @keyframes pl2-roll { to { background-position: 0 6px; } }
+  .pl-2 .pl__stage { animation: pl2-on 2.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+  @keyframes pl2-on {
+    0% { transform: scale(1.6, 0.004); filter: brightness(4); opacity: 0; }
+    10% { transform: scale(1.4, 0.006); opacity: 1; }
+    22% { transform: scale(1, 1); filter: brightness(1.6); }
+    26% { opacity: 0.4; }
+    28% { opacity: 1; }
+    33% { opacity: 0.6; }
+    35%, 82% { opacity: 1; filter: none; transform: none; }
+    92% { transform: scale(1.2, 0.004); filter: brightness(4); }
+    100% { transform: scale(0, 0.004); opacity: 0; }
+  }
+  .pl-2 .pl__slogan {
+    overflow: hidden;
+    white-space: nowrap;
+    width: 15ch;
+    animation: pl2-type 1s steps(15) 0.7s both;
+    color: #f4f4f2;
+  }
+  @keyframes pl2-type { from { width: 0; } }
+
+  /* ---------- 3. Слоганы-вспышки: слова мелькают кадрами, затем логотип и сборка надписи ---------- */
+  .pl-3 .pl__flash {
+    display: block;
+    position: absolute;
+    inset: 0;
+  }
+  .pl-3 .pl__flash span {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font: 400 clamp(44px, 11vw, 170px) / 1 'Playfair Display', serif;
+    white-space: nowrap;
+    opacity: 0;
+    animation: pl3-flash 0.16s steps(1) both;
+  }
+  .pl-3 .pl__flash span:nth-child(1) { animation-delay: 0s; }
+  .pl-3 .pl__flash span:nth-child(2) { animation-delay: 0.16s; font-style: italic; color: transparent; -webkit-text-stroke: 1px #f4f4f2; }
+  .pl-3 .pl__flash span:nth-child(3) { animation-delay: 0.32s; background: #f4f4f2; color: #0a0a0a; }
+  .pl-3 .pl__flash span:nth-child(4) { animation-delay: 0.48s; transform: skewX(-12deg); }
+  .pl-3 .pl__flash span:nth-child(5) { animation-delay: 0.64s; background: #f4f4f2; color: #0a0a0a; }
+  @keyframes pl3-flash {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  .pl-3 .pl__stage { animation: pl3-in 2.2s steps(1) both; }
+  @keyframes pl3-in {
+    0%, 36% { opacity: 0; }
+    37% { opacity: 1; transform: translate(-6px, 3px); }
+    40% { transform: translate(5px, -2px); }
+    43%, 100% { opacity: 1; transform: none; }
+  }
+
+  /* ---------- 4. Разрыв: полосы логотипа разлетаются и собираются, надпись перебирает знаки ---------- */
+  .pl-4 .pl__logo i { animation: pl4-tear 1.4s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+  .pl-4 .pl__logo i:nth-child(1) { --x: -60px; }
+  .pl-4 .pl__logo i:nth-child(2) { --x: 90px; animation-delay: 0.05s; }
+  .pl-4 .pl__logo i:nth-child(3) { --x: -120px; animation-delay: 0.1s; }
+  .pl-4 .pl__logo i:nth-child(4) { --x: 70px; animation-delay: 0.15s; }
+  .pl-4 .pl__logo i:nth-child(5) { --x: -40px; animation-delay: 0.2s; }
+  .pl-4 .pl__logo i:nth-child(6) { --x: 110px; animation-delay: 0.25s; }
+  @keyframes pl4-tear {
+    0% { transform: translateX(var(--x)); opacity: 0; }
+    30% { transform: translateX(calc(var(--x) * -0.4)); opacity: 1; }
+    55% { transform: translateX(calc(var(--x) * 0.15)); }
+    70%, 100% { transform: none; }
+  }
+  .pl-4 .pl__word { font-family: 'Montserrat Variable', 'Montserrat', monospace; font-weight: 600; letter-spacing: 0.3em; font-size: clamp(18px, 2.6vw, 28px); }
+  .pl-4 .pl { background: linear-gradient(180deg, #0a0a0a 0 49.6%, #1a1a1a 49.6% 50.4%, #0a0a0a 50.4%); }
+  .pl-4.pl-out .pl { animation: pl4-out 0.5s cubic-bezier(0.7, 0, 0.3, 1) forwards; }
+  @keyframes pl4-out { to { clip-path: inset(50% 0 50% 0); } }
+
+  /* ---------- 5. Шум эфира: статика, инверсия, штамп NO RULES ---------- */
+  .pl-5 .pl__noise {
+    display: block;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    image-rendering: pixelated;
+  }
+  .pl-5 .pl__stage { animation: pl5-blink 2.2s steps(1) both; }
+  @keyframes pl5-blink {
+    0% { opacity: 0; }
+    8% { opacity: 1; filter: invert(1); }
+    12% { filter: none; }
+    20% { opacity: 0; }
+    24% { opacity: 1; transform: translateX(-10px); }
+    27% { transform: none; }
+    60% { filter: none; }
+    62% { filter: invert(1); transform: scale(1.04); }
+    64%, 100% { filter: none; transform: none; opacity: 1; }
+  }
+  .pl-5 .pl__slogan {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    padding: 14px 22px 12px;
+    border: 3px solid #ff2a4d;
+    color: #ff2a4d;
+    font: 700 clamp(26px, 4vw, 44px) / 1 'Montserrat Variable', 'Montserrat', Arial, sans-serif;
+    letter-spacing: 0.18em;
+    white-space: nowrap;
+    background: rgba(10, 10, 10, 0.55);
+    transform: translate(-50%, 70%) rotate(-8deg);
+    animation: pl5-stamp 0.3s cubic-bezier(0.2, 1.6, 0.4, 1) 1.15s both;
+  }
+  .pl-5 .pl__slogan::after { content: ''; }
+  @keyframes pl5-stamp {
+    from { opacity: 0; transform: translate(-50%, 70%) rotate(-8deg) scale(2.4); }
+  }
+  .pl-5.pl-out .pl { animation: pl5-out 0.5s steps(4) forwards; }
+  @keyframes pl5-out {
+    25% { filter: invert(1); }
+    50% { filter: none; opacity: 0.6; }
+    to { opacity: 0; }
+  }
+</style>

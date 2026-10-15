@@ -10,6 +10,7 @@ import '../styles/home.css';
 import '../styles/home-blocks.css';
 import '../styles/v1.css';
 import Sheets from '../v1/islands/Sheets';
+import Preloader from '../v1/Preloader.astro';
 import { v1, asset, MENU, FOOTER, SOCIAL } from '../v1/site';
 
 interface Props {
@@ -63,6 +64,8 @@ const org = {
     <script type="application/ld+json" set:html={JSON.stringify(path === '' ? [org, ...ld] : ld)} />
   </head>
   <body style={`--logo:url(${asset('concepts/img/logo.svg')})`}>
+    {/* заставка-глитч – только на главной: варианты по ?intro=1…5 (см. v1/Preloader.astro) */}
+    {hero && <Preloader />}
     <header class:list={['hd', { 'is-solid': !hero }]} data-hd data-hero-page={hero ? '' : undefined}>
       <nav>
         <a href={v1('catalog/man')}>Мужское</a>
