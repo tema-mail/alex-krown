@@ -74,6 +74,13 @@ const caps = [
   [['Лосины', 8900, '/catalog/woman/tproduct/634469130762-losini'], ['Куртка-жакет', 15500, '/catalog/man/tproduct/550765990892-dzhoggeri-white-man-uteplennie']],
   [['Майка «Geometry black»', 5500, '/catalog/man/tproduct/841640507702-maika-geometry-black'], ['Шорты «Geometry black»', 6500, '/catalog/man/tproduct/424007587352-shorti-geometry-black']],
 ] as const;
+/* «Новая коллекция»: костюм Cardiogram Black – цены и размеры с сайта (по 6 900 ₽, S–XXL),
+   видео – клипы VK бренда (scripts/collection-media.mjs). У худи на сайте нет фото – кадр из клипа. */
+const hv = (n: string) => `${base}/home/video/${n}`;
+const collection = [
+  { title: 'Худи “Cardiogram Black”', price: 6900, url: '/catalog/man/tproduct/238837028463-hudi-cardiogram-black', photo: 'cardiogram-hoodie-photo', video: 'cardiogram-hoodie.mp4' },
+  { title: 'Джоггеры “Cardiogram Black”', price: 6900, url: '/catalog/man/tproduct/766491981613-dzhoggeri-cardiogram-black', photo: 'cardiogram-joggers-photo', video: 'cardiogram-joggers.mp4' },
+];
 const reel = [
   ['campaign-white-suit', 'Девушка в белом худи ALEX KROWN с капюшоном'],
   ['milan-mfw2025-street', 'Модель ALEX KROWN у площадки Milan Fashion Week 2025'],
@@ -139,6 +146,37 @@ const reel = [
           <div class="hero__cta">
             <a class="btn btn--solid" href={u('/catalog/man')}>Мужское</a>
             <a class="btn" href={u('/catalog/woman')}>Женское</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="wrap nc" aria-labelledby="nc-title">
+        <div class="nc__media">
+          <figure class="nc__film">
+            <img data-src={hv('cardiogram-street.webp')} width="720" height="1280" alt="Мужчина в костюме Cardiogram Black идёт по улице" decoding="async" />
+            <video data-film={hv('cardiogram-street.mp4')} muted loop playsinline preload="none" aria-hidden="true"></video>
+          </figure>
+          <figure class="nc__film nc__film--2">
+            <img data-src={hv('cardiogram-mirror.webp')} width="480" height="854" alt="Костюм Cardiogram Black, съёмка в зеркало" decoding="async" />
+            <video data-film={hv('cardiogram-mirror.mp4')} muted loop playsinline preload="none" aria-hidden="true"></video>
+          </figure>
+        </div>
+        <div class="nc__info" data-reveal>
+          <p class="label">Новая коллекция</p>
+          <h2 class="h2" id="nc-title">Cardiogram Black</h2>
+          <p class="nc__text">Костюм из худи и джоггеров с белой строчкой-кардиограммой. Размеры S–XXL.</p>
+          <div class="nc__cards">
+            {
+              collection.map((p) => (
+                <a class="prod" href={u(p.url)}>
+                  <div class="prod__img" data-hover-video={hv(p.video)}>
+                    <img class="bw" {...pic(p.photo, '(max-width: 760px) 46vw, 20vw')} alt={p.title} />
+                  </div>
+                  <p class="prod__name">{p.title}</p>
+                  <p class="prod__price">{rub(p.price)}</p>
+                </a>
+              ))
+            }
           </div>
         </div>
       </section>
@@ -354,7 +392,7 @@ const reel = [
           es.forEach((e) => {
             if (!e.isIntersecting) return;
             const im = e.target as HTMLImageElement;
-            im.srcset = im.dataset.srcset!;
+            if (im.dataset.srcset) im.srcset = im.dataset.srcset;
             im.src = im.dataset.src!;
             lio.unobserve(im);
           }),
@@ -393,6 +431,74 @@ const reel = [
           favCount.textContent = `Избранное ${document.querySelectorAll('[data-fav][aria-pressed="true"]').length}`;
         }),
       );
+
+      /* видео в карточках товара (data-hover-video): файл не качается, пока не нужен.
+         Мышь – играет при наведении; телефон – когда карточка почти целиком на экране.
+         При «уменьшить движение» и режиме экономии трафика видео не включаются. */
+      const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
+      const hoverable = matchMedia('(hover: hover) and (pointer: fine)').matches;
+      const cardVideo = (box: HTMLElement) => {
+        let v = box.querySelector('video');
+        if (!v) {
+          v = Object.assign(document.createElement('video'), { muted: true, loop: true, playsInline: true, preload: 'auto' });
+          v.setAttribute('aria-hidden', 'true');
+          v.src = box.dataset.hoverVideo!;
+          v.addEventListener('playing', () => v!.classList.add('is-on'));
+          box.append(v);
+        }
+        return v;
+      };
+      const cards = document.querySelectorAll<HTMLElement>('[data-hover-video]');
+      if (!still && !saveData) {
+        if (hoverable)
+          cards.forEach((box) => {
+            box.addEventListener('pointerenter', () => cardVideo(box).play().catch(() => {}));
+            box.addEventListener('pointerleave', () => {
+              const v = box.querySelector('video');
+              if (v) (v.pause(), v.classList.remove('is-on'));
+            });
+          });
+        else {
+          const cio = new IntersectionObserver(
+            (es) =>
+              es.forEach((e) => {
+                const box = e.target as HTMLElement;
+                /* порог 0.7 срабатывает и при входе, и при выходе – смотрим на долю на экране */
+                if (e.isIntersecting && e.intersectionRatio >= 0.7) cardVideo(box).play().catch(() => {});
+                else box.querySelector('video')?.pause();
+              }),
+            { threshold: 0.7 },
+          );
+          cards.forEach((box) => cio.observe(box));
+        }
+      }
+
+      /* большие видео блока «Новая коллекция»: адрес – за 200 px до экрана, играют только на экране */
+      const fload = new IntersectionObserver(
+        (es) =>
+          es.forEach((e) => {
+            if (!e.isIntersecting) return;
+            const v = e.target as HTMLVideoElement;
+            v.src = v.dataset.film!;
+            v.addEventListener('playing', () => v.classList.add('is-on'), { once: true });
+            fload.unobserve(v);
+            fplay.observe(v);
+          }),
+        { rootMargin: '200px 0px' },
+      );
+      const fplay = new IntersectionObserver((es) =>
+        es.forEach((e) => {
+          const v = e.target as HTMLVideoElement;
+          if (e.isIntersecting) v.play().catch(() => {});
+          else v.pause();
+        }),
+      );
+      /* наблюдение – после загрузки страницы, чтобы видео не отнимали канал у первого экрана */
+      const watchFilms = () => document.querySelectorAll('[data-film]').forEach((v) => fload.observe(v));
+      if (!still && !saveData) {
+        if (document.readyState === 'complete') idle(watchFilms);
+        else addEventListener('load', () => idle(watchFilms), { once: true });
+      }
 
       /* капсулы Total look */
       const caps = [...document.querySelectorAll<HTMLElement>('[data-cap]')];
