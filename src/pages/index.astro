@@ -1,0 +1,48 @@
+---
+/** Корень показа: версии сайта ALEX KROWN. Копия Тильды в публичную сборку не входит (TILDA_COPY=0). */
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const items = [
+  ['Вариант 1', 'Интернет-магазин на коде: главная «Подиум» с видео, каталог, карточки, избранное, корзина, заказ, фиды для рекламы.', '/v1/', 'concepts/img/prev-1.webp'],
+  ['Концепты главного экрана', 'Четыре концепта первого экрана: Подиум, Кадр, Крест, Плёнка.', '/concepts/', 'concepts/img/prev-3.webp'],
+];
+---
+
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>ALEX KROWN – версии сайта</title>
+    <link rel="icon" href={`${base}/concepts/img/logo.svg`} />
+  </head>
+  <body>
+    <main>
+      <h1>ALEX KROWN</h1>
+      <p class="lead">Версии сайта на коде. Каждая следующая версия строится из предыдущей.</p>
+      <div class="list">
+        {
+          items.map(([t, d, h, im]) => (
+            <a class="card" href={`${base}${h}`}>
+              <img src={`${base}/${im}`} alt="" width="960" height="600" loading="lazy" />
+              <h2>{t}</h2>
+              <p>{d}</p>
+            </a>
+          ))
+        }
+      </div>
+    </main>
+  </body>
+</html>
+
+<style>
+  body { margin: 0; background: #0d0d0d; color: #f4f4f2; font-family: Arial, sans-serif; }
+  main { max-width: 1200px; margin: 0 auto; padding: clamp(24px, 6vw, 72px) 16px; }
+  h1 { font: 400 clamp(44px, 8vw, 110px) / 1 Georgia, 'Times New Roman', serif; margin: 0; }
+  .lead { color: #a8a8a5; margin: 14px 0 36px; }
+  .list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+  .card { color: inherit; text-decoration: none; }
+  .card img { width: 100%; height: auto; border-radius: 4px; display: block; }
+  h2 { font: 400 26px/1.2 Georgia, serif; margin: 16px 0 6px; }
+  .card p { color: #a8a8a5; font-size: 14px; line-height: 1.55; margin: 0; }
+  @media (max-width: 720px) { .list { grid-template-columns: 1fr; } }
+</style>
