@@ -63,6 +63,8 @@ for (const [key, file] of Object.entries(index)) {
 
 /* ---------- товары ---------- */
 const gallery = (p) => (typeof p.gallery === 'string' ? JSON.parse(p.gallery || '[]') : p.gallery || []).map((g) => g.img).filter(Boolean);
+/* размеры набраны вперемешку кириллицей («М») – приводим к латинице для фидов и корзины */
+const latinSize = (s) => String(s).trim().replace(/[МмХхСс]/g, (c) => ({ М: 'M', м: 'M', Х: 'X', х: 'X', С: 'C', с: 'C' })[c]);
 const charc = (p, name) => (p.characteristics || []).find((c) => c.title === name)?.value || '';
 
 function tabs(body) {
@@ -92,7 +94,7 @@ for (const [uid, p] of products) {
     title: decode(p.title).trim(),
     price: num(first.price) || num(p.price),
     priceOld: num(first.priceold) || num(p.priceold) || null,
-    sizes: eds.filter((e) => e['Размер']).map((e) => ({ size: e['Размер'], price: num(e.price) || num(p.price), priceOld: num(e.priceold) || null })),
+    sizes: eds.filter((e) => e['Размер']).map((e) => ({ size: latinSize(e['Размер']), price: num(e.price) || num(p.price), priceOld: num(e.priceold) || null })),
     kind: charc(p, 'Вид товара'),
     color: charc(p, 'Цвет'),
     descr: descr.replace(/\n{2,}/g, '\n').trim(),
@@ -201,6 +203,10 @@ if (!NO_PHOTOS) {
     }),
   );
   for (const it of items) it.photos = it.photos.filter(Boolean);
+  /* у худи Cardiogram Black на сайте нет фото – кадр из клипа VK бренда (scripts/collection-media.mjs) */
+  const FALLBACK = { '238837028463': 'public/home/video/cardiogram-hoodie.webp' };
+  for (const it of items)
+    if (!it.photos.length && FALLBACK[it.uid] && existsSync(join(ROOT, FALLBACK[it.uid]))) it.photos = [await photo(join(ROOT, FALLBACK[it.uid]), `${it.uid}-1`)];
   console.log(`фото: ${jobs.length}, ошибок ${failed}`);
   /* таблицы размеров – из перенесённых файлов public/_t */
   const charts = new Map();
@@ -212,6 +218,11 @@ if (!NO_PHOTOS) {
     }
     it.sizeChart = charts.get(it.sizeChart);
   }
+}
+/* --no-photos: фото и таблицы размеров – из прошлого запуска, чтобы не затереть их пустыми */
+if (NO_PHOTOS && existsSync(join(OUT, 'products.json'))) {
+  const prev = new Map(JSON.parse(readFileSync(join(OUT, 'products.json'), 'utf8')).map((x) => [x.uid, x]));
+  for (const it of items) Object.assign(it, { photos: prev.get(it.uid)?.photos ?? [], sizeChart: prev.get(it.uid)?.sizeChart ?? null });
 }
 for (const it of items) delete it.src;
 
