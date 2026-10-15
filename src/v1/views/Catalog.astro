@@ -1,0 +1,75 @@
+---
+/** Страница раздела: крошки, H1 и вводный текст с оригинала, подразделы чипами, сортировка, сетка
+    (2 карточки в ряд на телефоне). SEO: title/description оригинала, BreadcrumbList, ItemList. */
+import V1 from '../../layouts/V1.astro';
+import ProductCard from '../ProductCard.astro';
+import { v1, byUid, sections, subsOf, sectionName, MENU, type Section } from '../site';
+
+interface Props { s: Section }
+const { s } = Astro.props;
+const list = s.uids.map((u) => byUid.get(u)!).filter(Boolean);
+const parentPath = s.path.split('/').slice(0, -1).join('/');
+const parent = parentPath && parentPath !== 'catalog' ? sections.find((x) => x.path === parentPath) : undefined;
+const isTop = s.path === 'catalog';
+/* чипы: у корня каталога – все разделы меню; у мужского/женского – их подразделы; у подраздела – соседи */
+const chips: [string, string][] = isTop
+  ? MENU.map(([t, p]) => [t, p])
+  : subsOf(s.path).length
+    ? [['Все', s.path], ...subsOf(s.path).map((x) => [sectionName(x), x.path] as [string, string])]
+    : parent
+      ? [['Все', parent.path], ...subsOf(parent.path).map((x) => [sectionName(x), x.path] as [string, string])]
+      : [];
+const crumbs: [string, string][] = [['Главная', ''], ...(isTop ? [] : ([['Каталог', 'catalog']] as [string, string][])), ...(parent ? ([[sectionName(parent), parent.path]] as [string, string][]) : []), [sectionName(s), s.path]];
+const abs = (p: string) => new URL(v1(p), Astro.site).href;
+const ld = [
+  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: crumbs.map(([n, p], i) => ({ '@type': 'ListItem', position: i + 1, name: n, item: abs(p) })) },
+  {
+    '@context': 'https://schema.org', '@type': 'ItemList', name: s.h1, numberOfItems: list.length,
+    itemListElement: list.map((p, i) => ({ '@type': 'ListItem', position: i + 1, url: abs(p.path), name: p.title })),
+  },
+];
+const cover = list[0]?.photos[0];
+---
+
+<V1 title={s.title || `${s.h1} – купить онлайн`} description={s.description || s.h1} path={s.path} ld={ld} image={cover ? `${import.meta.env.BASE_URL.replace(/\/$/, '')}/v1/img/${cover.name}.webp` : undefined}>
+  <main class="page">
+    <nav aria-label="Хлебные крошки">
+      <ol class="crumbs">{crumbs.map(([n, p], i) => <li>{i < crumbs.length - 1 ? <a href={v1(p)}>{n}</a> : <span aria-current="page">{n}</span>}</li>)}</ol>
+    </nav>
+    <header class="cat-head">
+      <h1>{s.h1}</h1>
+      {s.description && <p>{s.description}</p>}
+      {
+        chips.length > 0 && (
+          <nav class="chips chips--scroll" aria-label="Подразделы">
+            {chips.map(([t, p]) => (
+              <a class="chip" href={v1(p)} aria-current={p === s.path ? 'page' : undefined}>{t}</a>
+            ))}
+          </nav>
+        )
+      }
+    </header>
+    <div class="cat-bar">
+      <span>{list.length} {list.length % 10 === 1 && list.length % 100 !== 11 ? 'товар' : [2, 3, 4].includes(list.length % 10) && ![12, 13, 14].includes(list.length % 100) ? 'товара' : 'товаров'}</span>
+      <label>Сортировка <select data-sort aria-label="Сортировка">
+        <option value="">как в магазине</option>
+        <option value="asc">сначала дешевле</option>
+        <option value="desc">сначала дороже</option>
+      </select></label>
+    </div>
+    <div class="grid" data-grid>
+      {list.map((p, i) => <div data-price={p.price} data-i={i}><ProductCard p={p} eager={i < 4} first={i === 0} level="h2" /></div>)}
+    </div>
+  </main>
+</V1>
+
+<script>
+  /* сортировка без перезагрузки: переставляем готовые карточки */
+  const sel = document.querySelector<HTMLSelectElement>('[data-sort]');
+  const grid = document.querySelector<HTMLElement>('[data-grid]');
+  sel?.addEventListener('change', () => {
+    const items = [...grid!.children] as HTMLElement[];
+    const key = (el: HTMLElement) => (sel.value ? +el.dataset.price! * (sel.value === 'asc' ? 1 : -1) : +el.dataset.i!);
+    items.sort((a, b) => key(a) - key(b)).forEach((el) => grid!.append(el));
+  });
+</script>

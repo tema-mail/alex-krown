@@ -1,0 +1,44 @@
+---
+/** Текстовые страницы (о бренде, контакты, доставка, возврат, уход, размеры, документы): текст оригинала.
+    Контакты – из констант сайта ссылками; размерная сетка – таблицы размеров товаров картинками. */
+import V1 from '../../layouts/V1.astro';
+import { v1, img, products, PHONE, PHONE_DIGITS, EMAIL, ADDRESS, SOCIAL, type InfoPage, type Photo } from '../site';
+
+interface Props { pg: InfoPage }
+const { pg } = Astro.props;
+/* в текст страниц Тильды попадают подписи блока бонусов – это не текст страницы */
+const JUNK = /^(Программа лояльности|Наборы со скидкой|подарочные сертификаты|Бонусы|Мы в соцсетях|ALEX KROWN)$/i;
+const paras = pg.paras.filter((t) => !JUNK.test(t));
+const h1 = pg.h1 || pg.title.replace(/\s*[|–-].*$/, '') || 'ALEX KROWN';
+const charts: Photo[] = pg.path === 'size_chart' ? [...new Map(products.filter((p) => p.sizeChart).map((p) => [p.sizeChart!.name, p.sizeChart!])).values()] : [];
+const ld = [
+  {
+    '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+    itemListElement: [['Главная', ''], [h1, pg.path]].map(([n, p], i) => ({ '@type': 'ListItem', position: i + 1, name: n, item: new URL(v1(p), Astro.site).href })),
+  },
+];
+---
+
+<V1 title={pg.title || `${h1} | ALEX KROWN`} description={pg.description || h1} path={pg.path} ld={ld}>
+  <main class="page">
+    <nav aria-label="Хлебные крошки">
+      <ol class="crumbs"><li><a href={v1('')}>Главная</a></li><li><span aria-current="page">{h1}</span></li></ol>
+    </nav>
+    <article class="prose">
+      <h1>{h1}</h1>
+      {
+        pg.path === 'contacts' ? (
+          <>
+            <p>Мы находимся по адресу: {ADDRESS}</p>
+            <p>Для вопросов и предложений: <a href={`tel:+${PHONE_DIGITS}`}>{PHONE}</a>, <a href={`mailto:${EMAIL}`}>{EMAIL}</a></p>
+            <p>{SOCIAL.map(([t, h], i) => <>{i > 0 && ' · '}<a href={h} target="_blank" rel="noopener">{t}</a></>)}</p>
+          </>
+        ) : charts.length ? (
+          charts.map((c) => <img data-src={img(c.name)} width={c.w} height={c.h} alt="Таблица размеров ALEX KROWN" loading="lazy" />)
+        ) : (
+          paras.map((t) => <p>{t}</p>)
+        )
+      }
+    </article>
+  </main>
+</V1>
