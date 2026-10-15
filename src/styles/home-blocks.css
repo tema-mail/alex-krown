@@ -1,5 +1,5 @@
 /* Блоки новой главной ниже товаров: слово бренда и акция, подкатегории, о бренде,
-   капсулы Total look, бонусы, галерея, подвал. Токены и адаптив – в home.css. */
+   капсулы Total look, бонусы, галерея, подвал. Токены – в home.css, адаптив обоих файлов – в конце этого. */
 /* ---------- слово бренда и акция ---------- */
 .brand {
   text-align: center;
@@ -311,7 +311,7 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
-.ft h4 {
+.ft__h {
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.2em;
@@ -341,3 +341,94 @@
   margin-bottom: -0.14em;
 }
 
+/* правила для телефона – в конце, после всех блоков обоих файлов, иначе их перебивают */
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 32px 10px;
+  }
+  .subs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .promo {
+    grid-template-columns: 1fr;
+  }
+  .promo img {
+    max-height: 340px;
+  }
+  .ft__top {
+    grid-template-columns: 1fr 1fr;
+  }
+  .menu {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 760px) {
+  .hd {
+    grid-template-columns: auto 1fr;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+  }
+  .hd > nav:first-child,
+  .hd__hide {
+    display: none;
+  }
+  .col:not(.col--main) {
+    display: none;
+  }
+  .hero__word {
+    top: 44%;
+  }
+  .hero__copy {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .cats {
+    grid-template-columns: 1fr;
+  }
+  .cat {
+    min-height: 250px;
+    padding: 24px 20px;
+  }
+  .cat h3 {
+    font-size: 21px;
+    letter-spacing: 0.08em;
+    max-width: 9ch;
+  }
+  .cat p {
+    max-width: 52%;
+    font-size: 12px;
+  }
+  .cat img {
+    width: 46%;
+    height: 92%;
+  }
+  .brand__word,
+  .ft__word {
+    font-size: 14.2vw;
+  }
+  .hero__word {
+    font-size: 14.2vw;
+  }
+  .cap,
+  .cap.is-active {
+    grid-template-columns: 1fr;
+  }
+  .bonus {
+    grid-template-columns: 1fr;
+  }
+  .perks {
+    grid-template-columns: 1fr;
+  }
+  .perk + .perk {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+    margin-top: 24px;
+  }
+  .gallery__track figure {
+    flex-basis: 86vw;
+  }
+  .ft__top {
+    grid-template-columns: 1fr;
+  }
+}

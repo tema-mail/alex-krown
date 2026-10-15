@@ -6,6 +6,6 @@ export default defineConfig({
   site: 'https://tema-mail.github.io',
   base: process.env.PUBLIC_BASE || '/',
   trailingSlash: 'ignore',
-  build: { format: 'directory', inlineStylesheets: 'never' },
+  build: { format: 'directory', inlineStylesheets: 'always' },
   devToolbar: { enabled: false },
 });
