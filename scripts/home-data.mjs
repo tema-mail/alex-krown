@@ -29,9 +29,16 @@ const list = JSON.parse(readFileSync(join(ROOT, 'src/data/store', index[key] + '
 const unescape = (s) => s.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#039;/g, "'");
 const num = (s) => Math.round(parseFloat(String(s || '').replace(/\s/g, '')) || 0);
 
+/* размеры картинок для width/height и srcset: имя → [ширина, высота] */
+const sizes = {};
+/* полная версия <имя>.webp и вдвое меньшая <имя>-s.webp для телефона */
 async function save(input, name, width) {
   const out = join(OUT, name + '.webp');
   if (!existsSync(out)) await sharp(input).resize({ width, withoutEnlargement: true }).webp({ quality: 80 }).toFile(out);
+  const { width: w, height: h } = await sharp(out).metadata();
+  const small = join(OUT, name + '-s.webp');
+  if (!existsSync(small)) await sharp(out).resize({ width: Math.max(320, Math.round(w / 2)) }).webp({ quality: 78 }).toFile(small);
+  sizes[name] = [w, h];
   return name;
 }
 
@@ -106,5 +113,10 @@ const GALLERY = [
 for (const [name, [file, w]] of Object.entries(STATIC)) await save(join(T, file), name, w);
 for (const [i, file] of GALLERY.entries()) await save(join(T, file), `gal-${i + 1}`, 1400);
 
-writeFileSync(join(ROOT, 'src/data/home.json'), JSON.stringify({ products, gallery: GALLERY.length }, null, 1));
+/* «Новая коллекция» – Cardiogram Black: фото джоггеров с сайта, у худи на сайте фото нет – кадр из клипа VK
+   (public/home/video/cardiogram-hoodie.webp, scripts/collection-media.mjs) */
+await save(join(T, 'stor6365-3235-4837-a533-646466323365/c0bc16a7a684351843826f7d4ca5e08c.jpg'), 'cardiogram-joggers-photo', 720);
+await save(join(ROOT, 'public/home/video/cardiogram-hoodie.webp'), 'cardiogram-hoodie-photo', 480);
+
+writeFileSync(join(ROOT, 'src/data/home.json'), JSON.stringify({ products, gallery: GALLERY.length, sizes }, null, 1));
 console.log(`товаров: ${products.length}, картинок блоков: ${Object.keys(STATIC).length}, галерея: ${GALLERY.length}`);
