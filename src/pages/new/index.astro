@@ -1,0 +1,377 @@
+---
+/** Новая главная ALEX KROWN в стилистике концепта 1 «Подиум». Блоки, тексты,
+    категории и товары – с главной alex-krown.com; ссылки ведут на перенесённые
+    страницы копии (каталоги и карточки не перерисованы). Товары – src/data/home.json
+    (scripts/home-data.mjs), картинки – public/home/img/. */
+import '../../styles/home.css';
+import '../../styles/home-blocks.css';
+import home from '../../data/home.json';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const u = (p: string) => (p.startsWith('http') ? p : base + p);
+const img = (n: string) => `${base}/home/img/${n}.webp`;
+const vid = (n: string) => `${base}/concepts/video/${n}`;
+const rub = (n: number) => n.toLocaleString('ru-RU').replace(/ /g, ' ') + ' ₽';
+
+const social = [
+  ['Instagram', 'https://instagram.com/alex_krown_'],
+  ['Telegram', 'https://t.me/Alex_Krown'],
+  ['VK', 'https://vk.com/alex_krown'],
+  ['WhatsApp', 'https://api.whatsapp.com/message/XAQLYFCWCUSSA1?autoload=1&app_absent=0'],
+];
+const menu = [
+  ['О компании', '/about'],
+  ['Наборы со скидкой', '/sale'],
+  ['Мужская одежда', '/catalog/man'],
+  ['Женская одежда', '/catalog/woman'],
+  ['Перепрошивка', '/firmware'],
+  ['Аксессуары', '/accessories'],
+  ['Головные уборы', '/hats'],
+  ['Парфюм', '/perfume'],
+  ['Носки', '/socks'],
+];
+const footer = [
+  ['Подробнее', [['О бренде', '/about'], ['Доставка и оплата', '/payment_and_delivery'], ['Контакты', '/contacts']]],
+  ['Данные', [['Пользовательское соглашение', '/processing_of_personal_data'], ['Политика конфиденциальности', '/privatepolicy'], ['Договор оферты', '/offer_agreement']]],
+  ['Помощь', [['Связаться с нами', '/contacts'], ['Рекомендации по уходу', '/recomendation'], ['Подобрать размер', '/size_chart'], ['Обмен и возврат', '/return']]],
+] as const;
+const cats = [
+  ['Мужское', 'Коллекция мужской одежды, которая сочетает в себе открытость и смелость', '/catalog/man', 'cat-man'],
+  ['Женское', 'Уникальная и смелая одежда для харизматичных женщин и девушек', '/catalog/woman', 'cat-woman'],
+  ['Мужская обувь', 'Обувь, которая говорит о вашем характере', '/menshoes', 'cat-menshoes'],
+  ['Женская обувь', 'Создайте свой уникальный образ с нашей обувью', '/womenshoes', 'cat-womenshoes'],
+  ['Перепрошивка', 'Коллаборация Alex Krown и Hara People', '/firmware', 'cat-firmware'],
+  ['Парфюм', 'Ароматы для ярких личностей, которые любят получать удовольствие от жизни', '/perfume', 'cat-perfume'],
+];
+const subs = [
+  ['Мантии', '/catalog/man/robes', 'sub-robes'],
+  ['Футболки', '/catalog/man/t-shirts', 'sub-tshirts'],
+  ['Топы', '/catalog/woman/tops', 'sub-tops'],
+  ['Свитшоты', '/catalog/woman/sweatshirts', 'sub-sweatshirts'],
+];
+/* капсулы «Total look»: ссылки – как на живой главной (у «Куртки-жакета» там ссылка на джоггеры) */
+const caps = [
+  [['Топ «No Rules»', 3400, '/catalog/woman/tproduct/827495152472-top-no-rules'], ['Шорты «No Rules»', 4300, '/catalog/woman/tproduct/761894198242-shorti-no-rules']],
+  [['Утепленный пуловер', 6900, '/catalog/man/tproduct/320757651222-uteplennii-pulover'], ['Брюки White man', 8200, '/catalog/man/tproduct/550765990892-dzhoggeri-white-man-uteplennie']],
+  [['Лосины', 8900, '/catalog/woman/tproduct/634469130762-losini'], ['Куртка-жакет', 15500, '/catalog/man/tproduct/550765990892-dzhoggeri-white-man-uteplennie']],
+  [['Майка «Geometry black»', 5500, '/catalog/man/tproduct/841640507702-maika-geometry-black'], ['Шорты «Geometry black»', 6500, '/catalog/man/tproduct/424007587352-shorti-geometry-black']],
+] as const;
+const reel = [
+  ['campaign-white-suit', 'Девушка в белом худи ALEX KROWN с капюшоном'],
+  ['milan-mfw2025-street', 'Модель ALEX KROWN у площадки Milan Fashion Week 2025'],
+  ['campaign-black-street', 'Мужчина в чёрном худи и джоггерах ALEX KROWN идёт по улице'],
+];
+---
+
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Дизайнерская одежда ALEX KROWN – мужская и женская | Доставка по России</title>
+    <meta name="description" content="Дизайнерская одежда ALEX KROWN для мужчин и женщин: худи, куртки, брюки, платья и аксессуары. Собственное производство, доставка по России и СНГ." />
+    <link rel="icon" href={`${base}/concepts/img/logo.svg`} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;1,400&display=swap" rel="stylesheet" />
+  </head>
+  <body style={`--logo:url(${base}/concepts/img/logo.svg)`}>
+    <header class="hd" data-hd>
+      <nav>
+        <a href={u('/catalog/man')}>Мужское</a>
+        <a href={u('/catalog/woman')}>Женское</a>
+        <a href={u('/about')}>О нас</a>
+      </nav>
+      <a href={u('/new/')} aria-label="ALEX KROWN"><span class="logo"></span></a>
+      <nav class="hd__right">
+        <a href="#" data-fav-count>Избранное 0</a>
+        <a href="#" class="hd__hide">Корзина 0</a>
+        <button type="button" data-menu-open aria-expanded="false" aria-controls="menu">Меню</button>
+      </nav>
+    </header>
+
+    <div class="menu" id="menu" data-menu aria-hidden="true">
+      <button type="button" class="menu__close" data-menu-close>Закрыть</button>
+      <nav class="menu__main">{menu.map(([t, h]) => <a href={u(h)}>{t}</a>)}</nav>
+      <div class="menu__side">
+        <p class="menu__idol">I am your idol</p>
+        <div>
+          <p class="label">Информация</p>
+          <ul style="margin-top:14px">{footer.flatMap(([, l]) => l).map(([t, h]) => <li><a href={u(h)}>{t}</a></li>)}</ul>
+        </div>
+        <div class="ft__social">{social.map(([t, h]) => <a href={h} target="_blank" rel="noopener">{t}</a>)}</div>
+      </div>
+    </div>
+
+    <main>
+      <section class="hero" data-hero>
+        <div class="reel">
+          {
+            reel.map(([n, alt], i) => (
+              <figure class={`col${i === 1 ? ' col--main' : ''}`} style={`--i:${i}`}>
+                <video src={vid(`${n}.mp4`)} poster={vid(`${n}.webp`)} autoplay muted loop playsinline preload={i === 1 ? 'auto' : 'metadata'} aria-label={alt} />
+                {i === 1 && <figcaption>Milan Fashion Week 2025</figcaption>}
+              </figure>
+            ))
+          }
+        </div>
+        <p class="hero__word" aria-hidden="true">ALEX KROWN</p>
+        <div class="hero__copy">
+          <h1>Дизайнерская одежда ALEX KROWN для мужчин и женщин</h1>
+          <div class="hero__cta">
+            <a class="btn btn--solid" href={u('/catalog/man')}>Мужское</a>
+            <a class="btn" href={u('/catalog/woman')}>Женское</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="wrap" id="categories">
+        <div class="cats__head" data-reveal>
+          <span class="label">ALEX KROWN</span>
+          <h2 class="h2">Выберите категорию</h2>
+        </div>
+        <div class="cats">
+          {
+            cats.map(([t, d, h, im]) => (
+              <a class="cat" href={u(h)} data-reveal>
+                <h3>{t}</h3>
+                <p>{d}</p>
+                <span class="btn">Смотреть</span>
+                <img class="bw" src={img(im)} alt="" loading="lazy" />
+              </a>
+            ))
+          }
+        </div>
+      </section>
+
+      <section class="wrap">
+        <div class="shop__head" data-reveal>
+          <h2 class="h2">Уже в продаже</h2>
+          <a href={u('/catalog')}>Весь каталог</a>
+        </div>
+        <div class="grid">
+          {
+            home.products.map((p) => (
+              <article class="prod" data-reveal>
+                <a href={u(p.url)} class="prod__img">
+                  {p.imgs.map((n, i) => (
+                    <img class="bw" src={img(n)} alt={i ? '' : p.title} loading="lazy" />
+                  ))}
+                </a>
+                <button type="button" class="prod__fav" aria-pressed="false" aria-label={`В избранное: ${p.title}`} data-fav>
+                  ♡
+                </button>
+                <a href={u(p.url)}>
+                  <p class="prod__name">{p.title}</p>
+                  <p class="prod__price">
+                    {rub(p.price)}
+                    {p.priceOld && <s>{rub(p.priceOld)}</s>}
+                  </p>
+                </a>
+              </article>
+            ))
+          }
+        </div>
+      </section>
+
+      <section class="wrap brand">
+        <p class="label" data-reveal>Одежда для тех, кто создаёт свои правила</p>
+        <p class="brand__word" aria-hidden="true">ALEX KROWN</p>
+        <a class="promo" href={u('/sale')} data-reveal>
+          <div class="promo__text" style="text-align:left">
+            <p class="label">Онлайн на весь ассортимент</p>
+            <p class="promo__big">−20% на все</p>
+            <span class="btn btn--solid">В каталог</span>
+          </div>
+          <img class="bw" src={img('promo-couple')} alt="Пара в куртках ALEX KROWN" loading="lazy" />
+        </a>
+        <div class="subs">
+          {
+            subs.map(([t, h, im]) => (
+              <a class="sub" href={u(h)} data-reveal>
+                <div class="sub__img">
+                  <img class="bw" src={img(im)} alt="" loading="lazy" />
+                </div>
+                <span>{t}</span>
+              </a>
+            ))
+          }
+        </div>
+      </section>
+
+      <section class="wrap">
+        <p class="about__text" data-reveal>
+          Благодаря умению придавать свежий образ привычным элементам одежды, преданности своим идеям и непрерывному
+          развитию бренд является одним из лидеров отечественного рынка уличной моды.
+        </p>
+        <div class="perks" data-reveal>
+          <p class="perk"><span class="perk__mark">✓</span>Уникальный дизайн</p>
+          <p class="perk"><span class="perk__mark">✓</span>Собственное производство</p>
+          <p class="perk"><span class="perk__mark">✓</span>Доставка по всей России и странам СНГ</p>
+        </div>
+      </section>
+
+      <section class="wrap caps" data-caps>
+        {
+          caps.map((items, i) => (
+            <div class={`cap${i === 0 ? ' is-active' : ''}`} data-cap>
+              <div class="cap__main">
+                <img class="bw" src={img(`cap-${i + 1}`)} alt="Готовый образ ALEX KROWN" loading="lazy" />
+              </div>
+              <div class="cap__side">
+                <p class="label">Готовая капсула</p>
+                <h2 class="h2" style="margin-top:12px">Total look</h2>
+                <div class="cap__nav">
+                  <button type="button" data-cap-prev aria-label="Предыдущая капсула">←</button>
+                  <button type="button" data-cap-next aria-label="Следующая капсула">→</button>
+                  <span class="cap__count" aria-live="polite">{i + 1} / {caps.length}</span>
+                </div>
+                <div class="cap__items">
+                  {items.map(([t, price, h], k) => (
+                    <a class="prod" href={u(h)}>
+                      <div class="prod__img">
+                        <img class="bw" src={img(`cap-${i + 1}${k ? 'b' : 'a'}`)} alt={t} loading="lazy" />
+                      </div>
+                      <p class="prod__name">{t}</p>
+                      <p class="prod__price">{rub(price)}</p>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))
+        }
+      </section>
+
+      <section class="wrap">
+        <div class="bonus">
+          <div class="bonus__card" data-reveal>
+            <div class="bonus__img">
+              <div class="loyal">
+                <img class="bw" src={img('bonus-loyal-card')} alt="Карта лояльности ALEX KROWN" loading="lazy" />
+                <p class="loyal__scale"><span>10%</span><span>20%</span><span>30%</span></p>
+              </div>
+            </div>
+            <span>Программа лояльности</span>
+          </div>
+          <a class="bonus__card" href={u('/sale')} data-reveal>
+            <div class="bonus__img"><img class="bw" src={img('bonus-sets')} alt="Наборы ALEX KROWN" loading="lazy" /></div>
+            <span>Наборы со скидкой</span>
+          </a>
+          <a class="bonus__card" href={u('/catalog/tproduct/958987974882-podarochnii-sertifikat')} data-reveal>
+            <div class="bonus__img"><img class="bw" src={img('bonus-gift-cards')} alt="Подарочные сертификаты ALEX KROWN" loading="lazy" /></div>
+            <span>Подарочные сертификаты</span>
+          </a>
+        </div>
+      </section>
+
+      <section class="gallery" aria-label="Кампания ALEX KROWN">
+        <div class="gallery__track" data-gallery>
+          {
+            Array.from({ length: home.gallery }, (_, i) => (
+              <figure>
+                <img src={img(`gal-${i + 1}`)} alt="Кадр кампании ALEX KROWN" loading="lazy" />
+              </figure>
+            ))
+          }
+        </div>
+        <div class="gallery__nav wrap">
+          <button type="button" data-gal="-1" aria-label="Назад">←</button>
+          <button type="button" data-gal="1" aria-label="Вперёд">→</button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="ft">
+      <div class="ft__top">
+        <div>
+          <a href={u('/new/')} aria-label="ALEX KROWN"><span class="logo" style="width:44px"></span></a>
+          <div class="ft__social">{social.map(([t, h]) => <a href={h} target="_blank" rel="noopener">{t}</a>)}</div>
+          <a class="ft__by" href="https://deford-studio.ru/" target="_blank" rel="noopener">Design by Deford</a>
+        </div>
+        {
+          footer.map(([h, links]) => (
+            <div>
+              <h4>{h}</h4>
+              <ul>{links.map(([t, l]) => <li><a href={u(l)}>{t}</a></li>)}</ul>
+            </div>
+          ))
+        }
+      </div>
+      <p class="ft__word" aria-hidden="true">ALEX KROWN</p>
+    </footer>
+
+    <script>
+      /* шапка: прозрачная над первым экраном, тёмная ниже */
+      const hd = document.querySelector('[data-hd]')!;
+      new IntersectionObserver(([e]) => hd.classList.toggle('is-solid', !e.isIntersecting), { rootMargin: '-80px 0px 0px' }).observe(
+        document.querySelector('[data-hero]')!,
+      );
+
+      /* видео играют только на экране */
+      const vio = new IntersectionObserver((es) =>
+        es.forEach((e) => {
+          const v = e.target as HTMLVideoElement;
+          if (e.isIntersecting && v.offsetParent) v.play().catch(() => {});
+          else v.pause();
+        }),
+      );
+      /* при «уменьшить движение» видео стоят на постере */
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches)
+        document.querySelectorAll<HTMLVideoElement>('.reel video').forEach((v) => (v.removeAttribute('autoplay'), v.pause()));
+      else document.querySelectorAll('.reel video').forEach((v) => vio.observe(v));
+
+      /* появление блоков при прокрутке */
+      const rio = new IntersectionObserver(
+        (es) => es.forEach((e) => e.isIntersecting && (e.target.classList.add('is-in'), rio.unobserve(e.target))),
+        { rootMargin: '0px 0px -8% 0px' },
+      );
+      document.querySelectorAll('[data-reveal]').forEach((el) => rio.observe(el));
+
+      /* меню */
+      const menu = document.querySelector<HTMLElement>('[data-menu]')!;
+      const openBtn = document.querySelector<HTMLElement>('[data-menu-open]')!;
+      const setMenu = (open: boolean) => {
+        menu.classList.toggle('is-open', open);
+        menu.setAttribute('aria-hidden', String(!open));
+        openBtn.setAttribute('aria-expanded', String(open));
+        document.body.style.overflow = open ? 'hidden' : '';
+        (open ? menu.querySelector<HTMLElement>('[data-menu-close]')! : openBtn).focus();
+      };
+      openBtn.addEventListener('click', () => setMenu(true));
+      menu.querySelector('[data-menu-close]')!.addEventListener('click', () => setMenu(false));
+      addEventListener('keydown', (e) => e.key === 'Escape' && menu.classList.contains('is-open') && setMenu(false));
+
+      /* избранное – только на этой странице, счётчик в шапке */
+      const favCount = document.querySelector('[data-fav-count]')!;
+      document.querySelectorAll<HTMLButtonElement>('[data-fav]').forEach((b) =>
+        b.addEventListener('click', () => {
+          const on = b.getAttribute('aria-pressed') !== 'true';
+          b.setAttribute('aria-pressed', String(on));
+          b.textContent = on ? '♥' : '♡';
+          favCount.textContent = `Избранное ${document.querySelectorAll('[data-fav][aria-pressed="true"]').length}`;
+        }),
+      );
+
+      /* капсулы Total look */
+      const caps = [...document.querySelectorAll<HTMLElement>('[data-cap]')];
+      let cap = 0;
+      const showCap = (d: number) => {
+        caps[cap].classList.remove('is-active');
+        cap = (cap + d + caps.length) % caps.length;
+        caps[cap].classList.add('is-active');
+      };
+      document.querySelectorAll('[data-cap-prev]').forEach((b) => b.addEventListener('click', () => showCap(-1)));
+      document.querySelectorAll('[data-cap-next]').forEach((b) => b.addEventListener('click', () => showCap(1)));
+
+      /* галерея кампании */
+      const track = document.querySelector<HTMLElement>('[data-gallery]')!;
+      document.querySelectorAll<HTMLElement>('[data-gal]').forEach((b) =>
+        b.addEventListener('click', () => {
+          const step = (track.querySelector('figure') as HTMLElement).offsetWidth + 8;
+          track.scrollBy({ left: Number(b.dataset.gal) * step, behavior: 'smooth' });
+        }),
+      );
+    </script>
+  </body>
+</html>
