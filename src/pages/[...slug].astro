@@ -1,0 +1,62 @@
+---
+/** Все страницы alex-krown.com, перенесённые с Тильды (scripts/tilda-port.mjs):
+    разметка и скрипты страницы как есть, ресурсы – локально в /_t/.
+    Редиректы Тильды – meta refresh. Подпапка Pages (BASE_URL) дописывается
+    здесь ко всем корневым путям: ссылкам страниц и ресурсам /_t/, в том
+    числе внутри строк скриптов и экранированного JSON. */
+type Page = {
+  path: string;
+  redirect?: string;
+  htmlAttrs?: Record<string, string>;
+  head?: string;
+  bodyAttrs?: Record<string, string>;
+  body?: string;
+};
+
+export function getStaticPaths() {
+  const files = import.meta.glob<Page>('../data/pages/*.json', { eager: true, import: 'default' });
+  return Object.values(files).map((page) => ({ params: { slug: page.path || undefined }, props: { page } }));
+}
+
+const { page } = Astro.props as { page: Page };
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+function rebase(s: string) {
+  if (!base) return s;
+  /* сначала ссылки страниц (кроме /_t/), потом ресурсы – иначе префикс встанет дважды */
+  return s
+    .replace(/(\shref=)(["'])\/(?!\/|_t\/)/g, `$1$2${base}/`)
+    .replace(/(^|[^\w/.\\-])\/_t\//g, `$1${base}/_t/`)
+    .replace(/\\\/_t\\\//g, `${base.replace(/\//g, '\\/')}\\/_t\\/`);
+}
+
+const target = page.redirect?.startsWith('/') ? base + page.redirect : page.redirect;
+---
+
+{
+  page.redirect ? (
+    <html lang="ru">
+      <head>
+        <meta charset="utf-8" />
+        <meta name="robots" content="noindex, nofollow" />
+        <meta http-equiv="refresh" content={`0; url=${target}`} />
+        <title>Переадресация</title>
+      </head>
+      <body>
+        <a href={target}>Перейти</a>
+      </body>
+    </html>
+  ) : (
+    <html {...page.htmlAttrs}>
+      <head>
+        <meta name="robots" content="noindex, nofollow" />
+        <script is:inline src={`${base}/no-leads.js`}></script>
+        <script is:inline src={`${base}/t-store/snapshot.js`}></script>
+        <Fragment set:html={rebase(page.head!)} />
+      </head>
+      <body {...page.bodyAttrs}>
+        <Fragment set:html={rebase(page.body!)} />
+      </body>
+    </html>
+  )
+}
