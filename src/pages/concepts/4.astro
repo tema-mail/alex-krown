@@ -1,0 +1,222 @@
+---
+/** Концепт 4 «Плёнка»: тёмный экран из чёрно-белых кадров кампании бренда
+    полосами-гармошкой. Активная полоса раскрывается: по наведению или сама
+    по очереди раз в 4 секунды. Внизу – слово ALEX KROWN во всю ширину. */
+import ConceptLayout from '../../components/ConceptLayout.astro';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const frames = [
+  ['cine-wall', 'Пятеро в одежде ALEX KROWN у стены с логотипом бренда'],
+  ['cine-night', 'Парень на мосту на фоне ночного города'],
+  ['cine-corridor', 'Девушка в длинном подземном переходе'],
+  ['cine-spotlight', 'Человек на стуле в луче прожектора'],
+  ['cine-motion', 'Девушка в движении, смазанный кадр'],
+  ['cine-backlight', 'Силуэт под мостом в контровом свете'],
+];
+---
+
+<ConceptLayout n={4} title="Плёнка" theme="dark">
+  <main class="film">
+    <header class="hd">
+      <a href={`${base}/`} aria-label="ALEX KROWN"><span class="ak-logo"></span></a>
+      <nav>
+        <a href={`${base}/catalog/man`}>Мужское</a>
+        <a href={`${base}/catalog/woman`}>Женское</a>
+        <a href={`${base}/about`} class="hd__hide">О бренде</a>
+        <a href="#">Корзина 0</a>
+      </nav>
+    </header>
+
+    <div class="strips" data-strips>
+      {
+        frames.map(([f, alt], i) => (
+          <figure class="strip" data-active={i === 0 ? '' : undefined} style={`--i:${i}`}>
+            <img src={`${base}/concepts/img/${f}.webp`} alt={alt} loading={i < 2 ? 'eager' : 'lazy'} />
+          </figure>
+        ))
+      }
+    </div>
+
+    <div class="copy">
+      <p class="copy__lead">Одежда для тех, кто создаёт свои правила</p>
+      <a class="btn" href={`${base}/catalog`}>Смотреть каталог</a>
+    </div>
+    <h1 class="word" aria-label="ALEX KROWN">ALEX KROWN</h1>
+  </main>
+</ConceptLayout>
+
+<script>
+  /* полосы по очереди раскрываются сами; наведение перехватывает и ставит паузу */
+  const box = document.querySelector<HTMLElement>('[data-strips]')!;
+  const strips = [...box.querySelectorAll<HTMLElement>('.strip')];
+  let cur = 0;
+  let hover = false;
+  const show = (i: number) => {
+    strips[cur].removeAttribute('data-active');
+    cur = i;
+    strips[cur].setAttribute('data-active', '');
+  };
+  strips.forEach((s, i) => s.addEventListener('pointerenter', () => ((hover = true), show(i))));
+  box.addEventListener('pointerleave', () => (hover = false));
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches)
+    setInterval(() => !hover && !document.hidden && show((cur + 1) % strips.length), 4000);
+</script>
+
+<style>
+  .film {
+    position: relative;
+    height: 100dvh;
+    min-height: 560px;
+    overflow: hidden;
+    display: grid;
+    grid-template-rows: 72px 1fr;
+  }
+  .hd {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 clamp(16px, 3vw, 40px);
+    z-index: 3;
+  }
+  .hd .ak-logo {
+    width: 30px;
+  }
+  .hd nav {
+    display: flex;
+    gap: clamp(16px, 2.4vw, 32px);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .hd nav a {
+    opacity: 0.75;
+    transition: opacity 0.2s;
+  }
+  .hd nav a:hover {
+    opacity: 1;
+  }
+
+  .strips {
+    display: flex;
+    gap: 6px;
+    padding: 0 clamp(16px, 3vw, 40px) clamp(120px, 20vh, 200px);
+    min-height: 0;
+  }
+  .strip {
+    position: relative;
+    flex: 1 1 0;
+    min-width: 0;
+    overflow: hidden;
+    border-radius: 2px;
+    transition: flex-grow 0.9s var(--ease);
+    animation: strip-in 1s calc(var(--i) * 0.08s) var(--ease) both;
+  }
+  .strip[data-active] {
+    flex-grow: 6;
+  }
+  .strip img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(1) brightness(0.62);
+    transform: scale(1.08);
+    transition: filter 0.9s var(--ease), transform 1.6s var(--ease);
+  }
+  .strip[data-active] img {
+    filter: grayscale(1) brightness(0.95);
+    transform: scale(1);
+  }
+  @keyframes strip-in {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+  }
+
+  .copy {
+    position: absolute;
+    right: clamp(16px, 3vw, 40px);
+    bottom: clamp(132px, 21vh, 214px);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 16px;
+    z-index: 2;
+    padding: 20px 24px;
+    background: linear-gradient(to left, rgba(13, 13, 13, 0.55), transparent);
+  }
+  .copy__lead {
+    font: italic 400 clamp(18px, 1.7vw, 24px) / 1.25 var(--serif);
+    text-align: right;
+    max-width: 22ch;
+  }
+  .btn {
+    padding: 14px 26px;
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    transition: transform 0.2s var(--ease);
+  }
+  .btn:hover {
+    transform: translateY(-2px);
+  }
+  .btn:active {
+    transform: scale(0.98);
+  }
+
+  .word {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -0.16em;
+    text-align: center;
+    font: 400 clamp(64px, 15.6vw, 280px) / 1 var(--serif);
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    z-index: 1;
+    animation: word-in 1.4s 0.3s var(--ease) both;
+  }
+  @keyframes word-in {
+    from {
+      opacity: 0;
+      transform: translateY(30%);
+    }
+  }
+
+  @media (max-width: 760px) {
+    .hd__hide {
+      display: none;
+    }
+    .hd nav {
+      gap: 14px;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+    }
+    .strips {
+      flex-direction: column;
+      padding-bottom: 96px;
+      gap: 4px;
+    }
+    .strip[data-active] {
+      flex-grow: 5;
+    }
+    .copy {
+      left: 16px;
+      right: 16px;
+      bottom: 104px;
+      align-items: flex-start;
+      background: linear-gradient(to top, rgba(13, 13, 13, 0.7), transparent);
+    }
+    .copy__lead {
+      text-align: left;
+    }
+    .word {
+      font-size: 15.6vw;
+      bottom: 0.1em;
+    }
+  }
+</style>

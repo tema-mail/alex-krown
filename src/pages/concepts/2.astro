@@ -1,0 +1,244 @@
+---
+/** Концепт 2 «Кадр»: светлый редакционный экран. Слева – слоган бренда
+    «Стиль – это оружие» и указатель разделов магазина, справа – вертикальное
+    видео кампании в рамке и второе видео (Milan Fashion Week 2025) внахлёст.
+    Наведение на раздел подсвечивает строку стрелкой. */
+import ConceptLayout from '../../components/ConceptLayout.astro';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const v = (n: string) => `${base}/concepts/video/${n}`;
+const index = [
+  ['Мужское', '/catalog/man'],
+  ['Женское', '/catalog/woman'],
+  ['Мужская обувь', '/menshoes'],
+  ['Женская обувь', '/womenshoes'],
+  ['Парфюм', '/perfume'],
+];
+---
+
+<ConceptLayout n={2} title="Кадр" theme="light">
+  <header class="hd">
+    <a href={`${base}/`} aria-label="ALEX KROWN"><span class="ak-logo"></span></a>
+    <nav>
+      <a href={`${base}/catalog`}>Каталог</a>
+      <a href={`${base}/about`} class="hd__hide">О бренде</a>
+      <a href="#">Корзина 0</a>
+    </nav>
+  </header>
+
+  <main class="frame">
+    <section class="copy">
+      <h1>Стиль&nbsp;– это оружие</h1>
+      <p class="copy__lead">
+        Дизайнерская одежда ALEX KROWN. Собственное производство, доставка по России и СНГ.
+      </p>
+      <ol class="index">
+        {
+          index.map(([name, href], i) => (
+            <li style={`--i:${i}`}>
+              <a href={`${base}${href}`}>
+                <span>{name}</span>
+                <span class="index__arrow" aria-hidden="true">
+                  →
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+
+    <section class="media" aria-label="Видео бренда">
+      <figure class="media__main">
+        <video
+          src={v('campaign-white-suit.mp4')}
+          poster={v('campaign-white-suit.webp')}
+          autoplay
+          muted
+          loop
+          playsinline
+          preload="auto"
+          aria-label="Девушка в белом худи ALEX KROWN с капюшоном на улице"></video>
+      </figure>
+      <figure class="media__side">
+        <video
+          src={v('milan-mfw2025-street.mp4')}
+          poster={v('milan-mfw2025-street.webp')}
+          autoplay
+          muted
+          loop
+          playsinline
+          preload="metadata"
+          aria-label="Модель ALEX KROWN у площадки Milan Fashion Week 2025"></video>
+        <figcaption>Milan Fashion Week 2025</figcaption>
+      </figure>
+    </section>
+  </main>
+</ConceptLayout>
+
+<style>
+  .hd {
+    height: 72px;
+    padding: 0 clamp(16px, 3vw, 40px);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .hd .ak-logo {
+    width: 32px;
+  }
+  .hd nav {
+    display: flex;
+    gap: clamp(16px, 2.4vw, 32px);
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .frame {
+    min-height: calc(100dvh - 72px);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    gap: clamp(24px, 4vw, 64px);
+    padding: 0 clamp(16px, 3vw, 40px) clamp(72px, 9vh, 88px);
+  }
+  .copy {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding-bottom: 8px;
+  }
+  .copy h1 {
+    font: 400 clamp(44px, 6vw, 96px) / 0.98 var(--serif);
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    animation: fade 1s 0.1s var(--ease) both;
+  }
+  .copy__lead {
+    margin-top: 20px;
+    max-width: 38ch;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #4a4a48;
+    animation: fade 1s 0.25s var(--ease) both;
+  }
+  .index {
+    list-style: none;
+    margin-top: clamp(24px, 4vh, 44px);
+    border-top: 1px solid var(--ink);
+  }
+  .index li {
+    animation: fade 0.9s calc(0.4s + var(--i) * 0.07s) var(--ease) both;
+  }
+  .index a {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 12px 0;
+    font: 400 clamp(20px, 2vw, 30px) / 1.15 var(--serif);
+    transition: padding 0.4s var(--ease);
+  }
+  .index li + li a {
+    border-top: 1px solid rgba(13, 13, 13, 0.18);
+  }
+  .index__arrow {
+    font-family: var(--sans);
+    font-size: 18px;
+    opacity: 0;
+    transform: translateX(-12px);
+    transition: opacity 0.3s, transform 0.4s var(--ease);
+  }
+  .index a:hover {
+    padding-left: 12px;
+  }
+  .index a:hover .index__arrow {
+    opacity: 1;
+    transform: none;
+  }
+  @keyframes fade {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+  }
+
+  .media {
+    position: relative;
+    min-height: 0;
+  }
+  .media figure {
+    position: absolute;
+    overflow: hidden;
+    background: #d9d9d6;
+  }
+  .media video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(1) contrast(1.05);
+  }
+  .media__main {
+    right: 0;
+    top: 0;
+    bottom: 0;
+    aspect-ratio: 9 / 16;
+    max-width: 100%;
+    animation: reveal 1.4s 0.2s var(--ease) both;
+  }
+  .media__side {
+    left: 0;
+    bottom: 0;
+    width: min(38%, 260px);
+    aspect-ratio: 9 / 16;
+    outline: 8px solid var(--paper);
+    animation: reveal 1.4s 0.55s var(--ease) both;
+  }
+  .media__side figcaption {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 28px 12px 10px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--paper);
+    background: linear-gradient(to top, rgba(13, 13, 13, 0.7), transparent);
+  }
+  @keyframes reveal {
+    from {
+      clip-path: inset(0 0 100% 0);
+    }
+    to {
+      clip-path: inset(0 0 0 0);
+    }
+  }
+
+  @media (max-width: 860px) {
+    .hd__hide {
+      display: none;
+    }
+    .frame {
+      grid-template-columns: 1fr;
+      gap: 28px;
+    }
+    .media {
+      order: -1;
+      height: 72dvh;
+    }
+    .media__main {
+      left: 0;
+      right: auto;
+      width: 100%;
+      aspect-ratio: auto;
+    }
+    .media__side {
+      left: auto;
+      right: 12px;
+      bottom: -20px;
+      width: 32%;
+    }
+    .copy h1 {
+      font-size: 13vw;
+    }
+  }
+</style>

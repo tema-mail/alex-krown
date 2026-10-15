@@ -1,0 +1,271 @@
+---
+/** Концепт 3 «Крест»: светлый экран, две чёрные ленты с надписью бренда
+    крест-накрест (мотив ремней-крестов с вещей ALEX KROWN), поверх – пара
+    из кампании без фона. Ленты медленно бегут навстречу друг другу. */
+import ConceptLayout from '../../components/ConceptLayout.astro';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const tape = Array(12).fill('ALEX KROWN');
+---
+
+<ConceptLayout n={3} title="Крест" theme="light">
+  <header class="hd">
+    <nav class="hd__nav">
+      <a class="pill" href={`${base}/catalog/man`}>Мужское</a>
+      <a class="pill" href={`${base}/catalog/woman`}>Женское</a>
+      <a class="pill hd__hide" href={`${base}/about`}>О нас</a>
+    </nav>
+    <a class="hd__logo" href={`${base}/`} aria-label="ALEX KROWN"><span class="ak-logo"></span></a>
+    <nav class="hd__tools">
+      <a href={`${base}/catalog`} class="hd__hide">Каталог</a>
+      <a href="#">Корзина 0</a>
+    </nav>
+  </header>
+
+  <main class="hero">
+    <div class="tape tape--a" aria-hidden="true">
+      <div class="tape__run">{tape.map((t) => <span>{t}</span>)}{tape.map((t) => <span>{t}</span>)}</div>
+    </div>
+    <div class="tape tape--b" aria-hidden="true">
+      <div class="tape__run">{tape.map((t) => <span>{t}</span>)}{tape.map((t) => <span>{t}</span>)}</div>
+    </div>
+
+    <img
+      class="hero__people"
+      src={`${base}/concepts/img/couple-cut.webp`}
+      width="1600"
+      height="1276"
+      alt="Мужчина и женщина в белых куртках ALEX KROWN"
+      fetchpriority="high"
+    />
+
+    <div class="hero__copy">
+      <h1>Для тех, кто создаёт свои&nbsp;правила</h1>
+      <p>Дизайнерская одежда собственного производства. Доставка по России и СНГ.</p>
+      <div class="hero__cta">
+        <a class="btn btn--solid" href={`${base}/catalog/man`}>Мужское</a>
+        <a class="btn" href={`${base}/catalog/woman`}>Женское</a>
+      </div>
+    </div>
+  </main>
+</ConceptLayout>
+
+<style>
+  .hd {
+    position: relative;
+    z-index: 5;
+    height: 72px;
+    padding: 0 clamp(16px, 3vw, 40px);
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+  }
+  .hd__nav,
+  .hd__tools {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .hd__tools {
+    justify-content: flex-end;
+    gap: 24px;
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .hd__logo .ak-logo {
+    width: 34px;
+  }
+  .pill {
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px 16px;
+    border: 1px solid var(--ink);
+    border-radius: 999px;
+    transition: background 0.25s var(--ease), color 0.25s var(--ease);
+  }
+  .pill:hover {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .hero {
+    position: relative;
+    min-height: calc(100dvh - 72px);
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .tape {
+    position: absolute;
+    left: 69%;
+    top: 50%;
+    width: 160vmax;
+    height: clamp(52px, 8vh, 84px);
+    background: var(--ink);
+    color: var(--paper);
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    z-index: -1;
+    animation: tape-in 1.2s var(--ease) both;
+  }
+  .tape--a {
+    transform: translate(-50%, -50%) rotate(-24deg);
+  }
+  .tape--b {
+    transform: translate(-50%, -50%) rotate(24deg);
+    animation-delay: 0.15s;
+  }
+  .tape__run {
+    display: flex;
+    flex: none;
+    gap: 3.2em;
+    padding-left: 3.2em;
+    font: 500 clamp(14px, 1.5vw, 20px) / 1 var(--sans);
+    letter-spacing: 0.42em;
+    white-space: nowrap;
+    animation: run 60s linear infinite;
+  }
+  .tape--b .tape__run {
+    animation-direction: reverse;
+  }
+  @keyframes run {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @keyframes tape-in {
+    from {
+      clip-path: inset(0 50% 0 50%);
+    }
+    to {
+      clip-path: inset(0 0 0 0);
+    }
+  }
+
+  .hero__people {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    height: min(86%, 760px);
+    width: auto;
+    max-width: none;
+    transform: translateX(-22%);
+    animation: rise 1.4s 0.35s var(--ease) both;
+  }
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translate(-22%, 40px);
+    }
+  }
+
+  .hero__copy {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: min(500px, 38vw);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 0 32px clamp(80px, 10vh, 104px) clamp(16px, 3vw, 40px);
+    background: var(--paper);
+    border-right: 1px solid var(--ink);
+    z-index: 2;
+    animation: fade 1s 0.8s var(--ease) both;
+  }
+  .hero__copy h1 {
+    font: 400 clamp(34px, 3.6vw, 52px) / 1.06 var(--serif);
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+  }
+  .hero__copy p {
+    margin-top: 16px;
+    max-width: 34ch;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #4a4a48;
+  }
+  .hero__cta {
+    margin-top: 24px;
+    display: flex;
+    gap: 8px;
+  }
+  .btn {
+    padding: 15px 28px;
+    border-radius: 999px;
+    border: 1px solid var(--ink);
+    background: var(--paper);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    transition: transform 0.2s var(--ease), background 0.25s, color 0.25s;
+  }
+  .btn--solid {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .btn:hover {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .btn:active {
+    transform: scale(0.98);
+  }
+  @keyframes fade {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+  }
+
+  @media (max-width: 860px) {
+    .hd__hide,
+    .hd__nav {
+      display: none;
+    }
+    .hd {
+      grid-template-columns: auto 1fr;
+    }
+    .hero__people {
+      height: 58%;
+      transform: translateX(-50%);
+      animation-name: rise-m;
+    }
+    @keyframes rise-m {
+      from {
+        opacity: 0;
+        transform: translate(-50%, 40px);
+      }
+    }
+    .tape {
+      left: 50%;
+      top: 70%;
+    }
+    .tape--a {
+      transform: translate(-50%, -50%) rotate(-34deg);
+    }
+    .tape--b {
+      transform: translate(-50%, -50%) rotate(34deg);
+    }
+    .hero__copy {
+      top: 20px;
+      bottom: auto;
+      left: 16px;
+      right: 16px;
+      width: auto;
+      padding: 0;
+      border: 0;
+      background: none;
+    }
+    .hero__copy p {
+      font-size: 13px;
+    }
+  }
+  @media (max-width: 400px) {
+    .hd__nav .pill {
+      padding: 7px 12px;
+      font-size: 12px;
+    }
+  }
+</style>

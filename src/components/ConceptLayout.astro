@@ -1,0 +1,142 @@
+---
+/** Каркас концептов главного экрана: шрифты бренда (Playfair Display + Montserrat),
+    сброс стилей, адреса разделов копии и переключатель концептов внизу экрана.
+    Каждый концепт – своя страница src/pages/concepts/N.astro со своими стилями. */
+interface Props {
+  n: number;
+  title: string;
+  theme: 'light' | 'dark';
+}
+const { n, title, theme } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const names = ['Подиум', 'Кадр', 'Крест', 'Плёнка'];
+---
+
+<html lang="ru" data-theme={theme}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{`Концепт ${n}. ${title} – ALEX KROWN`}</title>
+    <link rel="icon" href={`${base}/concepts/img/logo.svg`} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <style is:global>
+      :root {
+        --ink: #0d0d0d;
+        --paper: #f4f4f2;
+        --mute: #8a8a87;
+        --serif: 'Playfair Display', 'Times New Roman', serif;
+        --sans: 'Montserrat', Arial, sans-serif;
+        --ease: cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html[data-theme='light'] body {
+        background: var(--paper);
+        color: var(--ink);
+      }
+      html[data-theme='dark'] body {
+        background: var(--ink);
+        color: var(--paper);
+      }
+      body {
+        font-family: var(--sans);
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+      }
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+      img,
+      video {
+        display: block;
+        max-width: 100%;
+      }
+      /* логотип бренда: SVG-маска, цвет берётся из color */
+      .ak-logo {
+        display: inline-block;
+        width: 40px;
+        aspect-ratio: 72 / 81;
+        background: currentColor;
+        -webkit-mask: var(--logo) center / contain no-repeat;
+        mask: var(--logo) center / contain no-repeat;
+      }
+      .ak-switch {
+        position: fixed;
+        z-index: 100;
+        left: 50%;
+        bottom: 16px;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 4px;
+        padding: 4px;
+        border-radius: 999px;
+        background: rgba(20, 20, 20, 0.82);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        font: 500 11px/1 var(--sans);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #f4f4f2;
+        max-width: calc(100% - 32px);
+      }
+      .ak-switch a {
+        padding: 9px 14px;
+        border-radius: 999px;
+        white-space: nowrap;
+        opacity: 0.7;
+        transition: opacity 0.2s, background 0.2s;
+      }
+      .ak-switch a:hover {
+        opacity: 1;
+      }
+      .ak-switch a[aria-current='page'] {
+        background: #f4f4f2;
+        color: #0d0d0d;
+        opacity: 1;
+      }
+      @media (max-width: 560px) {
+        .ak-switch a {
+          padding: 9px 10px;
+        }
+        .ak-switch .ak-switch__name {
+          display: none;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          animation-delay: 0ms !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    </style>
+  </head>
+  <body style={`--logo:url(${base}/concepts/img/logo.svg)`}>
+    <slot />
+    <nav class="ak-switch" aria-label="Концепты главного экрана">
+      <a href={`${base}/concepts/`}>Все</a>
+      {
+        names.map((name, i) => (
+          <a href={`${base}/concepts/${i + 1}/`} aria-current={i + 1 === n ? 'page' : undefined}>
+            {i + 1}
+            <span class="ak-switch__name"> {name}</span>
+          </a>
+        ))
+      }
+    </nav>
+  </body>
+</html>

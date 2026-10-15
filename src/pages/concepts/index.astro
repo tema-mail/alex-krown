@@ -1,0 +1,107 @@
+---
+/** Оглавление концептов главного экрана ALEX KROWN: превью и ссылка на каждый. */
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const items = [
+  ['Подиум', 'Три вертикальных видео бренда в ряд, в центре – Milan Fashion Week 2025. Колонка под курсором раскрывается в цвет.'],
+  ['Кадр', 'Светлый журнальный экран: слоган «Стиль – это оружие», указатель разделов и два видео бренда в рамках.'],
+  ['Крест', 'Светлый экран: ленты с надписью бренда крест-накрест, пара из кампании поверх.'],
+  ['Плёнка', 'Кадры чёрно-белой кампании полосами-гармошкой и слово ALEX KROWN во всю ширину.'],
+];
+---
+
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Концепты главного экрана – ALEX KROWN</title>
+    <link rel="icon" href={`${base}/concepts/img/logo.svg`} />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Playfair+Display:wght@400&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <header>
+      <h1>ALEX KROWN</h1>
+      <p>Четыре концепта главного экрана. Сайт целиком перенесён с Тильды: <a href={`${base}/`}>открыть копию</a>.</p>
+    </header>
+    <main>
+      {
+        items.map(([name, text], i) => (
+          <a class="card" href={`${base}/concepts/${i + 1}/`}>
+            <img src={`${base}/concepts/img/prev-${i + 1}.webp`} alt={`Превью концепта ${name}`} loading="lazy" />
+            <h2>
+              {i + 1}. {name}
+            </h2>
+            <p>{text}</p>
+          </a>
+        ))
+      }
+    </main>
+  </body>
+</html>
+
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+  }
+  body {
+    background: #0d0d0d;
+    color: #f4f4f2;
+    font-family: Montserrat, Arial, sans-serif;
+    padding: clamp(24px, 5vw, 64px) clamp(16px, 4vw, 56px);
+  }
+  header {
+    margin-bottom: 40px;
+  }
+  h1 {
+    font: 400 clamp(40px, 7vw, 96px) / 1 'Playfair Display', serif;
+  }
+  header p {
+    margin-top: 12px;
+    color: #a8a8a5;
+    font-size: 15px;
+  }
+  header a {
+    color: #f4f4f2;
+  }
+  main {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 32px 24px;
+  }
+  .card {
+    color: inherit;
+    text-decoration: none;
+  }
+  .card img {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    object-position: top;
+    border-radius: 4px;
+    display: block;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .card:hover img {
+    transform: scale(0.985);
+  }
+  h2 {
+    margin-top: 16px;
+    font: 400 26px/1.2 'Playfair Display', serif;
+  }
+  .card p {
+    margin-top: 6px;
+    color: #a8a8a5;
+    font-size: 14px;
+    line-height: 1.55;
+    max-width: 52ch;
+  }
+  @media (max-width: 720px) {
+    main {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
