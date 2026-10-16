@@ -80,6 +80,8 @@ def main() -> None:
         html = html.replace(metrika_view.SCRIPT, "").replace("<main>", "", 1).replace("</main>", "", 1)
         # «· N мин назад» EV считает сервер при каждом показе; у нас разметка застывает – оставляем дату
         html = re.sub(r"(Данные на [0-9.]+, [0-9:]+) · [^<]+", r"\1", html)
+        # ссылки на страницы сайта у EV относительные (админка на том же домене) – у нас ведут на alex-krown.com
+        html = re.sub(r'href="(/(?!admin/)[^"]*)"', lambda m: f'href="{SITE}{m.group(1)}"', html)
         for a, b in FIXES:
             html = html.replace(a, b)
         views[k] = html

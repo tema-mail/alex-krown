@@ -6,3 +6,6 @@ reference/
 scripts/_*.tmp.mjs
 # аналитика клиента (выручка, продажи) – не в публичный репозиторий
 src/data/v1/analytics/
+
+# Python-обёртки эталона EV
+__pycache__/

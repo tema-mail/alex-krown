@@ -80,6 +80,12 @@ function plan(text: string, raw: P[], secs: S[], opts: Opts, placeIn: (s: S[], u
   const at = (r: string[], col: string) => { const i = head.indexOf(col); return i < 0 ? undefined : r[i] ?? ''; };
   const warns: string[] = [];
   if (!head.includes('Tilda UID') && !head.includes('Title')) return { raw, secs, changes: [], warns: ['В файле нет колонок Tilda UID и Title – это не выгрузка товаров'] };
+  /* Excel портит выгрузку при сохранении: 12-значные номера → «8,94574E+11», кириллица → cp1251. Такой файл
+     создал бы дубли всех товаров – не загружаем, объясняем, как сохранить правильно (ревизия 16.10.2026) */
+  if (rows.some((r) => /^\d+([.,]\d+)?e\+?\d+$/i.test((at(r, 'Tilda UID') ?? '').trim())))
+    return { raw, secs, changes: [], warns: ['Номера товаров в файле испорчены (вид «8,94574E+11») – так их сохраняет Excel. Перед правкой выделите колонку Tilda UID → Формат ячеек → Текстовый, или откройте файл через «Данные → Из текста/CSV» с типом «Текст» для этой колонки.'] };
+  if (rows.some((r) => r.some((c) => c.includes('\uFFFD'))))
+    return { raw, secs, changes: [], warns: ['В файле испорчены русские буквы (знаки «�») – файл сохранён не в UTF-8. В Excel: «Сохранить как» → «CSV UTF-8 (разделитель – запятая)», в Numbers и Google Таблицах – экспорт в CSV.'] };
   const known = new Set(secs.map((s) => s.path));
   const secOf = (uid: string) => secs.filter((s) => s.path !== 'catalog' && s.uids.includes(uid)).map((s) => s.path);
   const byUid = new Map(raw.map((p) => [p.uid, p]));
@@ -105,7 +111,7 @@ function plan(text: string, raw: P[], secs: S[], opts: Opts, placeIn: (s: S[], u
       const v = at(r, col);
       if (v === undefined) continue;
       const n = num(v);
-      if (n !== null && !(n >= 0)) { warns.push(`Строка ${line}: в колонке ${col} не число «${v}» – значение пропущено`); continue; }
+      if (n !== null && (!(n >= 0) || (key === 'stock' && !Number.isInteger(n)))) { warns.push(`Строка ${line}: в колонке ${col} не число «${v}» – значение пропущено`); continue; }
       if (key === 'price' && n === null) { if (!old) warns.push(`Строка ${line}: нет цены`); continue; }
       if (n !== (base[key] ?? null)) (next[key] = n), lines.push(`${name}: ${key === 'stock' ? base[key] ?? '∞' : rub(base[key])} → ${key === 'stock' ? n ?? '∞' : rub(n)}`);
     }
