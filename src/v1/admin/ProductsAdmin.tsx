@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'preact/hooks';
 import ProductEditor, { type AdmProduct, type SectionOpt } from './ProductEditor';
 import GhConnect from './GhConnect';
+import CsvImport from './CsvImport';
 import { IMG_DIR, PRODUCTS_PATH, SECTIONS_PATH, buildOf, commit, getToken, humanError, readJson, slugify, toWebp, type FileChange } from './gh';
 
 /* «Каталоги и товары» магазина «Вариант 1» (по образцу Тильды и админки Elite Rose). Каталоги – из
@@ -26,6 +27,8 @@ export default function ProductsAdmin({ items, secs, labels, imgBase, siteBase }
   const [sort, setSort] = useState('site');
   const [sel, setSel] = useState<Set<string>>(new Set());
   const [edit, setEdit] = useState<AdmProduct | null>(null);
+  const [csv, setCsv] = useState(false);
+  const [newSec, setNewSec] = useState<string | null>(null);
   const [status, setStatus] = useState<Status>({ kind: 'idle', text: '' });
 
   /* с ключом – свежие данные прямо из репозитория: собранный сайт отстаёт на время сборки */
@@ -64,7 +67,7 @@ export default function ProductsAdmin({ items, secs, labels, imgBase, siteBase }
 
   /* дерево каталогов: верхние разделы в порядке меню, под ними подразделы */
   const tree: SectionOpt[] = useMemo(() => {
-    const top = sections.filter((s) => s.path.split('/').length <= 2 && s.path !== 'catalog');
+    const top = sections.filter((s) => s.path !== 'catalog' && !s.path.replace(/^catalog\//, '').includes('/'));
     const order = (p: string) => (labels[p] ? Object.keys(labels).indexOf(p) : 99);
     return top
       .sort((a, b) => order(a.path) - order(b.path))
@@ -171,6 +174,24 @@ export default function ProductsAdmin({ items, secs, labels, imgBase, siteBase }
   const removeFrom = (uids: string[], path: string) =>
     persist(raw, sections.map((s) => (s.path === path ? { ...s, uids: s.uids.filter((u) => !uids.includes(u)) } : s)), `из каталога «${label(path)}»: ${uids.length} шт.`);
 
+  /* «+ Добавить раздел» как у эталона: выбранные товары сразу попадают в него. Раздел = запись в
+     sections.json; открыт каталог – новый станет его подкаталогом, иначе – верхним. Страница раздела
+     собирается из sections.json при следующей сборке. */
+  const topOf = (path: string) => tree.find((t) => !t.depth && (path === t.path || path.startsWith(t.path + '/')))?.path;
+  const createSection = async (name: string) => {
+    const t = name.trim();
+    if (!t) return;
+    const parent = isSection ? topOf(cur) : undefined;
+    let path = (parent ? parent + '/' : '') + slugify(t);
+    while (sections.some((s) => s.path === path)) path += '-2';
+    if (tree.some((x) => (parent ? topOf(x.path) === parent && x.depth : !x.depth) && x.label.toLowerCase() === t.toLowerCase())) return setStatus({ kind: 'error', text: `Раздел «${t}» уже есть` });
+    const uids = [...sel];
+    setNewSec(null);
+    await persist(raw, [...sections, { path, storepart: '', title: '', description: '', h1: `${t} ALEX KROWN`, name: t, uids }], `новый раздел «${t}»${uids.length ? ` + ${uids.length} товаров` : ''}`);
+    setSel(new Set());
+    setCur(path);
+  };
+
   const allOn = shown.length > 0 && shown.every((p) => sel.has(p.uid));
   const toggle = (uid: string) => {
     const s = new Set(sel);
@@ -198,6 +219,16 @@ export default function ProductsAdmin({ items, secs, labels, imgBase, siteBase }
             <button class={cur === t.path ? 'on' : ''} style={t.depth ? 'padding-left:26px;font-size:12.5px' : ''} onClick={() => setCur(t.path)}>{t.label}<span>{count(t.path)}</span></button>
           ))}
           <button class={cur === 'hidden' ? 'on' : ''} onClick={() => setCur('hidden')}>Скрытые<span>{raw.filter((p) => p.hidden).length}</span></button>
+          {newSec === null ? (
+            <button class="pa__addpart" onClick={() => setNewSec('')}>+ Добавить раздел</button>
+          ) : (
+            <form class="pa__newpart" onSubmit={(e) => (e.preventDefault(), createSection(newSec))}>
+              <input autoFocus placeholder="Название раздела" value={newSec} onInput={(e) => setNewSec((e.target as HTMLInputElement).value)} />
+              <small class="muted">{isSection && topOf(cur) ? `Подкаталог в «${label(topOf(cur)!)}»` : 'Верхний каталог – в меню сайта добавляется отдельно'}</small>
+              {sel.size > 0 && <small class="muted">Выбранные товары ({sel.size}) попадут в него</small>}
+              <div><button class="btn primary" type="submit">Создать</button><button class="btn ghost" type="button" onClick={() => setNewSec(null)}>Отмена</button></div>
+            </form>
+          )}
         </aside>
 
         <section class="pa__main">
@@ -208,6 +239,8 @@ export default function ProductsAdmin({ items, secs, labels, imgBase, siteBase }
               <option value="site">Как на сайте</option><option value="name">По названию</option>
               <option value="price-asc">Сначала дешевле</option><option value="price-desc">Сначала дороже</option>
             </select>
+            <button class="btn" onClick={() => setCsv(true)}>⇪ Импорт CSV</button>
+            <a class="btn" href={`${siteBase}/admin/products.csv`} download>⇩ Экспорт CSV</a>
             <button class="btn primary" onClick={() => setEdit(blank())}>+ Добавить товар</button>
           </div>
 
@@ -217,9 +250,10 @@ export default function ProductsAdmin({ items, secs, labels, imgBase, siteBase }
               <button class="btn" onClick={() => (setHidden([...sel], true), setSel(new Set()))}>Скрыть с сайта</button>
               <button class="btn" onClick={() => (setHidden([...sel], false), setSel(new Set()))}>Показать на сайте</button>
               <select class="btn" value="" onChange={(e) => { const v = (e.target as HTMLSelectElement).value; if (v) (addTo([...sel], v), setSel(new Set())); }}>
-                <option value="">Добавить в каталог…</option>{tree.map((t) => <option value={t.path}>{t.depth ? '— ' : ''}{t.label}</option>)}
+                <option value="">Добавить в каталог…</option>{tree.map((t) => <option value={t.path}>{t.depth ? '– ' : ''}{t.label}</option>)}
               </select>
               {isSection && <button class="btn" onClick={() => (removeFrom([...sel], cur), setSel(new Set()))}>Убрать из «{label(cur)}»</button>}
+              <button class="btn ghost" onClick={() => setNewSec('')}>+ Новый раздел из выбранных</button>
               <button class="btn ghost" onClick={() => setSel(new Set())}>Снять выбор</button>
             </div>
           )}
@@ -227,16 +261,16 @@ export default function ProductsAdmin({ items, secs, labels, imgBase, siteBase }
           <div class="pt">
             <div class="pt__head">
               <label><input type="checkbox" checked={allOn} onChange={() => setSel(allOn ? new Set() : new Set(shown.map((p) => p.uid)))} aria-label="Выбрать все" /></label>
-              <span></span><span>Товар</span><span>Каталоги</span><span>Цена</span><span>Размеры</span><span>На сайте</span>
+              <span></span><span>Товар</span><span>Каталоги</span><span>Цена</span><span>Остаток</span><span>На сайте</span>
             </div>
             {shown.map((p) => (
               <div class={`pt__row${sel.has(p.uid) ? ' is-sel' : ''}${p.hidden ? ' is-off' : ''}`} onClick={() => setEdit(toAdm(p))}>
                 <label onClick={(e) => e.stopPropagation()}><input type="checkbox" checked={sel.has(p.uid)} onChange={() => toggle(p.uid)} aria-label={`Выбрать ${p.title}`} /></label>
                 {p.photos[0] ? <img class="thumb" src={`${imgBase}/${p.photos[0].name}-s.webp`} alt="" loading="lazy" /> : <span class="thumb" />}
-                <div><span class="pname">{p.title}</span><span class="muted pt__sku">№ {p.uid}{p.hidden && <i class="pt__off">скрыт</i>}</span></div>
+                <div><span class="pname">{p.title}</span><span class="muted pt__sku">№ {p.uid}{(p.priceOld ?? 0) > p.price && <i class="pt__mark">-{Math.round((1 - p.price / p.priceOld!) * 100)}%</i>}{p.hidden && <i class="pt__off">скрыт</i>}</span></div>
                 <div>{secOf(p.uid).slice(0, 3).map((s) => <span class="chip">{label(s)}</span>)}{secOf(p.uid).length > 3 && <span class="chip">+{secOf(p.uid).length - 3}</span>}</div>
-                <div class="pt__price"><b>{fmt(p.price)}</b>{p.priceOld && <s>{fmt(p.priceOld)}</s>}</div>
-                <span class="muted">{p.sizes?.map((s: any) => s.size).join(' ') || '–'}</span>
+                <div class="pt__price"><b>{fmt(p.price)}</b>{p.priceOld && <s>{fmt(p.priceOld)}</s>}{p.sizes?.length > 0 && <small class="muted" style="display:block;font-size:11.5px">{p.sizes.map((s: any) => s.size).join(' ')}</small>}</div>
+                <span class="muted">{p.stock ?? '∞'}</span>
                 <label class="sw" onClick={(e) => e.stopPropagation()} title={p.hidden ? 'Показать на сайте' : 'Скрыть с сайта'}>
                   <input type="checkbox" checked={!p.hidden} onChange={() => setHidden([p.uid], !p.hidden)} /><span />
                 </label>
@@ -248,6 +282,7 @@ export default function ProductsAdmin({ items, secs, labels, imgBase, siteBase }
       </div>
 
       {edit && <ProductEditor product={edit} sections={tree} imgBase={imgBase} siteBase={siteBase} onClose={() => setEdit(null)} onSave={save} onDelete={remove} />}
+      {csv && <CsvImport raw={raw} secs={sections} siteBase={siteBase} placeIn={(s, u, w) => placeIn(s as Sec[], u, w)} onApply={(r, s, m) => persist(r as Raw[], s as Sec[], m)} onClose={() => setCsv(false)} />}
       {showConnect && <GhConnect onClose={() => setShowConnect(false)} onConnected={(ok) => { setConnected(ok); setShowConnect(false); if (ok) reload(); }} />}
     </div>
   );
