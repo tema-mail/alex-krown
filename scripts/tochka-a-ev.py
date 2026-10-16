@@ -89,7 +89,7 @@ def _google(d1, d2):
     # а сервисный аккаунт TEYES (~/.config/gsc/teyes-sa.json) получает 403 по alex-krown.com.
     return {"status": "unavailable", "site": collect.GSC_SITE,
             "reason": "нет доступа к Search Console: сервисный аккаунт teyes-seo-admin@teyes-seo-admin.iam.gserviceaccount.com "
-                      "не добавлен в ресурс alex-krown.com (ответ 403), OAuth-ключей Google, как у EV, нет"}
+                      "не добавлен в ресурс alex-krown.com (ответ 403), других ключей Google у нас нет"}
 
 
 collect.webmaster = _webmaster
@@ -97,6 +97,7 @@ collect.google = _google
 
 # Тексты эталона, которые у ALEX KROWN неверны (как FIXES в metrika-ev.py). Порядок важен.
 FIXES = [
+    ("OAuth-ключей Google, как у EV, нет", "других ключей Google у нас нет"),  # причина из слепка до 16.10
     ("<div class=\"ctx\">В сентябре на домене работал старый сайт на Tilda: одна посадочная страница и несколько служебных.\n"
      "Новый сайт с отдельными страницами марок, ТО и русификации запущен в октябре — поэтому почти весь трафик\n"
      "сентября приходится на главную, а запросов по маркам почти нет.</div>",
