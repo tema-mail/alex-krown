@@ -1,6 +1,7 @@
 /**
  * «Точка А» – срез аналитики alex-krown.com для админки (раздел «Метрика»): трафик, источники,
- * поиск, устройства, города, страницы входа, цели и товарный спрос (электронная коммерция).
+ * поиск, устройства, города, страницы входа, цели и товарный спрос (электронная коммерция): по товарам –
+ * за весь период и за 14 / предыдущие 14 дней, карточки товаров как вход на сайт по каналам.
  *
  *   node scripts/tochka-a.mjs [дней=365]
  *
@@ -64,6 +65,19 @@ out.landing = await table('ym:s:startURLPathFull', 'ym:s:visits,ym:s:bounceRate'
 out.products = await table('ym:s:productName', 'ym:s:productImpressions,ym:s:productBasketsQuantity,ym:s:productPurchasedQuantity,ym:s:productPurchasedPrice', {
   sort: '-ym:s:productImpressions',
   limit: '200',
+});
+/* динамика спроса: те же цифры по товарам за последние 14 дней и за 14 дней до них (окна короткие: счётчик
+   стоит с сентября 2026, длинное «прошлое» окно было бы неполным и рисовало ложный рост) */
+const PRODUCT_M = 'ym:s:productImpressions,ym:s:productBasketsQuantity,ym:s:productPurchasedQuantity,ym:s:productPurchasedPrice';
+const back = (n) => day(new Date(to.getTime() - n * 864e5));
+out.trend = { days: 14, now: [back(13), day(to)], prev: [back(27), back(14)] };
+out.productsNow = await table('ym:s:productName', PRODUCT_M, { sort: '-ym:s:productImpressions', limit: '200', date1: back(13), date2: day(to) });
+out.productsPrev = await table('ym:s:productName', PRODUCT_M, { sort: '-ym:s:productImpressions', limit: '200', date1: back(27), date2: back(14) });
+/* карточка товара как вход на сайт: с какого канала люди попадают сразу на товар (поиск, реклама, соцсети) */
+out.productEntries = await table('ym:s:startURLPath,ym:s:lastTrafficSource', 'ym:s:visits,ym:s:bounceRate', {
+  filters: "ym:s:startURLPath=@'tproduct'",
+  sort: '-ym:s:visits',
+  limit: '500',
 });
 /* цели счётчика и их достижения */
 const goals = await api(`/management/v1/counter/${COUNTER}/goals`, {});
