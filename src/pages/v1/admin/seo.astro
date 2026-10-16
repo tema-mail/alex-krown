@@ -1,36 +1,16 @@
 ---
-/** Админка → SEO: поисковые фразы и доля брендового спроса (Метрика), поисковики, страницы входа;
-    Search Console и Вебмастер – после подключения доступа (см. «Точка А»). Данные вне репозитория. */
+/** Админка → SEO-аналитика. Раздел «SEO-аналитика» кабинета EV SIBIR один в один: его же код (seo_map,
+    page_seo) строит реестр и разметку – scripts/seo-ev.py → src/data/v1/analytics/seo-ev.json.
+    Данные коммерческие: в публичной сборке раздел закрыт паролем (v1/admin/Vault.astro). */
 import AdminV1 from '../../../layouts/AdminV1.astro';
-import { brandShare, type Metrika } from '../../../v1/admin/demand';
-const files = import.meta.glob<Metrika>('../../../data/v1/analytics/metrika.json', { eager: true, import: 'default' });
-const m = Object.values(files)[0];
-const b = m ? brandShare(m) : null;
+import Vault from '../../../v1/admin/Vault.astro';
+type Seo = { fetched_at: string; html: string };
+const files = import.meta.glob<Seo>('../../../data/v1/analytics/seo-ev.json', { eager: true, import: 'default' });
+const data = Object.values(files)[0];
 ---
 
-<AdminV1 title="SEO" active="seo">
-  <div class="tools"><h1>SEO-аналитика</h1>{m && <span class="muted">{m.period.from} – {m.period.to}</span>}</div>
-  <div class="panel">
-    <h2>Источники данных</h2>
-    <table class="vt" style="width:100%"><tbody>
-      <tr><td>Яндекс Метрика</td><td>{m ? 'подключена: поисковые фразы, поисковики, страницы входа' : 'данные закрыты на показе'}</td></tr>
-      <tr><td>Google Search Console</td><td>нет доступа: сервисному аккаунту нужен доступ к ресурсу alex-krown.com</td></tr>
-      <tr><td>Яндекс Вебмастер</td><td>API не отвечает из нашей сети (известная проблема, как у Teyes) – нужен другой путь сбора</td></tr>
-    </tbody></table>
-  </div>
-  {
-    b && (
-      <>
-        <div class="panel">
-          <h2>Брендовый спрос</h2>
-          <p><b style="font-size:22px">{(b.share * 100).toFixed(0)} %</b> переходов из поиска – по названию бренда ({b.brand} из {b.all}). Небрендовых запросов (по товарам и категориям) почти нет – главная точка роста SEO.</p>
-          {b.nonBrand.length > 0 && <p class="muted">Небрендовые фразы: {b.nonBrand.map((r) => r.dims[0]).join(', ')}</p>}
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-          <div class="panel"><h2>Поисковые фразы</h2><table class="vt" style="width:100%"><tbody>{m.phrases.rows?.slice(0, 25).map((r) => <tr><td>{r.dims[0]}</td><td>{r.m[0]}</td></tr>)}</tbody></table></div>
-          <div class="panel"><h2>Поисковики и страницы входа</h2><table class="vt" style="width:100%"><tbody>{m.engines.rows?.map((r) => <tr><td>{r.dims[0]}</td><td>{r.m[0]} визитов</td></tr>)}{m.landing.rows?.slice(0, 15).map((r) => <tr><td style="word-break:break-all">{r.dims[0]}</td><td>{r.m[0]}</td></tr>)}</tbody></table></div>
-        </div>
-      </>
-    )
-  }
+<AdminV1 title="SEO-аналитика" active="seo">
+  <Vault name="seo" open={!!data}>
+    {data && <div class="seo-ev" set:html={data.html} />}
+  </Vault>
 </AdminV1>
