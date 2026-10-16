@@ -97,7 +97,6 @@ collect.google = _google
 
 # Тексты эталона, которые у ALEX KROWN неверны (как FIXES в metrika-ev.py). Порядок важен.
 FIXES = [
-    ("OAuth-ключей Google, как у EV, нет", "других ключей Google у нас нет"),  # причина из слепка до 16.10
     ("<div class=\"ctx\">В сентябре на домене работал старый сайт на Tilda: одна посадочная страница и несколько служебных.\n"
      "Новый сайт с отдельными страницами марок, ТО и русификации запущен в октябре — поэтому почти весь трафик\n"
      "сентября приходится на главную, а запросов по маркам почти нет.</div>",
@@ -161,6 +160,7 @@ def render() -> None:
             html = html.replace("<div class=\"lbl\">отправленных форм (оформление заказа и формы)</div>",
                                 f"<div class=\"lbl\">отправленных форм (оформление заказа и формы; покупок по ecommerce {buy})</div>")
             periods[month] = snap["period"]
+        html = html.replace("OAuth-ключей Google, как у EV, нет", "других ключей Google у нас нет")  # причина из слепков до 16.10
         views[month] = html.replace("—", "–")  # длинное тире владелец запретил везде
     out = {"months": list(views), "periods": periods, "views": views}
     (OUT / "tochka-a-ev.json").write_text(json.dumps(out, ensure_ascii=False), encoding="utf-8")
