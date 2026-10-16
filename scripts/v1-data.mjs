@@ -26,6 +26,16 @@ const OUT = join(ROOT, 'src/data/v1');
 const IMG = join(ROOT, 'public/v1/img');
 const CACHE = join(ROOT, 'node_modules/.cache/v1-img');
 const NO_PHOTOS = process.argv.includes('--no-photos');
+/* после запуска админки товары и каталоги правит владелец (коммиты «Админка: …») – генератор их
+   не перезаписывает без явного --overwrite-admin, иначе правки потеряются */
+{
+  const { execSync } = await import('node:child_process');
+  const last = execSync(`git -C "${join(dirname(fileURLToPath(import.meta.url)), '..')}" log -1 --format=%s -- src/data/v1/products.json src/data/v1/sections.json`).toString();
+  if (last.startsWith('Админка:') && !process.argv.includes('--overwrite-admin')) {
+    console.error(`Товары правились в админке («${last.trim()}»). Генератор перезапишет эти правки – запуск только с --overwrite-admin.`);
+    process.exit(1);
+  }
+}
 const MAX_PHOTOS = 6;
 const UA = { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/141.0 Safari/537.36', Referer: 'https://alex-krown.com/' };
 for (const d of [OUT, IMG, CACHE]) mkdirSync(d, { recursive: true });
