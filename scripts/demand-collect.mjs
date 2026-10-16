@@ -3,7 +3,8 @@
  * Периоды – те же, что посчитал код EV для «Метрики и каналов» (src/data/v1/analytics/metrika_report.json,
  * scripts/metrika-ev.py): неделя, месяц, квартал, год и пары год / месяц / квартал / неделя к предыдущим.
  * Источник – электронная коммерция Метрики: сейчас её шлёт Тильда с alex-krown.com, после переезда – сам
- * сайт (src/v1/ecommerce.ts), формат тот же. Фильтр «только люди», как во всём разделе.
+ * сайт (src/v1/ecommerce.ts), формат тот же. Товары и продажи – «только люди», как во всём разделе; входы на
+ * карточки и фразы – без этого фильтра (с ним Метрика прячет редкие строки), это подписано на экране.
  *
  *   node scripts/demand-collect.mjs     (сначала scripts/metrika-ev.py – он задаёт периоды)
  *
@@ -23,9 +24,12 @@ if (!TOKEN) throw new Error('нет YANDEX_METRIKA_TOKEN в ~/.config/yandex-met
 const report = JSON.parse(readFileSync(join(OUT, 'metrika_report.json'), 'utf8'));
 const HUMANS = "ym:s:isRobot=='No'";
 
-async function table(date1, date2, dimensions, metrics, extra = {}) {
-  const filters = extra.filters ? `(${extra.filters}) AND ${HUMANS}` : HUMANS;
-  const q = new URLSearchParams({ ids: String(COUNTER), date1, date2, dimensions, metrics, accuracy: 'full', lang: 'ru', limit: '300', ...extra, filters });
+// humans: false – без фильтра роботов: с ним Метрика скрывает редкие строки по страницам и фразам
+// (из 984 визитов отдаёт 5 крупных строк), а по товарам отдаёт всё
+async function table(date1, date2, dimensions, metrics, extra = {}, humans = true) {
+  const filters = humans ? (extra.filters ? `(${extra.filters}) AND ${HUMANS}` : HUMANS) : extra.filters;
+  const q = new URLSearchParams({ ids: String(COUNTER), date1, date2, dimensions, metrics, accuracy: 'full', lang: 'ru', limit: '300', ...extra });
+  if (filters) q.set('filters', filters); else q.delete('filters');
   if (!dimensions) q.delete('dimensions'); // итог без разреза
   for (let i = 0; i < 5; i++) {
     const r = await fetch(`https://api-metrika.yandex.net/stat/v1/data?${q}`, { headers: { Authorization: 'OAuth ' + TOKEN } });
@@ -40,12 +44,14 @@ async function table(date1, date2, dimensions, metrics, extra = {}) {
   return { error: '429 – квота API исчерпана' };
 }
 
+const onlyCards = (t) => (t.error ? t : { totals: t.totals, rows: t.rows.filter((r) => /\/tproduct\//.test(r.dims[0])) });
 const PRODUCT_M = 'ym:s:productImpressions,ym:s:productBasketsQuantity,ym:s:productPurchasedQuantity,ym:s:productPurchasedPrice';
 /** срез за период: товары, карточки как вход на сайт (по каналам), фразы поиска */
 const slice = async (d1, d2, withPhrases = true) => ({
   products: await table(d1, d2, 'ym:s:productName', PRODUCT_M, { sort: '-ym:s:productImpressions' }),
-  productEntries: await table(d1, d2, 'ym:s:startURLPath,ym:s:lastTrafficSource', 'ym:s:visits', { filters: "ym:s:startURLPath=@'tproduct'", sort: '-ym:s:visits', limit: '500' }),
-  ...(withPhrases ? { phrases: await table(d1, d2, 'ym:s:lastSearchPhrase', 'ym:s:visits', { sort: '-ym:s:visits', limit: '100' }) } : {}),
+  // карточки отбираем у себя: фильтр по адресу на стороне Метрики то отвечает «слишком сложный запрос», то пусто
+  productEntries: onlyCards(await table(d1, d2, 'ym:s:startURLPath,ym:s:lastTrafficSource', 'ym:s:visits', { sort: '-ym:s:visits', limit: '2000' }, false)),
+  ...(withPhrases ? { phrases: await table(d1, d2, 'ym:s:lastSearchPhrase', 'ym:s:visits', { sort: '-ym:s:visits', limit: '200' }, false) } : {}),
   sales: await table(d1, d2, '', 'ym:s:ecommercePurchases,ym:s:ecommerceRevenue'),
 });
 

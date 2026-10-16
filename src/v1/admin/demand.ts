@@ -1,5 +1,5 @@
 /** Анализ товарного спроса для админки «Метрика и спрос» и «Точки А».
-    Вход – выгрузка Метрики (scripts/tochka-a.mjs → src/data/v1/analytics/metrika.json, вне репо):
+    Вход – срез Метрики за период (scripts/demand-collect.mjs → src/data/v1/analytics/demand.json, вне репо):
     по товару – просмотры карточки, добавления в корзину, купленные штуки и выручка.
     Что считаем и зачем:
     - конверсия просмотр → покупка: какие вещи «продают себя», а какие смотрят и уходят;
@@ -7,7 +7,7 @@
     - сегменты: «Хиты» (покупают), «Смотрят, но не покупают» (много просмотров, 0 покупок – цена, фото,
       размеры или описание), «Тихие» (почти не смотрят – витрина и реклама), «Нет данных» (товара не было в отчёте);
     - спрос по каталогам: сумма просмотров и покупок товаров каталога;
-    - динамика: просмотры за 14 дней против 14 дней до них – что набирает интерес, что остывает;
+    - сравнение двух периодов (compareDemand): что набирает интерес, что остывает;
     - карточка как вход: сколько людей попадают сразу на товар и с какого канала (поиск, соцсети, реклама);
     - ценовые группы: где смотрят и где покупают;
     - небрендовый поиск: по каким видам товаров сайт находят без названия бренда.
@@ -15,10 +15,9 @@
 import { allProducts, allSections, sectionName, type Product } from '../site';
 
 export interface MetrikaTable { totals?: number[]; rows?: { dims: string[]; m: number[] }[]; error?: string }
-export interface Metrika { period: { from: string; to: string }; collectedAt: string; byMonth: MetrikaTable; salesByMonth: MetrikaTable; sources: MetrikaTable; engines: MetrikaTable; phrases: MetrikaTable; devices: MetrikaTable; cities: MetrikaTable; landing: MetrikaTable; products: MetrikaTable; goals: { id: number; name: string; reaches: number | null }[];
-  trend?: { days: number; now: [string, string]; prev: [string, string] }; productsNow?: MetrikaTable; productsPrev?: MetrikaTable; productEntries?: MetrikaTable }
+export interface Metrika { products: MetrikaTable; productEntries?: MetrikaTable; phrases?: MetrikaTable }
 
-export interface Demand { p: Product | null; title: string; views: number; baskets: number; qty: number; revenue: number; conv: number; abc: 'A' | 'B' | 'C' | '–'; segment: string; now: number; prev: number; entries: number; entriesSearch: number }
+export interface Demand { p: Product | null; title: string; views: number; baskets: number; qty: number; revenue: number; conv: number; abc: 'A' | 'B' | 'C' | '–'; segment: string; entries: number; entriesSearch: number }
 export interface Entry { uid: string; p: Product | null; all: number; search: number; direct: number; social: number; ads: number; other: number }
 
 const norm = (s: string) => s.toLowerCase().replace(/[«»“”"'’]/g, '').replace(/\s+/g, ' ').trim();
@@ -31,7 +30,7 @@ export function demand(m: Slice) {
   const rows = (m.products.rows ?? []).filter((r) => !/доставка/i.test(r.dims[0]));
   const list: Demand[] = rows.map((r) => {
     const [views, baskets, qty, revenue] = r.m;
-    return { p: byTitle.get(norm(r.dims[0])) ?? null, title: r.dims[0], views, baskets, qty, revenue, conv: views ? qty / views : 0, abc: '–', segment: '', now: 0, prev: 0, entries: 0, entriesSearch: 0 };
+    return { p: byTitle.get(norm(r.dims[0])) ?? null, title: r.dims[0], views, baskets, qty, revenue, conv: views ? qty / views : 0, abc: '–', segment: '', entries: 0, entriesSearch: 0 };
   });
   /* ABC по выручке */
   const total = list.reduce((s, d) => s + d.revenue, 0);
@@ -45,10 +44,6 @@ export function demand(m: Slice) {
   const sorted = list.map((d) => d.views).sort((a, b) => a - b);
   const q75 = sorted[Math.floor(sorted.length * 0.75)] ?? 0;
   for (const d of list) d.segment = d.qty > 0 ? 'Хит' : d.views >= Math.max(q75, 10) ? 'Смотрят, но не покупают' : d.views < 5 ? 'Тихий' : 'Без покупок';
-  /* динамика: просмотры за последние 14 дней и за 14 дней до них */
-  const viewsOf = (t?: MetrikaTable) => new Map((t?.rows ?? []).map((r) => [norm(r.dims[0]), r.m[0]]));
-  const nowV = viewsOf(m.productsNow), prevV = viewsOf(m.productsPrev);
-  for (const d of list) (d.now = nowV.get(norm(d.title)) ?? 0), (d.prev = prevV.get(norm(d.title)) ?? 0);
   /* карточка товара как вход на сайт: адрес /…/tproduct/<номер>-… → товар, каналы Метрики → группы */
   const ent = new Map<string, Entry>();
   for (const r of m.productEntries?.rows ?? []) {
