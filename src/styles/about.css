@@ -21,116 +21,6 @@
   white-space: nowrap;
 }
 
-/* ---------- первый экран ---------- */
-.ab-hero {
-  position: relative;
-  min-height: 100dvh;
-  display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-  align-items: end;
-  padding: 96px var(--gut) 0 !important;
-  isolation: isolate;
-}
-.ab-hero__text {
-  padding-bottom: clamp(40px, 8vh, 96px);
-  z-index: 2;
-}
-.ab-hero__name {
-  margin-top: 14px;
-  display: grid;
-  font: 400 clamp(46px, 7.4vw, 124px) / 0.95 var(--serif);
-  letter-spacing: -0.02em;
-  text-transform: uppercase;
-}
-.ab-hero__alias {
-  font-style: italic;
-  text-transform: none;
-  color: var(--mute);
-  font-size: 0.42em;
-  margin-top: 0.3em;
-}
-.ab-hero__lead {
-  margin-top: 24px;
-  max-width: 32ch;
-  font-size: 15px;
-  line-height: 1.6;
-  color: #c9c9c5;
-}
-.ab-hero__photo {
-  position: relative;
-  align-self: end;
-  justify-self: center;
-  width: min(100%, 620px);
-  z-index: 1;
-}
-.ab-hero__photo img {
-  width: 100%;
-  height: auto;
-  filter: grayscale(1) contrast(1.1);
-}
-.ab-hero__word {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -0.12em;
-  z-index: 0;
-  text-align: center;
-  font: 400 clamp(90px, 22vw, 380px) / 1 var(--serif);
-  white-space: nowrap;
-  color: transparent;
-  -webkit-text-stroke: 1px rgba(244, 244, 242, 0.16);
-  pointer-events: none;
-}
-
-.ab-hero__photo--frame {
-  width: min(100%, 460px);
-  margin-bottom: clamp(40px, 8vh, 96px);
-}
-.ab-hero__photo--frame img {
-  border-radius: 2px;
-}
-
-/* глитч: две копии фото через маску по форме вырезанной фигуры, красная и голубая, со сдвигом и
-   «рваными» полосами (clip-path). Короткие вспышки раз в несколько секунд, под курсором – постоянно. */
-.glitch::before,
-.glitch::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  -webkit-mask: var(--src) center / contain no-repeat;
-  mask: var(--src) center / contain no-repeat;
-  mix-blend-mode: screen;
-  opacity: 0;
-  pointer-events: none;
-}
-.glitch::before {
-  background: #ff2a4d;
-  animation: glitch-a 5s steps(1) infinite;
-}
-.glitch::after {
-  background: #22e3ff;
-  animation: glitch-b 5s steps(1) infinite;
-}
-.glitch:hover::before,
-.glitch:hover::after {
-  animation-duration: 0.9s;
-}
-@keyframes glitch-a {
-  0%, 86%, 100% { opacity: 0; transform: none; clip-path: inset(0); }
-  87% { opacity: 0.7; transform: translate(-6px, 2px); clip-path: inset(12% 0 64% 0); }
-  89% { opacity: 0.7; transform: translate(5px, -3px); clip-path: inset(48% 0 30% 0); }
-  91% { opacity: 0.6; transform: translate(-3px, 0); clip-path: inset(72% 0 8% 0); }
-  93% { opacity: 0.7; transform: translate(8px, 1px); clip-path: inset(30% 0 52% 0); }
-  95% { opacity: 0; }
-}
-@keyframes glitch-b {
-  0%, 86%, 100% { opacity: 0; transform: none; clip-path: inset(0); }
-  88% { opacity: 0.7; transform: translate(6px, -2px); clip-path: inset(58% 0 22% 0); }
-  90% { opacity: 0.6; transform: translate(-7px, 2px); clip-path: inset(6% 0 78% 0); }
-  92% { opacity: 0.7; transform: translate(3px, 0); clip-path: inset(36% 0 40% 0); }
-  94% { opacity: 0; }
-}
-
 /* ---------- история ---------- */
 .ab-story {
   display: grid;
@@ -425,16 +315,9 @@
 }
 
 @media (max-width: 900px) {
-  .ab-hero,
   .ab-story,
   .ab-milan {
     grid-template-columns: 1fr;
-  }
-  .ab-hero__text {
-    padding-bottom: 0;
-  }
-  .ab-hero__photo {
-    width: 86%;
   }
   .ab-craft__grid {
     grid-template-columns: 1fr;
@@ -448,8 +331,6 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .glitch::before,
-  .glitch::after,
   .ab-idol__track {
     animation: none;
   }
