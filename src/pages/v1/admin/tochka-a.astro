@@ -1,32 +1,39 @@
 ---
-/** Админка → Точка А: срез на дату сбора – трафик, продажи, спрос, SEO; с ним сравниваем «стало» после
-    запуска нового сайта. Сбор – scripts/tochka-a.mjs (Метрика); данные вне репозитория. */
+/** Админка → Точка А. Раздел «Точка А» кабинета EV SIBIR один в один: его же код собирает слепок месяца
+    и рисует экран (scripts/tochka-a-ev.py → src/data/v1/analytics/tochka-a-ev.json). Каждый месяц – свой
+    вид, переключатель месяцев EV работает на месте. Данные коммерческие: в публичной сборке раздел закрыт
+    паролем (v1/admin/Vault.astro). */
 import AdminV1 from '../../../layouts/AdminV1.astro';
-import { demand, brandShare, type Metrika } from '../../../v1/admin/demand';
-const files = import.meta.glob<Metrika>('../../../data/v1/analytics/metrika.json', { eager: true, import: 'default' });
-const m = Object.values(files)[0];
-const d = m ? demand(m) : null;
-const b = m ? brandShare(m) : null;
-const rub = (n: number) => Math.round(n).toLocaleString('ru-RU').replace(/ /g, ' ') + ' ₽';
+import Vault from '../../../v1/admin/Vault.astro';
+type Ev = { months: string[]; views: Record<string, string> };
+const files = import.meta.glob<Ev>('../../../data/v1/analytics/tochka-a-ev.json', { eager: true, import: 'default' });
+const data = Object.values(files)[0];
+const first = data?.months[0];
 ---
 
 <AdminV1 title="Точка А" active="tochka">
-  <div class="tools"><h1>Точка А</h1>{m && <span class="muted">срез {m.collectedAt.slice(0, 10)} · период {m.period.from} – {m.period.to}</span>}</div>
-  {
-    !m ? (
-      <p class="demo-note">Срез собран, но это коммерческие данные бренда – на публичном показе он не выкладывается. Отчёт «Точка А» отдан владельцу закрытой ссылкой.</p>
-    ) : (
-      <div class="panel">
-        <table class="vt" style="width:100%"><tbody>
-          <tr><td>Визиты за период</td><td><b>{m.byMonth.totals?.[0]}</b></td></tr>
-          <tr><td>Покупки / выручка</td><td><b>{m.salesByMonth.totals?.[1]} / {rub(m.salesByMonth.totals?.[2] ?? 0)}</b></td></tr>
-          <tr><td>Средний чек</td><td><b>{rub((m.salesByMonth.totals?.[2] ?? 0) / (m.salesByMonth.totals?.[1] || 1))}</b></td></tr>
-          <tr><td>Доля смартфонов</td><td><b>{(((m.devices.rows?.[0]?.m[0] ?? 0) / (m.devices.totals?.[0] || 1)) * 100).toFixed(0)} %</b></td></tr>
-          <tr><td>Брендовый поиск</td><td><b>{(b!.share * 100).toFixed(0)} %</b> переходов из поиска</td></tr>
-          <tr><td>Товары с покупками / в отчёте</td><td><b>{d!.list.filter((x) => x.qty).length} / {d!.list.length}</b></td></tr>
-          <tr><td>Без просмотров за период</td><td><b>{d!.unseen.length}</b> товаров</td></tr>
-        </tbody></table>
-      </div>
-    )
-  }
+  <Vault name="tochka-a" open={!!data}>
+    {data && data.months.map((m) => <div class="ta-view" data-month={m} hidden={m !== first} set:html={data.views[m]} />)}
+  </Vault>
 </AdminV1>
+
+<script>
+  // Месяцы в EV – ссылки /admin/tochka-a?month=…; здесь все месяцы уже на странице, показываем нужный
+  function show(month: string | null) {
+    const views = document.querySelectorAll<HTMLElement>('.ta-view');
+    if (!month || ![...views].some((v) => v.dataset.month === month)) return false;
+    views.forEach((v) => (v.hidden = v.dataset.month !== month));
+    return true;
+  }
+  const fromUrl = () => show(new URLSearchParams(location.search).get('month'));
+  fromUrl();
+  document.addEventListener('vault:open', fromUrl);
+  document.addEventListener('click', (e) => {
+    const a = (e.target as Element).closest?.('a');
+    const href = a?.getAttribute('href') || '';
+    if (!href.startsWith('/admin/tochka-a')) return;
+    e.preventDefault();
+    const month = new URLSearchParams(href.split('?')[1] || '').get('month');
+    if (show(month)) history.replaceState(null, '', '?month=' + month);
+  });
+</script>
