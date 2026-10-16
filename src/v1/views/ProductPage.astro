@@ -46,7 +46,7 @@ const first = p.photos[0];
 ---
 
 <V1
-  title={`${p.title} – купить за ${priceVaries(p) ? 'от ' : ''}${rub(minPrice(p))} | ${BRAND}`} description={description} path={p.path} ld={ld}
+  title={p.seoTitle || `${p.title} – купить за ${priceVaries(p) ? 'от ' : ''}${rub(minPrice(p))} | ${BRAND}`} description={p.seoDescr || description} path={p.path} ld={ld}
   image={first ? img(first.name) : undefined} ogType="product"
   lcp={first ? { href: img(first.name + '-s'), srcset: srcset(first), sizes: '(max-width: 900px) 82vw, 52vw' } : undefined}
 >

@@ -4,3 +4,5 @@ dist/
 reference/
 .DS_Store
 scripts/_*.tmp.mjs
+# аналитика клиента (выручка, продажи) – не в публичный репозиторий
+src/data/v1/analytics/
