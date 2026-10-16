@@ -23,7 +23,10 @@ export interface Entry { uid: string; p: Product | null; all: number; search: nu
 
 const norm = (s: string) => s.toLowerCase().replace(/[«»“”"'’]/g, '').replace(/\s+/g, ' ').trim();
 
-export function demand(m: Metrika) {
+/** срез за период: достаточно товаров; входы на карточки, динамика и фразы – если есть */
+export type Slice = Pick<Metrika, 'products'> & Partial<Metrika>;
+
+export function demand(m: Slice) {
   const byTitle = new Map(allProducts.map((p) => [norm(p.title), p]));
   const rows = (m.products.rows ?? []).filter((r) => !/доставка/i.test(r.dims[0]));
   const list: Demand[] = rows.map((r) => {
@@ -82,8 +85,8 @@ export function demand(m: Metrika) {
 }
 
 /** доля брендовых запросов среди поисковых фраз Метрики */
-export function brandShare(m: Metrika) {
-  const rows = m.phrases.rows ?? [];
+export function brandShare(m: Slice) {
+  const rows = m.phrases?.rows ?? [];
   // написания бренда – опечатки из реальной выгрузки («алек кроу», «ераун»); в фразах бывают русские буквы
   // вперемешку с латиницей («Аlex» с русской А) – проверяем и исходную фразу, и её латинскую запись
   const brand = /(alex|алекс?|александр)[\s\-]*(krown|crown|краун|кроун|крон|кроу|ераун)/i;
@@ -95,10 +98,24 @@ export function brandShare(m: Metrika) {
 }
 
 /** небрендовые фразы поиска (Метрика) с видом товара, который в них назван: «худи», «джоггеры», «куртка» */
-export function productSearch(m: Metrika) {
+export function productSearch(m: Slice) {
   const { brand, all, nonBrand } = brandShare(m);
   const kinds = [...new Set(allProducts.map((p) => p.kind).filter(Boolean))];
   const stem = (k: string) => k.toLowerCase().slice(0, Math.max(4, k.length - 2));
   const rows = nonBrand.map((r) => ({ phrase: r.dims[0], visits: r.m[0], kind: kinds.find((k) => r.dims[0].toLowerCase().includes(stem(k))) ?? null }));
   return { brand, all, rows };
+}
+
+/** сравнение двух периодов по товарам и каталогам: было → стало (вкладка «Товарный спрос» → «Сравнение») */
+export function compareDemand(now: Slice, prev: Slice) {
+  const a = demand(now), b = demand(prev);
+  const key = (d: Demand) => d.p?.uid ?? norm(d.title);
+  const before = new Map(b.list.map((d) => [key(d), d]));
+  const rows = a.list.map((d) => ({ d, was: before.get(key(d)) ?? null }));
+  for (const d of b.list) if (!a.list.some((x) => key(x) === key(d))) rows.push({ d: { ...d, views: 0, qty: 0, revenue: 0, entries: 0, entriesSearch: 0 }, was: d });
+  const sum = (l: Demand[], f: (d: Demand) => number) => l.reduce((s, d) => s + f(d), 0);
+  const tot = (x: ReturnType<typeof demand>) => ({ views: sum(x.list, (d) => d.views), qty: sum(x.list, (d) => d.qty), revenue: x.total, entries: x.entries.reduce((s, e) => s + e.all, 0), search: x.entries.reduce((s, e) => s + e.search, 0) });
+  const catsWas = new Map(b.cats.map((c) => [c.path, c]));
+  const cats = a.cats.map((c) => ({ ...c, was: catsWas.get(c.path) ?? null }));
+  return { rows, now: tot(a), prev: tot(b), cats };
 }
