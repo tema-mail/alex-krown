@@ -14,6 +14,7 @@ from __future__ import annotations
 import json
 import os
 import pathlib
+import re
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -77,6 +78,8 @@ def main() -> None:
     for k, html in views.items():
         # обёртка <main> и скрипт кнопки – страницы EV; у нас раздел живёт внутри каркаса админки
         html = html.replace(metrika_view.SCRIPT, "").replace("<main>", "", 1).replace("</main>", "", 1)
+        # «· N мин назад» EV считает сервер при каждом показе; у нас разметка застывает – оставляем дату
+        html = re.sub(r"(Данные на [0-9.]+, [0-9:]+) · [^<]+", r"\1", html)
         for a, b in FIXES:
             html = html.replace(a, b)
         views[k] = html
