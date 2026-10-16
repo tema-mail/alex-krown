@@ -4,7 +4,7 @@ import { useMemo, useState } from 'preact/hooks';
    состав с размерами, сумма, доставка, способ и статус оплаты, статус заказа, источник (UTM), история.
    Заявки – обращения без оплаты (формы, «перезвоните»), этапы как на доске.
    Своего приёмника заказов у сайта пока нет (заказ уходит в WhatsApp), поэтому без данных показывается
-   пустой список; кнопка «Показать пример» включает явно подписанные примерные записи. */
+   сразу пример с пометкой (как у эталона Elite Rose), кнопка «Скрыть пример» показывает пустой список. */
 
 export type PayStatus = 'не оплачен' | 'оплачен' | 'частично' | 'возврат';
 export type OrderStatus = 'новый' | 'подтверждён' | 'собран' | 'отправлен' | 'получен' | 'отменён';
@@ -87,8 +87,8 @@ function SalesView({ orders: init, example }: { orders: Order[]; example: boolea
             </header>
             <div class="ed__body">
               <div class="fgrid">
-                <label class="f"><span>Статус заказа</span><select value={open.status} onChange={(e) => update(open, { status: (e.target as HTMLSelectElement).value as OrderStatus }, `Статус: ${(e.target as HTMLSelectElement).value}`)}>{FLOW.map((s) => <option>{s}</option>)}</select></label>
-                <label class="f"><span>Оплата</span><select value={open.payment.status} onChange={(e) => update(open, { payment: { ...open.payment, status: (e.target as HTMLSelectElement).value as PayStatus } }, `Оплата: ${(e.target as HTMLSelectElement).value}`)}>{PAY.map((s) => <option>{s}</option>)}</select></label>
+                <label class="f"><span>Статус заказа</span><select value={open.status} onChange={(e) => update(open, { status: (e.target as HTMLSelectElement).value as OrderStatus }, `Статус: ${(e.target as HTMLSelectElement).value}`)}>{FLOW.map((s) => <option selected={s === open.status}>{s}</option>)}</select></label>
+                <label class="f"><span>Оплата</span><select value={open.payment.status} onChange={(e) => update(open, { payment: { ...open.payment, status: (e.target as HTMLSelectElement).value as PayStatus } }, `Оплата: ${(e.target as HTMLSelectElement).value}`)}>{PAY.map((s) => <option selected={s === open.payment.status}>{s}</option>)}</select></label>
               </div>
               <h3 class="ed__h3">Покупатель</h3>
               <p>{open.customer.name} · <a href={`tel:${open.customer.phone}`}>{open.customer.phone}</a>{open.customer.email && <> · {open.customer.email}</>}<br />{open.customer.city}{open.customer.address && `, ${open.customer.address}`}</p>
@@ -114,23 +114,32 @@ function SalesView({ orders: init, example }: { orders: Order[]; example: boolea
 
 function LeadsView({ leads, example }: { leads: Lead[]; example: boolean }) {
   const [list, setList] = useState(leads);
+  const [q, setQ] = useState('');
+  const [src, setSrc] = useState('');
+  const needle = q.trim().toLowerCase();
+  const shown = list.filter((l) => (!src || l.source === src) && (!needle || [l.id, l.name, l.phone].join(' ').toLowerCase().includes(needle)));
+  const sources = [...new Set(list.map((l) => l.source))];
   return (
     <>
-      <div class="tools"><h1>Заявки {example && <span class="chip">пример</span>}</h1></div>
+      <div class="tools">
+        <h1>Заявки {example && <span class="chip">пример</span>}</h1>
+        <input type="search" placeholder="Номер, имя, телефон" value={q} onInput={(e) => setQ((e.target as HTMLInputElement).value)} />
+        <select value={src} onChange={(e) => setSrc((e.target as HTMLSelectElement).value)}><option value="">Все источники</option>{sources.map((s) => <option>{s}</option>)}</select>
+      </div>
       <div class="kb">
         {STAGES.map((stg) => (
           <section class="kb__col">
-            <h2>{stg} <span>{list.filter((l) => l.stage === stg).length}</span></h2>
-            {list.filter((l) => l.stage === stg).map((l) => (
+            <h2>{stg[0].toUpperCase() + stg.slice(1)} <span>{shown.filter((l) => l.stage === stg).length}</span></h2>
+            {shown.filter((l) => l.stage === stg).map((l) => (
               <article class="kb__card">
                 <p class="kb__top"><b>№ {l.id}</b><span class="chip">{l.form}</span></p>
                 <p class="kb__who">{l.name} · {l.phone}</p>
                 {l.message && <p>{l.message}</p>}
                 <p class="kb__meta"><span>{dt(l.createdAt)}</span><span class="muted">{l.source}</span></p>
-                <select value={l.stage} onChange={(e) => setList(list.map((x) => (x.id === l.id ? { ...x, stage: (e.target as HTMLSelectElement).value as Lead['stage'] } : x)))} aria-label="Этап">{STAGES.map((s) => <option>{s}</option>)}</select>
+                <select value={l.stage} onChange={(e) => setList(list.map((x) => (x.id === l.id ? { ...x, stage: (e.target as HTMLSelectElement).value as Lead['stage'] } : x)))} aria-label="Этап">{STAGES.map((s) => <option selected={s === l.stage}>{s}</option>)}</select>
               </article>
             ))}
-            {list.filter((l) => l.stage === stg).length === 0 && <p class="muted" style="font-size:12.5px;text-align:center;padding:16px 0">Пусто</p>}
+            {shown.filter((l) => l.stage === stg).length === 0 && <p class="muted" style="font-size:12.5px;text-align:center;padding:16px 0">Пусто</p>}
           </section>
         ))}
       </div>
@@ -139,15 +148,16 @@ function LeadsView({ leads, example }: { leads: Lead[]; example: boolean }) {
 }
 
 export default function Orders({ mode, orders, leads, sampleOrders, sampleLeads }: { mode: 'sales' | 'leads'; orders: Order[]; leads: Lead[]; sampleOrders: Order[]; sampleLeads: Lead[] }) {
-  const [example, setExample] = useState(false);
   const empty = mode === 'sales' ? !orders.length : !leads.length;
+  // как у эталона Elite Rose: пока своих данных нет – сразу пример с пометкой
+  const [example, setExample] = useState(empty);
   return (
     <div>
       {empty && (
         <p class="demo-note">
           {mode === 'sales'
-            ? 'Своего приёмника заказов у сайта пока нет: заказ с сайта уходит менеджеру в WhatsApp, прежние заказы – в кабинете Тильды. Сюда заказы начнут падать, когда подключим приём (вопрос владельцу).'
-            : 'Форм заявок на сайте пока нет, а заказы уходят в WhatsApp. Здесь будут обращения с форм и «перезвоните мне», когда подключим приём.'}
+            ? (example ? 'Пример. ' : '') + 'Своего приёмника заказов у сайта пока нет: заказ с сайта уходит менеджеру в WhatsApp, прежние заказы – в кабинете Тильды. Сюда заказы начнут падать, когда подключим приём.'
+            : (example ? 'Пример доски. ' : '') + 'Сейчас заказы с сайта уходят сообщением в WhatsApp – сюда заявки начнут падать, когда подключим приёмник заявок.'}
           <button class="btn" style="margin-left:auto" onClick={() => setExample(!example)}>{example ? 'Скрыть пример' : 'Показать пример'}</button>
         </p>
       )}

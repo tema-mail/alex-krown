@@ -1,5 +1,5 @@
 ---
-/** Каркас админки магазина «Вариант 1»: вкладки как в кабинете Тильды, адрес сайта справа. Закрыта от поиска.
+/** Каркас админки магазина «Вариант 1»: вкладки и шапка как в кабинете Elite Rose (эталон), адрес сайта справа. Закрыта от поиска.
     Острова (Preact) – src/v1/admin/; сохранение каталога – коммитом через GitHub API (src/v1/admin/gh.ts). */
 import '../styles/admin.css';
 import { v1, asset, allProducts } from '../v1/site';
@@ -8,12 +8,12 @@ interface Props { title: string; active: Tab }
 const { title, active } = Astro.props;
 const site = new URL(v1(''), Astro.site).href;
 const tabs: [Tab, string, string, string][] = [
-  ['pages', 'admin', 'Страницы', ''],
-  ['products', 'admin/products', 'Каталоги и товары', String(allProducts.length)],
+  ['pages', 'admin', 'Страницы сайта', ''],
+  ['products', 'admin/products', 'Товары', String(allProducts.length)],
   ['leads', 'admin/leads', 'Заявки', ''],
   ['sales', 'admin/sales', 'Продажи', ''],
-  ['metrika', 'admin/metrika', 'Метрика и спрос', ''],
-  ['seo', 'admin/seo', 'SEO', ''],
+  ['metrika', 'admin/metrika', 'Метрика', ''],
+  ['seo', 'admin/seo', 'SEO-аналитика', ''],
   ['tochka', 'admin/tochka-a', 'Точка А', ''],
 ];
 ---
@@ -29,7 +29,7 @@ const tabs: [Tab, string, string, string][] = [
   </head>
   <body class="adm">
     <nav class="topnav" aria-label="Разделы админки">
-      <span class="brand">ALEX KROWN</span>
+      <span class="brand"><img src={asset('concepts/img/logo.svg')} alt="" style="border-radius:0;width:auto;height:28px" />ALEX KROWN</span>
       {tabs.map(([key, href, label, n]) => (
         <a class:list={['tab', { on: active === key }]} href={v1(href)}>{label}{n && <span class="n">{n}</span>}</a>
       ))}
