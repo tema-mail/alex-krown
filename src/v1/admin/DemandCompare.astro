@@ -1,0 +1,110 @@
+---
+/** «Товарный спрос» → «Сравнение»: год к году, месяц к месяцу, квартал к кварталу, неделя к неделе – как
+    «Сравнение» Метрики EV (рамки периодов mk-per, плитки с разницей mk-d). Было → стало по товарам и каталогам,
+    что набирает интерес и что остывает. Данные – demand.json (scripts/demand-collect.mjs), расчёт – compareDemand. */
+import { compareDemand, type Slice } from './demand';
+import { v1 } from '../site';
+interface Mode { label: string; prevLabel: string; date1: string; date2: string; prev1: string; prev2: string; now: Slice; prev: Slice }
+interface Props { mode: Mode; modeKey: string; collectedAt: string }
+const { mode, modeKey, collectedAt } = Astro.props;
+const MODES = [['yoy', 'Год к году'], ['mom', 'Месяц к месяцу'], ['qoq', 'Квартал к кварталу'], ['wow', 'Неделя к неделе']];
+const c = compareDemand(mode.now, mode.prev);
+const n = (x: number) => Math.round(x).toLocaleString('ru-RU').replace(/ /g, ' ');
+const rub = (x: number) => n(x) + ' ₽';
+const pct = (x: number) => (x * 100).toFixed(1).replace('.', ',') + '%';
+const day = (iso: string, y = false) => iso.split('-').reverse().slice(0, y ? 3 : 2).join('.');
+const span = (a: string, b: string) => `${day(a)} – ${day(b, true)}`;
+const days = Math.round((Date.parse(mode.date2) - Date.parse(mode.date1)) / 864e5) + 1;
+// прошлого периода может не быть: счётчик стоит с сентября 2026 – тогда «не с чем сравнить», а не «+100%»
+const empty = c.prev.views === 0;
+const delta = (now: number, was: number, money = false) => {
+  if (empty) return { cls: '', text: 'не с чем сравнить' };
+  const dlt = now - was;
+  const rel = was ? ` (${dlt > 0 ? '+' : ''}${Math.round((dlt / was) * 100)}%)` : '';
+  return { cls: dlt > 0 ? 'up' : dlt < 0 ? 'down' : '', text: `${dlt > 0 ? '▲ +' : dlt < 0 ? '▼ ' : ''}${money ? rub(dlt) : n(dlt)}${rel}` };
+};
+const convNow = c.now.views ? c.now.qty / c.now.views : 0;
+const convWas = c.prev.views ? c.prev.qty / c.prev.views : 0;
+const kpis = [
+  ['Просмотры карточек', n(c.now.views), delta(c.now.views, c.prev.views)],
+  ['Куплено вещей', n(c.now.qty), delta(c.now.qty, c.prev.qty)],
+  ['Выручка товаров', rub(c.now.revenue), delta(c.now.revenue, c.prev.revenue, true)],
+  ['Конверсия просмотр → покупка', pct(convNow), empty ? { cls: '', text: 'не с чем сравнить' } : { cls: convNow > convWas ? 'up' : convNow < convWas ? 'down' : '', text: `${((convNow - convWas) * 100 > 0 ? '+' : '') + ((convNow - convWas) * 100).toFixed(1).replace('.', ',')} п.п.` }],
+  // входы на карточки – без фильтра роботов (с ним Метрика прячет редкие страницы), см. scripts/demand-collect.mjs
+  ['Входы сразу на карточку', n(c.now.entries), delta(c.now.entries, c.prev.entries)],
+  ['Входы на карточку из поиска', n(c.now.search), delta(c.now.search, c.prev.search)],
+] as const;
+const rows = c.rows.filter((r) => r.d.p || r.was?.p);
+const moved = [...rows].sort((a, b) => Math.abs(b.d.views - (b.was?.views ?? 0)) - Math.abs(a.d.views - (a.was?.views ?? 0)));
+const up = rows.filter((r) => r.d.views > (r.was?.views ?? 0)).sort((a, b) => b.d.views - (b.was?.views ?? 0) - (a.d.views - (a.was?.views ?? 0))).slice(0, 8);
+const down = rows.filter((r) => r.d.views < (r.was?.views ?? 0)).sort((a, b) => a.d.views - (a.was?.views ?? 0) - (b.d.views - (b.was?.views ?? 0))).slice(0, 8);
+const catName = (x: { name: string; path: string }) => x.name + (x.path.startsWith('catalog/man/') ? ' · мужская' : x.path.startsWith('catalog/woman/') ? ' · женская' : '');
+const esc = (x: string) => x.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+const name = (r: (typeof rows)[number]) => { const p = r.d.p ?? r.was?.p ?? null; return p ? `<a href="${v1(p.path)}" target="_blank" rel="noopener">${esc(r.d.title)}</a>` : esc(r.d.title); };
+const cls = (now: number, was: number) => (now > was ? 'dmv-up' : now < was ? 'dmv-down' : '');
+---
+
+<div class="mk dmv">
+  <div class="mk-bar">
+    <h1>Товарный спрос</h1>
+    <div class="mk-fresh"><span class="mk-muted">Данные на {day(collectedAt.slice(0, 10), true)}</span><form class="mk-refresh"><button class="mk-btn" type="submit">Обновить</button></form></div>
+  </div>
+  <nav class="mk-switch" aria-label="Вкладка"><a href="/admin/metrika?s=demand&v=ind">Показатели</a><a href={`/admin/metrika?s=demand&v=cmp&c=${modeKey}`} class="on">Сравнение</a></nav>
+  <nav class="mk-modes" aria-label="Сравнение">{MODES.map(([k, t]) => <a href={`/admin/metrika?s=demand&v=cmp&c=${k}`} class={k === modeKey ? 'on' : ''}>{t}</a>)}</nav>
+  <div class="mk-per">
+    <div class="now"><small>Период</small><b>{span(mode.date1, mode.date2)}</b><small>{days} дн.</small></div>
+    <span class="vs">против</span>
+    <div><small>{mode.prevLabel}</small><b>{span(mode.prev1, mode.prev2)}</b><small>{modeKey === 'yoy' ? 'те же дни недели' : 'предыдущий период'}</small></div>
+  </div>
+  {empty && <div class="mk-warn"><b>Сравнивать не с чем.</b> За {span(mode.prev1, mode.prev2)} просмотров товаров в Метрике нет: счётчик стоит на сайте с сентября 2026. Сравнение заработает, когда прошлый период попадёт в историю счётчика; сейчас полное – «Неделя к неделе».</div>}
+
+  <section class="mk-kpis" aria-label="Сводка: было → стало">
+    {kpis.map(([t, v, dl]) => <div class="mk-kpi"><span class="mk-muted">{t}</span><b>{v}</b><span class={`mk-d ${dl.cls}`}>{dl.text}</span></div>)}
+    <div class="mk-kpi"><span class="mk-muted">Товаров с покупками</span><b>{rows.filter((r) => r.d.qty > 0).length}</b><span class="mk-d">было – {rows.filter((r) => (r.was?.qty ?? 0) > 0).length}</span></div>
+    <div class="mk-kpi"><span class="mk-muted">Товаров смотрели</span><b>{rows.filter((r) => r.d.views > 0).length}</b><span class="mk-d">было – {rows.filter((r) => (r.was?.views ?? 0) > 0).length}</span></div>
+  </section>
+
+  {!empty && (
+    <div class="mk-grid2">
+      <section class="panel">
+        <h2>Набирают интерес</h2>
+        <p class="mk-sub">Больше всего прибавили просмотров. Кандидаты в рекламу и на главную.</p>
+        <div class="mk-wrap"><table><thead><tr><th>Товар</th><th>Было</th><th>Стало</th></tr></thead><tbody>{up.map((r) => <tr><td set:html={name(r)} /><td>{r.was?.views ?? 0}</td><td class="dmv-up">{r.d.views}</td></tr>)}{!up.length && <tr><td colspan="3" class="mk-muted">Роста нет</td></tr>}</tbody></table></div>
+      </section>
+      <section class="panel">
+        <h2>Остывают</h2>
+        <p class="mk-sub">Больше всего потеряли просмотров. Проверить: закончились размеры, ушла реклама или пост, товар убрали с главной.</p>
+        <div class="mk-wrap"><table><thead><tr><th>Товар</th><th>Было</th><th>Стало</th></tr></thead><tbody>{down.map((r) => <tr><td set:html={name(r)} /><td>{r.was?.views ?? 0}</td><td class="dmv-down">{r.d.views}</td></tr>)}{!down.length && <tr><td colspan="3" class="mk-muted">Падения нет</td></tr>}</tbody></table></div>
+      </section>
+    </div>
+  )}
+
+  <section class="panel">
+    <h2>Товары: было → стало</h2>
+    <p class="mk-sub">Первые 40 товаров с самой большой разницей в просмотрах{empty ? ' – прошлый период пуст, поэтому «было» везде 0' : ''}.</p>
+    <div class="mk-wrap">
+      <table>
+        <thead><tr><th>Товар</th><th>Просмотры</th><th>Разница</th><th>Куплено</th><th>Выручка</th><th>Входы на карточку</th></tr></thead>
+        <tbody>
+          {moved.slice(0, 40).map((r) => (
+            <tr>
+              <td set:html={name(r)} />
+              <td>{r.was?.views ?? 0} → {r.d.views}</td>
+              <td class={cls(r.d.views, r.was?.views ?? 0)}>{r.d.views - (r.was?.views ?? 0) > 0 ? '+' : ''}{r.d.views - (r.was?.views ?? 0)}</td>
+              <td class={cls(r.d.qty, r.was?.qty ?? 0)}>{(r.was?.qty ?? 0) || r.d.qty ? `${r.was?.qty ?? 0} → ${r.d.qty}` : ''}</td>
+              <td>{(r.was?.revenue ?? 0) || r.d.revenue ? `${rub(r.was?.revenue ?? 0)} → ${rub(r.d.revenue)}` : ''}</td>
+              <td>{(r.was?.entries ?? 0) || r.d.entries ? `${r.was?.entries ?? 0} → ${r.d.entries}` : ''}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Каталоги: было → стало</h2>
+    <p class="mk-sub">Сумма по товарам раздела; первые 15 по просмотрам в текущем периоде.</p>
+    <div class="mk-wrap"><table><thead><tr><th>Раздел</th><th>Просмотры</th><th>Разница</th><th>Куплено</th><th>Выручка</th></tr></thead>
+      <tbody>{c.cats.slice(0, 15).map((x) => <tr><td><a href={v1(x.path)} target="_blank" rel="noopener">{catName(x)}</a></td><td>{x.was?.views ?? 0} → {x.views}</td><td class={cls(x.views, x.was?.views ?? 0)}>{x.views - (x.was?.views ?? 0) > 0 ? '+' : ''}{x.views - (x.was?.views ?? 0)}</td><td>{(x.was?.qty ?? 0) || x.qty ? `${x.was?.qty ?? 0} → ${x.qty}` : ''}</td><td>{(x.was?.revenue ?? 0) || x.revenue ? `${rub(x.was?.revenue ?? 0)} → ${rub(x.revenue)}` : ''}</td></tr>)}</tbody></table></div>
+  </section>
+</div>

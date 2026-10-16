@@ -1,40 +1,57 @@
 ---
 /** Админка → Метрика. Верх – раздел «Метрика и каналы» кабинета EV SIBIR один в один: его же код собирает
-    цифры и разметку (scripts/metrika-ev.py → src/data/v1/analytics/metrika-ev.json). Третья вкладка «Товарный
-    спрос» – v1/admin/DemandView.astro (данные scripts/tochka-a.mjs → metrika.json).
+    цифры и разметку (scripts/metrika-ev.py → src/data/v1/analytics/metrika-ev.json). Рядом – раздел «Товарный
+    спрос» с теми же «Показатели | Сравнение»: DemandView.astro и DemandCompare.astro (scripts/demand-collect.mjs → demand.json).
     Данные коммерческие: в публичной сборке раздел закрыт паролем (v1/admin/Vault.astro). */
 import AdminV1 from '../../../layouts/AdminV1.astro';
 import Vault from '../../../v1/admin/Vault.astro';
 import DemandView from '../../../v1/admin/DemandView.astro';
-import type { Metrika } from '../../../v1/admin/demand';
+import DemandCompare from '../../../v1/admin/DemandCompare.astro';
+import type { Slice } from '../../../v1/admin/demand';
 type Ev = { fetched_at: string; views: Record<string, string> };
 const evFiles = import.meta.glob<Ev>('../../../data/v1/analytics/metrika-ev.json', { eager: true, import: 'default' });
-const files = import.meta.glob<Metrika>('../../../data/v1/analytics/metrika.json', { eager: true, import: 'default' });
+type Period = Slice & { date1: string; date2: string };
+type Mode = { label: string; prevLabel: string; date1: string; date2: string; prev1: string; prev2: string; now: Slice; prev: Slice };
+type Dm = { collectedAt: string; periods: Record<string, Period>; modes: Record<string, Mode> };
+const dmFiles = import.meta.glob<Dm>('../../../data/v1/analytics/demand.json', { eager: true, import: 'default' });
 const ev = Object.values(evFiles)[0];
-const m = Object.values(files)[0];
+const dm = Object.values(dmFiles)[0];
 ---
 
 <AdminV1 title="Метрика" active="metrika">
+  {/* верхний уровень (владелец 17.10.2026): «Метрика и каналы» и «Товарный спрос» – у каждого свои «Показатели | Сравнение» */}
+  <nav class="mk-top" aria-label="Раздел"><a href="/admin/metrika?v=ind" data-sec="mk" class="on">Метрика и каналы</a><a href="/admin/metrika?s=demand&v=ind" data-sec="dm">Товарный спрос</a></nav>
   <Vault name="metrika" open={!!ev}>
     {ev && Object.entries(ev.views).map(([k, html]) => <div class="mk-view" data-view={k} hidden={k !== 'ind:month'} set:html={html} />)}
-    {ev && m && <div class="mk-view" data-view="demand" hidden><DemandView m={m} /></div>}
+    {dm && Object.entries(dm.periods).map(([k, p]) => <div class="mk-view" data-view={`dm:ind:${k}`} hidden><DemandView slice={p} period={k} collectedAt={dm.collectedAt} /></div>)}
+    {dm && Object.entries(dm.modes).map(([k, md]) => <div class="mk-view" data-view={`dm:cmp:${k}`} hidden><DemandCompare mode={md} modeKey={k} collectedAt={dm.collectedAt} /></div>)}
   </Vault>
 </AdminV1>
 
 <style is:global>
   .mk-later{margin:0}
+  .mk-top{display:flex;gap:4px;max-width:1160px;margin:0 auto 16px;padding:4px;border-radius:12px;background:#1c201f;overflow-x:auto}
+  .mk-top a{flex:1;text-align:center;padding:11px 18px;border-radius:9px;color:rgba(255,255,255,.75);text-decoration:none;font-size:15px;font-weight:500;white-space:nowrap}
+  .mk-top a.on{background:#fff;color:#1c201f;font-weight:600}
 </style>
 
 <script>
-  // Вкладки EV ведут на /admin/metrika?v=…&p=…|c=… – здесь все вкладки уже на странице, показываем нужную
-  const keyOf = (q: URLSearchParams) => (q.get('v') === 'demand' ? 'demand' : q.get('v') === 'cmp' || (!q.get('v') && q.get('c')) ? 'cmp:' + (q.get('c') || 'yoy') : 'ind:' + (q.get('p') || 'month'));
+  // Ссылки ведут на /admin/metrika?[s=demand&]v=…&p=…|c=… – все вкладки уже на странице, показываем нужную.
+  // s=demand – «Товарный спрос» (ключи dm:…), без него – «Метрика и каналы» EV (ключи ind:…, cmp:…)
+  const keyOf = (q: URLSearchParams) =>
+    (q.get('s') === 'demand' ? 'dm:' : '') + (q.get('v') === 'cmp' || (!q.get('v') && q.get('c')) ? 'cmp:' + (q.get('c') || 'yoy') : 'ind:' + (q.get('p') || 'month'));
   function show(key: string) {
     const views = document.querySelectorAll<HTMLElement>('.mk-view');
     if (![...views].some((v) => v.dataset.view === key)) return false;
     views.forEach((v) => (v.hidden = v.dataset.view !== key));
+    const sec = key.startsWith('dm:') ? 'dm' : 'mk';
+    document.querySelectorAll<HTMLElement>('.mk-top a').forEach((a) => a.classList.toggle('on', a.dataset.sec === sec));
     return true;
   }
-  document.addEventListener('vault:open', () => show(keyOf(new URLSearchParams(location.search))));
+  // данные уже на странице (сборка с выгрузкой) – показать сразу; в публичной – после расшифровки (vault:open)
+  const fromUrl = () => show(keyOf(new URLSearchParams(location.search)));
+  fromUrl();
+  document.addEventListener('vault:open', fromUrl);
   document.addEventListener('click', (e) => {
     const a = (e.target as Element).closest?.('a');
     const href = a?.getAttribute('href') || '';
