@@ -1,0 +1,40 @@
+---
+/** Каркас админки магазина «Вариант 1»: вкладки как в кабинете Тильды, адрес сайта справа. Закрыта от поиска.
+    Острова (Preact) – src/v1/admin/; сохранение каталога – коммитом через GitHub API (src/v1/admin/gh.ts). */
+import '../styles/admin.css';
+import { v1, asset, allProducts } from '../v1/site';
+type Tab = 'pages' | 'products' | 'leads' | 'sales' | 'metrika' | 'seo' | 'tochka';
+interface Props { title: string; active: Tab }
+const { title, active } = Astro.props;
+const site = new URL(v1(''), Astro.site).href;
+const tabs: [Tab, string, string, string][] = [
+  ['pages', 'admin', 'Страницы', ''],
+  ['products', 'admin/products', 'Каталоги и товары', String(allProducts.length)],
+  ['leads', 'admin/leads', 'Заявки', ''],
+  ['sales', 'admin/sales', 'Продажи', ''],
+  ['metrika', 'admin/metrika', 'Метрика и спрос', ''],
+  ['seo', 'admin/seo', 'SEO', ''],
+  ['tochka', 'admin/tochka-a', 'Точка А', ''],
+];
+---
+
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{title} – админка ALEX KROWN</title>
+    <link rel="icon" href={asset('concepts/img/logo.svg')} type="image/svg+xml" />
+  </head>
+  <body class="adm">
+    <nav class="topnav" aria-label="Разделы админки">
+      <span class="brand">ALEX KROWN</span>
+      {tabs.map(([key, href, label, n]) => (
+        <a class:list={['tab', { on: active === key }]} href={v1(href)}>{label}{n && <span class="n">{n}</span>}</a>
+      ))}
+      <span class="site">Сайт: <a href={site} target="_blank" rel="noopener">{site.replace(/^https?:\/\//, '')}</a></span>
+    </nav>
+    <main><slot /></main>
+  </body>
+</html>

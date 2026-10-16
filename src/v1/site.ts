@@ -11,12 +11,21 @@ export interface Product {
   uid: string; path: string; title: string; price: number; priceOld: number | null; sizes: Size[];
   kind: string; color: string; descr: string; composition: string; sizeChart: Photo | null;
   parts: string[]; sort: number; photos: Photo[];
+  /** скрыт с сайта (админка) */
+  hidden?: boolean;
+  seoTitle?: string;
+  seoDescr?: string;
 }
 export interface Section { path: string; storepart: string; title: string; description: string; h1: string; name: string | null; uids: string[] }
 export interface InfoPage { path: string; title: string; description: string; h1: string; paras: string[] }
 
-export const products = productsJson as Product[];
-export const sections = sectionsJson as Section[];
+/** все товары (админка); на сайт, в разделы, фиды и карту сайта идут только видимые */
+export const allProducts = productsJson as Product[];
+export const products = allProducts.filter((p) => !p.hidden);
+const visible = new Set(products.map((p) => p.uid));
+export const sections = (sectionsJson as Section[]).map((s) => ({ ...s, uids: s.uids.filter((u) => visible.has(u)) }));
+/** разделы как в данных, со скрытыми товарами – для админки */
+export const allSections = sectionsJson as Section[];
 export const infoPages = pagesJson as InfoPage[];
 export const byUid = new Map(products.map((p) => [p.uid, p]));
 

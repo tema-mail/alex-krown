@@ -1,0 +1,83 @@
+---
+/** Админка → Страницы: все страницы магазина по сущностям (Главная, Каталоги с подразделами и карточками,
+    Текстовые, Технические, Фиды) – как в админках Elite Rose и Evolution CB. Каталоги раскрываются. */
+import AdminV1 from '../../../layouts/AdminV1.astro';
+import { v1, img, allProducts, allSections, infoPages, sectionName, MENU } from '../../../v1/site';
+const full = (p: string) => new URL(v1(p), Astro.site).href;
+const top = allSections.filter((s) => s.path.split('/').length <= 2 && s.path !== 'catalog');
+const subs = (path: string) => allSections.filter((s) => s.path.startsWith(path + '/'));
+const tech = [['Оформление заказа', 'order'], ['Избранное', 'favorites']];
+const feeds = [['Фид Google Merchant', 'feeds/google.xml'], ['Фид Яндекса (YML)', 'feeds/yandex.xml'], ['Карта сайта', 'sitemap.xml']];
+const hidden = allProducts.filter((p) => p.hidden).length;
+const total = 1 + allSections.length + allProducts.length - hidden + infoPages.length + tech.length;
+const order = (p: string) => MENU.findIndex(([, m]) => m === p);
+---
+
+<AdminV1 title="Страницы" active="pages">
+  <div class="tools">
+    <h1>Страницы сайта</h1>
+    <span class="muted">{total} страниц{hidden ? ` · ${hidden} товаров скрыто` : ''}</span>
+    <a class="btn" href={v1('')} target="_blank">Открыть сайт ↗</a>
+  </div>
+  <div class="pages">
+    <div class="phead"><span></span><span>Страница</span><span>Адрес</span><span style="text-align:right">Сущность</span></div>
+
+    <div class="pgroup">Главная <span>1</span></div>
+    <div class="prow">
+      <img class="thumb" src={`${import.meta.env.BASE_URL.replace(/\/$/, '')}/concepts/video/milan-mfw2025-street-s.webp`} alt="" />
+      <div><span class="pname">Главная</span><div class="muted" style="font-size:12px">Видео, новая коллекция, категории, товары</div></div>
+      <a class="purl" href={v1('')} target="_blank">{full('')}</a>
+      <span class="pkind">Главная</span>
+    </div>
+
+    <div class="pgroup">Каталоги <span>{allSections.length} разделов · {allProducts.length} карточек товара</span></div>
+    {
+      top.sort((a, b) => order(a.path) - order(b.path)).map((s) => (
+        <details class="pcat">
+          <summary class="prow">
+            {allProducts.find((p) => p.uid === s.uids[0])?.photos[0] ? <img class="thumb" src={img(allProducts.find((p) => p.uid === s.uids[0])!.photos[0].name + '-s')} alt="" loading="lazy" /> : <span class="thumb" />}
+            <div><span class="pname"><i class="caret"></i>{sectionName(s)}</span><div class="muted" style="font-size:12px">{s.uids.length} товаров{subs(s.path).length ? ` · ${subs(s.path).length} подразделов` : ''}</div></div>
+            <a class="purl" href={v1(s.path)} target="_blank">{full(s.path)}</a>
+            <span class="pkind">Каталог</span>
+          </summary>
+          {subs(s.path).map((x) => (
+            <div class="prow lvl1">
+              <span></span>
+              <div><span class="pname">{sectionName(x)}</span><div class="muted" style="font-size:12px">{x.uids.length} товаров · {x.title}</div></div>
+              <a class="purl" href={v1(x.path)} target="_blank">/v1/{x.path}/</a>
+              <span class="pkind">Подраздел</span>
+            </div>
+          ))}
+          {s.uids.map((u) => allProducts.find((p) => p.uid === u)).filter(Boolean).slice(0, 60).map((p) => (
+            <div class="prow lvl1">
+              {p!.photos[0] ? <img class="thumb" src={img(p!.photos[0].name + '-s')} alt="" loading="lazy" /> : <span class="thumb" />}
+              <div><span class="pname">{p!.title}{p!.hidden && <span class="chip" style="margin-left:8px">скрыт</span>}</span><div class="muted" style="font-size:12px">{p!.price.toLocaleString('ru-RU')} ₽</div></div>
+              <a class="purl" href={v1(p!.path)} target="_blank">/v1/{p!.path}/</a>
+              <span class="pkind">Карточка товара</span>
+            </div>
+          ))}
+        </details>
+      ))
+    }
+
+    <div class="pgroup">Текстовые страницы <span>{infoPages.length}</span></div>
+    {infoPages.map((pg) => (
+      <div class="prow">
+        <span></span>
+        <div><span class="pname">{pg.h1 || pg.title}</span><div class="muted" style="font-size:12px">{pg.title}</div></div>
+        <a class="purl" href={v1(pg.path)} target="_blank">{full(pg.path)}</a>
+        <span class="pkind">{/policy|personal|offer/.test(pg.path) ? 'Юридическая' : 'Страница'}</span>
+      </div>
+    ))}
+
+    <div class="pgroup">Технические <span>{tech.length + feeds.length}</span></div>
+    {[...tech, ...feeds].map(([n, p]) => (
+      <div class="prow">
+        <span></span>
+        <span class="pname">{n}</span>
+        <a class="purl" href={v1(p).replace(/\/$/, p.includes('.') ? '' : '/')} target="_blank">{full(p).replace(/\/$/, p.includes('.') ? '' : '/')}</a>
+        <span class="pkind">{p.includes('.') ? 'Фид' : 'Техническая'}</span>
+      </div>
+    ))}
+  </div>
+</AdminV1>
