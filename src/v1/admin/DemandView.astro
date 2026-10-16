@@ -1,0 +1,137 @@
+---
+/** Метрика → вкладка «Товарный спрос» (третья рядом с «Показатели | Сравнение», владелец 16.10.2026).
+    Вид – классы раздела EV (mk-*: плитки, панели, таблицы), стили приходят с разметкой EV на той же странице.
+    Данные – выгрузка Метрики (scripts/tochka-a.mjs → metrika.json), расчёты – v1/admin/demand.ts. */
+import { demand, productSearch, type Metrika } from './demand';
+import { allProducts, img, v1 } from '../site';
+interface Props { m: Metrika }
+const { m } = Astro.props;
+const d = demand(m);
+const s = productSearch(m);
+const n = (x: number) => Math.round(x).toLocaleString('ru-RU').replace(/ /g, ' ');
+const rub = (x: number) => n(x) + ' ₽';
+const pct = (x: number) => (x * 100).toFixed(1).replace('.', ',') + '%';
+const dt = (iso: string) => iso.split('-').reverse().slice(0, 2).join('.');
+const views = d.list.reduce((a, x) => a + x.views, 0);
+const qty = d.list.reduce((a, x) => a + x.qty, 0);
+const visible = allProducts.filter((p) => !p.hidden).length;
+const seen = d.list.filter((x) => x.p && x.views > 0).length;
+const hits = d.list.filter((x) => x.qty > 0).length;
+const entAll = d.entries.reduce((a, e) => a + e.all, 0);
+const entSearch = d.entries.reduce((a, e) => a + e.search, 0);
+const segs = ['Хит', 'Смотрят, но не покупают', 'Без покупок', 'Тихий'].map((x) => [x, d.list.filter((y) => y.segment === x).length] as const);
+const moving = d.list.filter((x) => x.p && Math.max(x.now, x.prev) >= 5);
+const up = [...moving].sort((a, b) => b.now - b.prev - (a.now - a.prev)).filter((x) => x.now > x.prev).slice(0, 8);
+const down = [...moving].sort((a, b) => a.now - a.prev - (b.now - b.prev)).filter((x) => x.now < x.prev).slice(0, 8);
+const t = m.trend;
+// «Худи» и «Куртки» есть и у мужской, и у женской одежды – подписываем, чьи
+const catName = (c: { name: string; path: string }) => c.name + (c.path.startsWith('catalog/man/') ? ' · мужская' : c.path.startsWith('catalog/woman/') ? ' · женская' : '');
+const kindRows = s.rows.filter((r) => r.kind);
+const link = (p: { path: string } | null, title: string) => (p ? `<a href="${v1(p.path)}" target="_blank" rel="noopener">${title.replace(/</g, '&lt;')}</a>` : title.replace(/</g, '&lt;'));
+---
+
+<div class="mk dmv">
+  <div class="mk-bar">
+    <h1>Метрика и каналы</h1>
+    <div class="mk-fresh"><span class="mk-muted">Данные на {m.collectedAt.slice(0, 10).split('-').reverse().join('.')}</span><form class="mk-refresh"><button class="mk-btn" type="submit">Обновить</button></form></div>
+  </div>
+  <nav class="mk-switch" aria-label="Вкладка"><a href="/admin/metrika?v=ind">Показатели</a><a href="/admin/metrika?v=cmp">Сравнение</a><a href="/admin/metrika?v=demand" class="on">Товарный спрос</a></nav>
+  <p class="mk-muted" style="margin:0">{dt(m.period.from)}.{m.period.from.slice(0, 4)} – {dt(m.period.to)}.{m.period.to.slice(0, 4)} · счётчик на сайте с сентября 2026 · электронная коммерция Метрики: Тильда передаёт просмотры карточек и покупки, добавления в корзину – нет</p>
+
+  <section class="mk-kpis" aria-label="Сводка по товарам">
+    <div class="mk-kpi"><span class="mk-muted">Просмотры карточек</span><b>{n(views)}</b></div>
+    <div class="mk-kpi main"><span class="mk-muted">Куплено вещей</span><b>{n(qty)}</b><span class="mk-d">товаров с покупками – {hits}</span></div>
+    <div class="mk-kpi"><span class="mk-muted">Выручка товаров</span><b>{rub(d.total)}</b><span class="mk-d">без доставки; доставка – {rub(d.delivery)}</span></div>
+    <div class="mk-kpi"><span class="mk-muted">Конверсия просмотр → покупка</span><b>{pct(views ? qty / views : 0)}</b></div>
+    <div class="mk-kpi"><span class="mk-muted">Товары, которые смотрели</span><b>{seen} из {visible}</b><span class="mk-d">без просмотров – {d.unseen.length}</span></div>
+    <div class="mk-kpi"><span class="mk-muted">Средняя цена проданной вещи</span><b>{rub(qty ? d.total / qty : 0)}</b></div>
+    <div class="mk-kpi"><span class="mk-muted">Входы сразу на карточку</span><b>{n(entAll)}</b><span class="mk-d">из поиска – {n(entSearch)}</span></div>
+    <div class="mk-kpi"><span class="mk-muted">Сопоставлено с каталогом</span><b>{d.matched} из {d.list.length}</b><span class="mk-d">по названию товара</span></div>
+  </section>
+
+  <section class="panel">
+    <h2>Товары: что смотрят и что покупают</h2>
+    <p class="mk-sub">Сегменты: «Хит» – есть покупки; «Смотрят, но не покупают» – в верхней четверти по просмотрам и ни одной покупки (цена, фото, размеры или описание); «Тихий» – меньше 5 просмотров. ABC – доля в выручке: A – первые 80%, B – следующие 15%, C – остальное. «14 дн.» – просмотры за {t ? `${dt(t.prev[0])}–${dt(t.prev[1])} → ${dt(t.now[0])}–${dt(t.now[1])}` : 'две последние двухнедели'}.</p>
+    <div class="mk-leg">{segs.map(([x, k]) => <span class="chip">{x}: {k}</span>)}</div>
+    <div class="mk-wrap">
+      <table>
+        <thead><tr><th>Товар</th><th>Просмотры</th><th>14 дн.</th><th>Входы на карточку</th><th>Куплено</th><th>Выручка</th><th>Конверсия</th><th>ABC</th><th>Сегмент</th></tr></thead>
+        <tbody>
+          {d.list.slice(0, 80).map((x) => (
+            <tr>
+              <td><span class="dmv-p">{x.p?.photos[0] ? <img src={img(x.p.photos[0].name + '-s')} alt="" loading="lazy" /> : <i />}<span set:html={link(x.p, x.title)} /></span></td>
+              <td>{x.views}</td>
+              <td class={x.now > x.prev ? 'dmv-up' : x.now < x.prev ? 'dmv-down' : ''}>{x.prev} → {x.now}</td>
+              <td>{x.entries || ''}</td><td>{x.qty || ''}</td><td>{x.revenue ? rub(x.revenue) : ''}</td><td>{x.qty ? pct(x.conv) : ''}</td><td><b>{x.abc}</b></td><td>{x.segment}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="mk-grid2">
+    <section class="panel">
+      <h2>Набирают интерес</h2>
+      <p class="mk-sub">Просмотры за последние {t?.days ?? 14} дней против {t?.days ?? 14} дней до них – больше всего прибавили. Кандидаты в рекламу и на главную.</p>
+      <div class="mk-wrap"><table><thead><tr><th>Товар</th><th>Было</th><th>Стало</th></tr></thead><tbody>{up.map((x) => <tr><td set:html={link(x.p, x.title)} /><td>{x.prev}</td><td class="dmv-up">{x.now}</td></tr>)}{!up.length && <tr><td colspan="3" class="mk-muted">Роста нет</td></tr>}</tbody></table></div>
+    </section>
+    <section class="panel">
+      <h2>Остывают</h2>
+      <p class="mk-sub">Больше всего потеряли просмотров. Проверить: закончились размеры, ушла реклама или пост, товар убрали с главной.</p>
+      <div class="mk-wrap"><table><thead><tr><th>Товар</th><th>Было</th><th>Стало</th></tr></thead><tbody>{down.map((x) => <tr><td set:html={link(x.p, x.title)} /><td>{x.prev}</td><td class="dmv-down">{x.now}</td></tr>)}{!down.length && <tr><td colspan="3" class="mk-muted">Падения нет</td></tr>}</tbody></table></div>
+    </section>
+  </div>
+
+  <section class="panel">
+    <h2>Карточка товара как вход на сайт</h2>
+    <p class="mk-sub">Сколько визитов начались сразу на странице товара и откуда пришли люди. Поиск здесь – это SEO карточки: товар находят без главной. Всего входов на карточки – {n(entAll)}, из поиска – {n(entSearch)}.</p>
+    <div class="mk-wrap">
+      <table>
+        <thead><tr><th>Товар</th><th>Всего</th><th>Поиск</th><th>Прямые</th><th>Соцсети</th><th>Реклама</th><th>Внутренние и другие</th></tr></thead>
+        <tbody>{d.entries.slice(0, 25).map((e) => <tr><td set:html={link(e.p, e.p?.title ?? `товар № ${e.uid} (нет в каталоге v1)`)} /><td><b>{e.all}</b></td><td>{e.search || ''}</td><td>{e.direct || ''}</td><td>{e.social || ''}</td><td>{e.ads || ''}</td><td>{e.other || ''}</td></tr>)}</tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Цена и покупки</h2>
+    <p class="mk-sub">Где смотрят и где покупают по ценовым группам каталога.</p>
+    <div class="mk-wrap"><table><thead><tr><th>Цена</th><th>Товаров</th><th>Просмотры</th><th>Куплено</th><th>Конверсия</th><th>Выручка</th></tr></thead>
+      <tbody>{d.bands.map((b) => <tr><td>{b.label}</td><td>{b.products}</td><td>{b.views}</td><td>{b.qty || ''}</td><td>{b.views && b.qty ? pct(b.qty / b.views) : ''}</td><td>{b.revenue ? rub(b.revenue) : ''}</td></tr>)}</tbody></table></div>
+  </section>
+
+  <section class="panel">
+    <h2>Спрос по каталогам</h2>
+    <p class="mk-sub">Сумма по товарам раздела; товар в нескольких разделах считается в каждом. Первые 15 по просмотрам, остальные – ниже.</p>
+    <div class="mk-wrap"><table><thead><tr><th>Раздел</th><th>Товаров</th><th>Просмотры</th><th>Куплено</th><th>Конверсия</th><th>Выручка</th></tr></thead>
+      <tbody>{d.cats.slice(0, 15).map((c) => <tr><td><a href={v1(c.path)} target="_blank" rel="noopener">{catName(c)}</a></td><td>{c.products}</td><td>{c.views}</td><td>{c.qty || ''}</td><td>{c.views && c.qty ? pct(c.qty / c.views) : ''}</td><td>{c.revenue ? rub(c.revenue) : ''}</td></tr>)}</tbody></table></div>
+    {d.cats.length > 15 && (
+      <details style="margin-top:10px"><summary class="mk-muted" style="cursor:pointer">Остальные разделы – {d.cats.length - 15}</summary>
+        <div class="mk-wrap"><table><tbody>{d.cats.slice(15).map((c) => <tr><td><a href={v1(c.path)} target="_blank" rel="noopener">{catName(c)}</a></td><td>{c.products}</td><td>{c.views}</td><td>{c.qty || ''}</td><td>{c.views && c.qty ? pct(c.qty / c.views) : ''}</td><td>{c.revenue ? rub(c.revenue) : ''}</td></tr>)}</tbody></table></div>
+      </details>
+    )}
+  </section>
+
+  <section class="panel">
+    <h2>Поиск по товарам без бренда</h2>
+    <p class="mk-sub">Фразы из поиска Яндекса и Google, по которым пришли на сайт (Метрика). С названием бренда – {s.brand} визитов из {s.all}; ниже – фразы без бренда и вид товара, если он назван. Сколько людей ищут эти товары в целом (Wordstat) и на каком месте сайт – в «SEO-аналитике», когда подключим Search Console и Вебмастер.</p>
+    <div class="mk-wrap"><table><thead><tr><th>Фраза</th><th>Визиты</th><th>Вид товара</th></tr></thead>
+      <tbody>{s.rows.map((r) => <tr><td>{r.phrase}</td><td>{r.visits}</td><td>{r.kind ?? ''}</td></tr>)}{!s.rows.length && <tr><td colspan="3" class="mk-muted">Небрендовых фраз нет</td></tr>}</tbody></table></div>
+    <p class="mk-muted" style="margin:8px 0 0">Фраз с видом товара – {kindRows.length}, визитов по ним – {kindRows.reduce((a, r) => a + r.visits, 0)}.</p>
+  </section>
+
+  <details class="panel">
+    <summary><b>Товары без просмотров – {d.unseen.length}</b> <span class="mk-muted">видимые на сайте, но в отчёте Метрики их нет: витрина их не показывает или они новые</span></summary>
+    <ul class="dmv-unseen">{d.unseen.map((p) => <li><a href={v1(p.path)} target="_blank" rel="noopener">{p.title}</a> <span class="mk-muted">{rub(p.price)}</span></li>)}</ul>
+  </details>
+</div>
+
+<style is:global>
+  .dmv-p{display:flex;align-items:center;gap:10px;min-width:220px}
+  .dmv-p img,.dmv-p i{width:36px;height:44px;border-radius:5px;object-fit:cover;flex:none;background:#eef0ef}
+  .dmv-up{color:var(--good);font-weight:600}
+  .dmv-down{color:var(--bad);font-weight:600}
+  .dmv-unseen{columns:2 280px;margin:12px 0 0;padding-left:18px;font-size:13px;line-height:1.7}
+  .dmv details summary{cursor:pointer}
+</style>

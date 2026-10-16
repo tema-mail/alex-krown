@@ -82,6 +82,9 @@ def main() -> None:
         html = re.sub(r"(Данные на [0-9.]+, [0-9:]+) · [^<]+", r"\1", html)
         # ссылки на страницы сайта у EV относительные (админка на том же домене) – у нас ведут на alex-krown.com
         html = re.sub(r'href="(/(?!admin/)[^"]*)"', lambda m: f'href="{SITE}{m.group(1)}"', html)
+        # третья вкладка «Товарный спрос» (владелец 16.10.2026) – рисует src/v1/admin/DemandView.astro
+        html = re.sub(r'(<nav class="mk-switch"[^>]*>.*?)</nav>',
+                      lambda m: m.group(1) + '<a href="/admin/metrika?v=demand" class="">Товарный спрос</a></nav>', html, count=1)
         for a, b in FIXES:
             html = html.replace(a, b)
         views[k] = html

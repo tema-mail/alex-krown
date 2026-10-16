@@ -1,69 +1,33 @@
 ---
 /** Админка → Метрика. Верх – раздел «Метрика и каналы» кабинета EV SIBIR один в один: его же код собирает
-    цифры и разметку (scripts/metrika-ev.py → src/data/v1/analytics/metrika-ev.json). Низ – анализ товарного
-    спроса по просьбе владельца (v1/admin/demand.ts, данные scripts/tochka-a.mjs → metrika.json).
+    цифры и разметку (scripts/metrika-ev.py → src/data/v1/analytics/metrika-ev.json). Третья вкладка «Товарный
+    спрос» – v1/admin/DemandView.astro (данные scripts/tochka-a.mjs → metrika.json).
     Данные коммерческие: в публичной сборке раздел закрыт паролем (v1/admin/Vault.astro). */
 import AdminV1 from '../../../layouts/AdminV1.astro';
 import Vault from '../../../v1/admin/Vault.astro';
-import { demand, type Metrika } from '../../../v1/admin/demand';
-import { v1, img } from '../../../v1/site';
+import DemandView from '../../../v1/admin/DemandView.astro';
+import type { Metrika } from '../../../v1/admin/demand';
 type Ev = { fetched_at: string; views: Record<string, string> };
 const evFiles = import.meta.glob<Ev>('../../../data/v1/analytics/metrika-ev.json', { eager: true, import: 'default' });
 const files = import.meta.glob<Metrika>('../../../data/v1/analytics/metrika.json', { eager: true, import: 'default' });
 const ev = Object.values(evFiles)[0];
 const m = Object.values(files)[0];
-const d = m ? demand(m) : null;
-const rub = (n: number) => Math.round(n).toLocaleString('ru-RU').replace(/ /g, ' ') + ' ₽';
-const pct = (n: number) => (n * 100).toFixed(1).replace('.', ',') + ' %';
-const segs = d ? ['Хит', 'Смотрят, но не покупают', 'Без покупок', 'Тихий'].map((s) => [s, d.list.filter((x) => x.segment === s).length]) : [];
 ---
 
 <AdminV1 title="Метрика" active="metrika">
   <Vault name="metrika" open={!!ev}>
     {ev && Object.entries(ev.views).map(([k, html]) => <div class="mk-view" data-view={k} hidden={k !== 'ind:month'} set:html={html} />)}
-    {
-      d && m && (
-        <div class="dm">
-          <div class="panel">
-            <h2>Товарный спрос</h2>
-            <p class="muted" style="margin-top:-6px">{m.period.from} – {m.period.to}. {d.list.length} товаров в отчёте Метрики, сопоставлено с каталогом {d.matched}; без просмотров за период – {d.unseen.length}. Добавления в корзину Тильда в Метрику не передавала. Выручка без доставки: {rub(d.total)} (доставка СДЭК – {rub(d.delivery)}).</p>
-            <p>{segs.map(([s, n]) => <span class="chip">{s}: {n}</span>)}</p>
-            <div class="dm-wrap">
-              <table class="vt" style="width:100%">
-                <thead><tr><th></th><th>Товар</th><th>Просмотры</th><th>Куплено, шт.</th><th>Выручка</th><th>Конверсия</th><th>ABC</th><th>Сегмент</th></tr></thead>
-                <tbody>
-                  {d.list.slice(0, 60).map((x) => (
-                    <tr>
-                      <td>{x.p?.photos[0] ? <img class="thumb" src={img(x.p.photos[0].name + '-s')} alt="" loading="lazy" /> : null}</td>
-                      <td>{x.p ? <a href={v1(x.p.path)} target="_blank">{x.title}</a> : x.title}</td>
-                      <td>{x.views}</td><td>{x.qty || ''}</td><td>{x.revenue ? rub(x.revenue) : ''}</td><td>{x.qty ? pct(x.conv) : ''}</td><td><b>{x.abc}</b></td><td><span class="chip">{x.segment}</span></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-          <div class="panel">
-            <h2>Спрос по каталогам</h2>
-            <div class="dm-wrap">
-              <table class="vt" style="width:100%"><thead><tr><th>Каталог</th><th>Товаров</th><th>Просмотры</th><th>Куплено</th><th>Выручка</th></tr></thead><tbody>{d.cats.map((c) => <tr><td><a href={v1(c.path)} target="_blank">{c.name}</a></td><td>{c.products}</td><td>{c.views}</td><td>{c.qty}</td><td>{c.revenue ? rub(c.revenue) : ''}</td></tr>)}</tbody></table>
-            </div>
-          </div>
-        </div>
-      )
-    }
+    {ev && m && <div class="mk-view" data-view="demand" hidden><DemandView m={m} /></div>}
   </Vault>
 </AdminV1>
 
 <style is:global>
-  .dm{max-width:1160px;margin:14px auto 0}
-  .dm-wrap{overflow-x:auto}
   .mk-later{margin:0}
 </style>
 
 <script>
   // Вкладки EV ведут на /admin/metrika?v=…&p=…|c=… – здесь все вкладки уже на странице, показываем нужную
-  const keyOf = (q: URLSearchParams) => (q.get('v') === 'cmp' || (!q.get('v') && q.get('c')) ? 'cmp:' + (q.get('c') || 'yoy') : 'ind:' + (q.get('p') || 'month'));
+  const keyOf = (q: URLSearchParams) => (q.get('v') === 'demand' ? 'demand' : q.get('v') === 'cmp' || (!q.get('v') && q.get('c')) ? 'cmp:' + (q.get('c') || 'yoy') : 'ind:' + (q.get('p') || 'month'));
   function show(key: string) {
     const views = document.querySelectorAll<HTMLElement>('.mk-view');
     if (![...views].some((v) => v.dataset.view === key)) return false;
