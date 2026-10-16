@@ -7,6 +7,6 @@ const labels = Object.fromEntries(MENU.map(([t, p]) => [p, t]));
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 
-<AdminV1 title="Каталоги и товары" active="products">
+<AdminV1 title="Товары" active="products">
   <ProductsAdmin client:load items={allProducts} secs={allSections} labels={labels} imgBase={asset('v1/img').replace(/\/$/, '')} siteBase={`${base}/v1`} />
 </AdminV1>

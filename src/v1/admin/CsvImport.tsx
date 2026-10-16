@@ -7,7 +7,8 @@ import { slugify } from './gh';
    через gh.ts), поэтому файл разбирается, показывается предпросмотр изменений, а «Загрузить» сохраняет
    их одним коммитом тем же механизмом, что и правка товара. Колонки – формат выгрузки эталона
    (магазин Тильды), под модель ALEX KROWN: номер товара, несколько каталогов, размеры, остаток.
-   Этот же модуль формирует выгрузку (src/pages/v1/admin/products.csv.ts), чтобы колонки не разошлись. */
+   Этот же модуль формирует выгрузку (downloadCsv) – в браузере, после входа в кабинет: отдельного адреса
+   с файлом нет, чтобы товары (и скрытые) не отдавались без логина и пароля. */
 
 type P = Record<string, any> & { uid: string; path: string; title: string; price: number; priceOld: number | null; sizes: { size: string; price: number; priceOld: number | null }[] };
 type S = { path: string; uids: string[] } & Record<string, any>;
@@ -44,6 +45,18 @@ export const csvRow = (p: P, cats: string[], photoUrl: (name: string) => string,
     p.price, p.priceOld ?? '', encSizes(p), p.stock ?? '', url].map(q).join(';');
 /** файл CSV как у эталона: UTF-8 с BOM, разделитель «;» – открывается в Excel */
 export const csvFile = (rows: string[]) => '﻿' + [COLS.join(';'), ...rows].join('\r\n');
+
+/** «Экспорт CSV»: все товары, включая скрытые, – файл скачивается из браузера, в формате окна импорта */
+export function downloadCsv(raw: P[], secs: S[], imgBase: string, siteBase: string) {
+  const abs = (u: string) => new URL(u, location.origin).href;
+  const rows = raw.map((p) => csvRow(p, secs.filter((s) => s.path !== 'catalog' && s.uids.includes(p.uid)).map((s) => s.path),
+    (name) => abs(`${imgBase}/${name}.webp`), abs(`${siteBase}/${p.path}/`)));
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csvFile(rows)], { type: 'text/csv;charset=utf-8' }));
+  a.download = 'products.csv';
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
 
 function parseCsv(text: string): string[][] {
   text = text.replace(/^﻿/, '');
@@ -151,8 +164,8 @@ function plan(text: string, raw: P[], secs: S[], opts: Opts, placeIn: (s: S[], u
   return { raw: nextRaw, secs: nextSecs, changes, warns };
 }
 
-export default function CsvImport({ raw, secs, siteBase, placeIn, onApply, onClose }: {
-  raw: P[]; secs: S[]; siteBase: string;
+export default function CsvImport({ raw, secs, siteBase, imgBase, placeIn, onApply, onClose }: {
+  raw: P[]; secs: S[]; siteBase: string; imgBase: string;
   placeIn: (s: S[], uid: string, want: string[]) => S[];
   onApply: (raw: P[], secs: S[], message: string) => void; onClose: () => void;
 }) {
@@ -196,7 +209,7 @@ export default function CsvImport({ raw, secs, siteBase, placeIn, onApply, onClo
                 {file ? <><b>{file.name}</b><span>Найдено строк с товарами: {Math.max(0, parseCsv(file.text).length - 1)}</span></> : <><b>Выберите CSV-файл</b><span>или перетащите его сюда · кодировка UTF-8, разделитель «;»</span></>}
               </label>
               <p class="muted" style="margin:8px 0 0;font-size:12.5px">
-                <a href={template} download="products-template.csv">Скачать шаблон</a> · <a href={`${siteBase}/admin/products.csv`} download>Выгрузить текущие товары</a> ({raw.length} шт.) – их можно поправить в Excel и загрузить обратно.
+                <a href={template} download="products-template.csv">Скачать шаблон</a> · <a href="#" onClick={(e) => { e.preventDefault(); downloadCsv(raw, secs, imgBase, siteBase); }}>Выгрузить текущие товары</a> ({raw.length} шт.) – их можно поправить в Excel и загрузить обратно.
               </p>
             </li>
             <li>

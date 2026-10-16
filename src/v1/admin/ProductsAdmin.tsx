@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'preact/hooks';
 import ProductEditor, { type AdmProduct, type SectionOpt } from './ProductEditor';
 import GhConnect from './GhConnect';
-import CsvImport from './CsvImport';
+import CsvImport, { downloadCsv } from './CsvImport';
 import { IMG_DIR, PRODUCTS_PATH, SECTIONS_PATH, buildOf, commit, getToken, humanError, readJson, slugify, toWebp, type FileChange } from './gh';
 
 /* «Каталоги и товары» магазина «Вариант 1» (по образцу Тильды и админки Elite Rose). Каталоги – из
@@ -242,7 +242,7 @@ export default function ProductsAdmin({ items, secs, labels, imgBase, siteBase }
               <option value="price-asc">Сначала дешевле</option><option value="price-desc">Сначала дороже</option>
             </select>
             <button class="btn" onClick={() => setCsv(true)}>⇪ Импорт CSV</button>
-            <a class="btn" href={`${siteBase}/admin/products.csv`} download>⇩ Экспорт CSV</a>
+            <button class="btn" onClick={() => downloadCsv(raw, sections, imgBase, siteBase)}>⇩ Экспорт CSV</button>
             <button class="btn primary" onClick={() => setEdit(blank())}>+ Добавить товар</button>
           </div>
 
@@ -284,7 +284,7 @@ export default function ProductsAdmin({ items, secs, labels, imgBase, siteBase }
       </div>
 
       {edit && <ProductEditor product={edit} sections={tree} imgBase={imgBase} siteBase={siteBase} onClose={() => setEdit(null)} onSave={save} onDelete={remove} />}
-      {csv && <CsvImport raw={raw} secs={sections} siteBase={siteBase} placeIn={(s, u, w) => placeIn(s as Sec[], u, w)} onApply={(r, s, m) => persist(r as Raw[], s as Sec[], m)} onClose={() => setCsv(false)} />}
+      {csv && <CsvImport raw={raw} secs={sections} siteBase={siteBase} imgBase={imgBase} placeIn={(s, u, w) => placeIn(s as Sec[], u, w)} onApply={(r, s, m) => persist(r as Raw[], s as Sec[], m)} onClose={() => setCsv(false)} />}
       {showConnect && <GhConnect onClose={() => setShowConnect(false)} onConnected={(ok) => { setConnected(ok); setShowConnect(false); if (ok) reload(); }} />}
     </div>
   );
