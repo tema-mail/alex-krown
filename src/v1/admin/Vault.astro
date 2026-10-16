@@ -1,10 +1,10 @@
 ---
-/** Сейф раздела админки с коммерческими данными (Метрика, SEO, Точка А).
-    Репозиторий и показ публичные, своего сервера нет, поэтому:
-    – сборка с выгрузкой аналитики (open) рисует раздел целиком – её разметку scripts/seal-admin.mjs
-      шифрует паролем владельца в public/v1/admin/vault/<name>.json;
-    – публичная сборка рисует только форму пароля: браузер скачивает шифровку и расшифровывает у себя
-      (PBKDF2-SHA256 + AES-256-GCM). Пароль на время вкладки – в sessionStorage. */
+/** Данные разделов с коммерческими цифрами (Метрика, SEO-аналитика, Точка А).
+    Сайт статический, а выгрузка аналитики в публичную сборку не попадает, поэтому:
+    – сборка с выгрузкой (open) рисует раздел целиком – scripts/seal-admin.mjs шифрует его разметку
+      логином и паролем владельца в public/v1/admin/vault/<name>.json;
+    – публичная сборка рисует пустое место: после входа в кабинет (scripts/lock-admin.mjs) браузер берёт
+      тот же логин и пароль из sessionStorage и расшифровывает данные сам – второй пароль не нужен. */
 import { asset } from '../site';
 interface Props { name: string; open: boolean }
 const { name, open } = Astro.props;
@@ -14,71 +14,37 @@ const { name, open } = Astro.props;
   open ? (
     <div id="vault" data-vault={name}><slot /></div><div id="vault-end" hidden></div>
   ) : (
-    <>
-      <form class="panel vault-gate" id="vault-gate" data-src={asset(`v1/admin/vault/${name}.json`)}>
-        <h2>Раздел закрыт паролем</h2>
-        <p class="muted">Здесь коммерческие данные бренда: посещаемость, заказы, выручка. Они лежат на сайте зашифрованными и открываются только паролем владельца.</p>
-        <div class="vault-row">
-          <input type="password" name="pass" autocomplete="current-password" placeholder="Пароль админки" required />
-          <button class="btn primary" type="submit">Открыть</button>
-        </div>
-        <p class="vault-msg muted" role="status"></p>
-      </form>
-      <div id="vault" data-vault={name} data-locked></div>
-    </>
+    <div id="vault" data-vault={name} data-locked data-src={asset(`v1/admin/vault/${name}.json`)}>
+      <p class="muted vault-msg" role="status" style="text-align:center;padding:40px 0">Открываю данные…</p>
+    </div>
   )
 }
 
-<style is:global>
-  .vault-gate{max-width:560px;margin:40px auto}
-  .vault-row{display:flex;gap:10px;margin-top:14px}
-  .vault-row input{flex:1;min-width:0;font:inherit;padding:10px 12px;border:1px solid #d6dad8;border-radius:8px}
-  .vault-msg{min-height:1.4em;margin:10px 0 0}
-</style>
-
 <script>
-  const KEY = 'ak_admin_pass';
   const b64 = (s: string) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
+  const vault = document.getElementById('vault');
 
-  async function unlock(form: HTMLFormElement, pass: string) {
-    const msg = form.querySelector<HTMLElement>('.vault-msg')!;
-    msg.textContent = 'Открываю…';
+  async function unlock(box: HTMLElement) {
+    const msg = box.querySelector<HTMLElement>('.vault-msg')!;
+    let auth: { login: string; pass: string } | null = null;
+    try { auth = JSON.parse(sessionStorage.getItem('ak_admin_auth') || 'null'); } catch {}
+    if (!auth) { msg.textContent = 'Войдите в кабинет заново – обновите страницу.'; return; }
     try {
-      const res = await fetch(form.dataset.src!, { cache: 'no-store' });
+      const res = await fetch(box.dataset.src!, { cache: 'no-store' });
       if (!res.ok) throw new Error(res.status === 404 ? 'данные ещё не выложены' : 'ответ ' + res.status);
-      const box = await res.json();
-      const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pass), 'PBKDF2', false, ['deriveKey']);
-      const key = await crypto.subtle.deriveKey({ name: 'PBKDF2', hash: 'SHA-256', salt: b64(box.salt), iterations: box.iter },
+      const data = await res.json();
+      const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(`${auth.login}\n${auth.pass}`), 'PBKDF2', false, ['deriveKey']);
+      const key = await crypto.subtle.deriveKey({ name: 'PBKDF2', hash: 'SHA-256', salt: b64(data.salt), iterations: data.iter },
         base, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
-      let plain: ArrayBuffer;
-      try {
-        plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64(box.iv) }, key, b64(box.data));
-      } catch {
-        sessionStorage.removeItem(KEY);
-        msg.textContent = 'Пароль не подошёл';
-        return;
-      }
-      sessionStorage.setItem(KEY, pass);
-      const vault = document.getElementById('vault')!;
-      vault.innerHTML = new TextDecoder().decode(plain);
-      delete vault.dataset.locked;
-      form.remove();
+      const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64(data.iv) }, key, b64(data.data));
+      box.innerHTML = new TextDecoder().decode(plain);
+      delete box.dataset.locked;
       document.dispatchEvent(new CustomEvent('vault:open'));
     } catch (e) {
-      msg.textContent = 'Не открылось: ' + (e instanceof Error ? e.message : String(e));
+      msg.textContent = 'Данные не открылись: ' + (e instanceof Error && e.message ? e.message : 'выгрузка зашифрована другим логином или паролем');
     }
   }
 
-  const form = document.getElementById('vault-gate') as HTMLFormElement | null;
-  if (form) {
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      unlock(form, String(new FormData(form).get('pass') || ''));
-    });
-    let saved: string | null = null;
-    try { saved = sessionStorage.getItem(KEY); } catch {}
-    if (saved) unlock(form, saved);
-  } else {
-    document.dispatchEvent(new CustomEvent('vault:open'));
-  }
+  if (vault?.dataset.locked !== undefined) unlock(vault!);
+  else document.dispatchEvent(new CustomEvent('vault:open'));
 </script>
