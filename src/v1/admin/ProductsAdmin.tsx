@@ -125,6 +125,7 @@ export default function ProductsAdmin({ items, secs, labels, imgBase, siteBase }
   const toAdm = (p: Raw): AdmProduct => ({
     uid: p.uid, path: p.path, title: p.title, price: p.price, priceOld: p.priceOld, sizes: p.sizes ?? [], kind: p.kind ?? '', color: p.color ?? '',
     descr: p.descr ?? '', composition: p.composition ?? '', photos: p.photos ?? [], hidden: !!p.hidden, seoTitle: p.seoTitle ?? '', seoDescr: p.seoDescr ?? '', sections: secOf(p.uid),
+    stock: p.stock == null ? '' : String(p.stock), weight: p.weight ?? '', dims: p.dims ?? '',
   });
 
   const save = async (a: AdmProduct, files: File[]) => {
@@ -156,6 +157,7 @@ export default function ProductsAdmin({ items, secs, labels, imgBase, siteBase }
       uid, path, title: a.title.trim(), price: a.price || sizes[0]?.price || 0, priceOld: a.priceOld, sizes, kind: a.kind.trim(), color: a.color.trim(),
       descr: a.descr.trim(), composition: a.composition.trim(), photos, hidden: a.hidden,
       ...(a.seoTitle.trim() ? { seoTitle: a.seoTitle.trim() } : { seoTitle: undefined }), ...(a.seoDescr.trim() ? { seoDescr: a.seoDescr.trim() } : { seoDescr: undefined }),
+      stock: a.stock === '' ? undefined : Number(a.stock), weight: a.weight.trim() || undefined, dims: a.dims.trim() || undefined,
     };
     const nextRaw = isNew ? [next, ...raw] : raw.map((x) => (x.uid === uid ? next : x));
     setEdit(null);
@@ -170,9 +172,9 @@ export default function ProductsAdmin({ items, secs, labels, imgBase, siteBase }
   const setHidden = (uids: string[], hidden: boolean) =>
     persist(raw.map((x) => (uids.includes(x.uid) ? { ...x, hidden } : x)), sections, `${hidden ? 'скрыто' : 'показано'} на сайте: ${uids.length} шт.`);
   const addTo = (uids: string[], path: string) =>
-    persist(raw, sections.map((s) => (s.path === path ? { ...s, uids: [...s.uids, ...uids.filter((u) => !s.uids.includes(u))] } : s)), `в каталог «${label(path)}»: ${uids.length} шт.`);
+    persist(raw, sections.map((s) => (s.path === path ? { ...s, uids: [...s.uids, ...uids.filter((u) => !s.uids.includes(u))] } : s)), `в раздел «${label(path)}»: ${uids.length} шт.`);
   const removeFrom = (uids: string[], path: string) =>
-    persist(raw, sections.map((s) => (s.path === path ? { ...s, uids: s.uids.filter((u) => !uids.includes(u)) } : s)), `из каталога «${label(path)}»: ${uids.length} шт.`);
+    persist(raw, sections.map((s) => (s.path === path ? { ...s, uids: s.uids.filter((u) => !uids.includes(u)) } : s)), `из раздела «${label(path)}»: ${uids.length} шт.`);
 
   /* «+ Добавить раздел» как у эталона: выбранные товары сразу попадают в него. Раздел = запись в
      sections.json; открыт каталог – новый станет его подкаталогом, иначе – верхним. Страница раздела
@@ -198,7 +200,7 @@ export default function ProductsAdmin({ items, secs, labels, imgBase, siteBase }
     s.has(uid) ? s.delete(uid) : s.add(uid);
     setSel(s);
   };
-  const blank = (): AdmProduct => ({ uid: '', path: '', title: '', price: 0, priceOld: null, sizes: ['S', 'M', 'L', 'XL'].map((size) => ({ size, price: 0, priceOld: null })), kind: '', color: '', descr: '', composition: '', photos: [], hidden: false, seoTitle: '', seoDescr: '', sections: cur !== 'all' && cur !== 'hidden' ? [cur] : [] });
+  const blank = (): AdmProduct => ({ uid: '', path: '', title: '', price: 0, priceOld: null, sizes: ['S', 'M', 'L', 'XL'].map((size) => ({ size, price: 0, priceOld: null })), kind: '', color: '', descr: '', composition: '', photos: [], hidden: false, seoTitle: '', seoDescr: '', sections: cur !== 'all' && cur !== 'hidden' ? [cur] : [], stock: '', weight: '', dims: '' });
   const count = (path: string) => sections.find((s) => s.path === path)?.uids.length ?? 0;
   const isSection = cur !== 'all' && cur !== 'hidden';
 
@@ -213,7 +215,7 @@ export default function ProductsAdmin({ items, secs, labels, imgBase, siteBase }
 
       <div class="pa">
         <aside class="pa__side">
-          <p class="pa__cap">Каталоги</p>
+          <p class="pa__cap">Разделы</p>
           <button class={cur === 'all' ? 'on' : ''} onClick={() => setCur('all')}>Все товары<span>{raw.length}</span></button>
           {tree.map((t) => (
             <button class={cur === t.path ? 'on' : ''} style={t.depth ? 'padding-left:26px;font-size:12.5px' : ''} onClick={() => setCur(t.path)}>{t.label}<span>{count(t.path)}</span></button>
@@ -224,7 +226,7 @@ export default function ProductsAdmin({ items, secs, labels, imgBase, siteBase }
           ) : (
             <form class="pa__newpart" onSubmit={(e) => (e.preventDefault(), createSection(newSec))}>
               <input autoFocus placeholder="Название раздела" value={newSec} onInput={(e) => setNewSec((e.target as HTMLInputElement).value)} />
-              <small class="muted">{isSection && topOf(cur) ? `Подкаталог в «${label(topOf(cur)!)}»` : 'Верхний каталог – в меню сайта добавляется отдельно'}</small>
+              <small class="muted">{isSection && topOf(cur) ? `Подраздел в «${label(topOf(cur)!)}»` : 'Верхний раздел – в меню сайта добавляется отдельно'}</small>
               {sel.size > 0 && <small class="muted">Выбранные товары ({sel.size}) попадут в него</small>}
               <div><button class="btn primary" type="submit">Создать</button><button class="btn ghost" type="button" onClick={() => setNewSec(null)}>Отмена</button></div>
             </form>
@@ -250,7 +252,7 @@ export default function ProductsAdmin({ items, secs, labels, imgBase, siteBase }
               <button class="btn" onClick={() => (setHidden([...sel], true), setSel(new Set()))}>Скрыть с сайта</button>
               <button class="btn" onClick={() => (setHidden([...sel], false), setSel(new Set()))}>Показать на сайте</button>
               <select class="btn" value="" onChange={(e) => { const v = (e.target as HTMLSelectElement).value; if (v) (addTo([...sel], v), setSel(new Set())); }}>
-                <option value="">Добавить в каталог…</option>{tree.map((t) => <option value={t.path}>{t.depth ? '– ' : ''}{t.label}</option>)}
+                <option value="">Добавить в раздел…</option>{tree.map((t) => <option value={t.path}>{t.depth ? '– ' : ''}{t.label}</option>)}
               </select>
               {isSection && <button class="btn" onClick={() => (removeFrom([...sel], cur), setSel(new Set()))}>Убрать из «{label(cur)}»</button>}
               <button class="btn ghost" onClick={() => setNewSec('')}>+ Новый раздел из выбранных</button>
@@ -261,7 +263,7 @@ export default function ProductsAdmin({ items, secs, labels, imgBase, siteBase }
           <div class="pt">
             <div class="pt__head">
               <label><input type="checkbox" checked={allOn} onChange={() => setSel(allOn ? new Set() : new Set(shown.map((p) => p.uid)))} aria-label="Выбрать все" /></label>
-              <span></span><span>Товар</span><span>Каталоги</span><span>Цена</span><span>Остаток</span><span>На сайте</span>
+              <span></span><span>Товар</span><span>Разделы</span><span>Цена</span><span>Остаток</span><span>На сайте</span>
             </div>
             {shown.map((p) => (
               <div class={`pt__row${sel.has(p.uid) ? ' is-sel' : ''}${p.hidden ? ' is-off' : ''}`} onClick={() => setEdit(toAdm(p))}>

@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'preact/hooks';
 
-/* Редактор товара магазина «Вариант 1» (по образцу Тильды и админки Elite Rose): вкладки «Основное»,
-   «Размеры и цены», «Фото», «Описание и состав», «Каталоги», «SEO». Товар может стоять в нескольких
-   каталогах – на сайте он покажется в каждом. Новые фото сжимаются в WebP при сохранении. */
+/* Редактор товара магазина «Вариант 1» – вкладки как у эталона Elite Rose (src/islands/admin/ProductEditor.tsx):
+   «Основное», «Фото», «Разделы», «Варианты», «Размеры и вес», «SEO». Варианты – размеры одежды со своей ценой.
+   Товар может стоять в нескольких разделах – на сайте он покажется в каждом. Новые фото сжимаются в WebP. */
 
 export interface Photo { name: string; w: number; h: number }
 export interface Size { size: string; price: number; priceOld: number | null }
@@ -10,10 +10,11 @@ export interface AdmProduct {
   uid: string; path: string; title: string; price: number; priceOld: number | null; sizes: Size[];
   kind: string; color: string; descr: string; composition: string; photos: Photo[];
   hidden: boolean; seoTitle: string; seoDescr: string; sections: string[];
+  stock: string; weight: string; dims: string; // пусто – без ограничения / не задано
 }
 export interface SectionOpt { path: string; label: string; depth: number }
 
-const TABS = ['Основное', 'Размеры и цены', 'Фото', 'Описание и состав', 'Каталоги', 'SEO'] as const;
+const TABS = ['Основное', 'Фото', 'Разделы', 'Варианты', 'Размеры и вес', 'SEO'] as const;
 const digits = (v: string) => v.replace(/\D/g, '');
 
 export default function ProductEditor({ product, sections, imgBase, siteBase, onClose, onSave, onDelete }: {
@@ -63,16 +64,20 @@ export default function ProductEditor({ product, sections, imgBase, siteBase, on
           {tab === 'Основное' && (
             <div class="fgrid">
               <label class="f f--wide"><span>Название товара</span><input value={p.title} onInput={set('title')} placeholder="Например, Худи “Cardiogram Black”" /></label>
-              <label class="f"><span>Цена, ₽ <em>если у размеров своя – во вкладке «Размеры и цены»</em></span><input inputMode="numeric" value={p.price || ''} onInput={(e) => setP({ ...p, price: +digits((e.target as HTMLInputElement).value) || 0 })} /></label>
+              <label class="f"><span>Цена, ₽ <em>если у размера своя – во вкладке «Варианты»</em></span><input inputMode="numeric" value={p.price || ''} onInput={(e) => setP({ ...p, price: +digits((e.target as HTMLInputElement).value) || 0 })} /></label>
               <label class="f"><span>Старая цена, ₽</span><input inputMode="numeric" value={p.priceOld ?? ''} onInput={(e) => { const v = digits((e.target as HTMLInputElement).value); setP({ ...p, priceOld: v ? +v : null }); }} placeholder="Для скидки" /></label>
               <label class="f"><span>Вид товара</span><input value={p.kind} onInput={set('kind')} placeholder="Худи, Джоггеры, Куртка…" /></label>
               <label class="f"><span>Цвет</span><input value={p.color} onInput={set('color')} placeholder="Чёрный" /></label>
+              <label class="f"><span>Номер товара</span><input value={p.uid || 'присвоится при сохранении'} readOnly /></label>
+              <label class="f"><span>Количество</span><input inputMode="numeric" value={p.stock} onInput={(e) => setP({ ...p, stock: digits((e.target as HTMLInputElement).value) })} placeholder="Пусто – без ограничения" /></label>
+              <label class="f f--wide"><span>Описание <em>на странице товара и в фидах; мат в фиды не попадёт</em></span><textarea rows={7} value={p.descr} onInput={set('descr')} /></label>
+              <label class="f f--wide"><span>Состав</span><input value={p.composition} onInput={set('composition')} placeholder="90% хлопок, 10% полиэстер" /></label>
             </div>
           )}
 
-          {tab === 'Размеры и цены' && (
+          {tab === 'Варианты' && (
             <div>
-              <p class="muted" style="margin:0 0 12px">Каждый размер – отдельное предложение в корзине и в рекламных фидах. Пустая цена – как у товара.</p>
+              <p class="muted" style="margin:0 0 12px">Варианты одного товара со своей ценой – у одежды это размеры. Покупатель выбирает размер на странице товара; каждый размер – отдельное предложение в корзине и в рекламных фидах. Пустая цена – как у товара.</p>
               <table class="vt">
                 <thead><tr><th>Размер</th><th>Цена, ₽</th><th>Старая цена, ₽</th><th></th></tr></thead>
                 <tbody>
@@ -120,17 +125,10 @@ export default function ProductEditor({ product, sections, imgBase, siteBase, on
             </div>
           )}
 
-          {tab === 'Описание и состав' && (
-            <div class="fgrid">
-              <label class="f f--wide"><span>Описание <em>на странице товара и в фидах; мат в фиды не попадёт</em></span><textarea rows={7} value={p.descr} onInput={set('descr')} /></label>
-              <label class="f f--wide"><span>Состав</span><input value={p.composition} onInput={set('composition')} placeholder="90% хлопок, 10% полиэстер" /></label>
-            </div>
-          )}
-
-          {tab === 'Каталоги' && (
+          {tab === 'Разделы' && (
             <div>
-              <p class="muted" style="margin:0 0 12px">Товар может быть в нескольких каталогах – на сайте он покажется в каждом. Новый товар встаёт в конец каталога.</p>
-              {/* верхний каталог – строкой, его подразделы – сеткой под ним */}
+              <p class="muted" style="margin:0 0 12px">Товар может быть в нескольких разделах – на сайте он покажется в каждом. Новый товар встаёт в конец раздела.</p>
+              {/* верхний раздел – строкой, его подразделы – сеткой под ним */}
               {sections.filter((s) => s.depth === 0).map((top) => {
                 const box = (s: SectionOpt) => (
                   <label class="ck">
@@ -146,6 +144,14 @@ export default function ProductEditor({ product, sections, imgBase, siteBase, on
                   </div>
                 );
               })}
+            </div>
+          )}
+
+          {tab === 'Размеры и вес' && (
+            <div class="fgrid">
+              <p class="muted f--wide" style="margin:0">Нужны для расчёта доставки службами (СДЭК). Можно не заполнять.</p>
+              <label class="f"><span>Вес, кг</span><input value={p.weight} onInput={set('weight')} placeholder="0,8" /></label>
+              <label class="f"><span>Габариты Д×Ш×В, см</span><input value={p.dims} onInput={set('dims')} placeholder="40×30×10" /></label>
             </div>
           )}
 
