@@ -47,7 +47,15 @@ seo_map.EXCLUDE_ROUTES = ("/order/", "/favorites/", "/privatepolicy/",
                           "/processing_of_personal_data/", "/offer_agreement/")
 
 # Брендовая фраза – правило из src/v1/admin/demand.ts (brandShare) плюс опечатки, которые реально есть в выгрузке
-BRAND = re.compile(r"(alex|алекс|александр)[\s\-]*(krown|crown|краун|кроун|крон|кроу|ераун)", re.I)
+BRAND = re.compile(r"(alex|алекс?|александр)[\s\-]*(krown|crown|краун|кроун|крон|кроу|ераун)", re.I)
+# в фразах бывают русские буквы вперемешку с латиницей («Аlex» с русской А) – проверяем и латинскую запись
+_LAT = str.maketrans("аеорсхкмтвну", "aeopcxkmtbhy")
+
+
+def is_brand(phrase: str) -> bool:
+    return bool(BRAND.search(phrase) or BRAND.search(phrase.lower().translate(_LAT)))
+
+
 CL_BRAND = "Бренд: ищут по названию"
 CL_OTHER = "Без бренда: товары, категории"
 
@@ -150,7 +158,7 @@ def registry_from_phrases(cache: dict, ywm: str, gsc: str) -> list[dict]:
         rows.append({
             "phrase": phrase, "visits": visits,
             "pages": sorted(set(pages.get(phrase.lower(), []))),
-            "cluster": CL_BRAND if BRAND.search(phrase) else CL_OTHER,
+            "cluster": CL_BRAND if is_brand(phrase) else CL_OTHER,
             "demand_nsk": dict(seo_map.NOT_COLLECTED), "demand_rf": dict(seo_map.NOT_COLLECTED),
             "yandex_impressions": {"status": "unavailable", "reason": ywm},
             "google_impressions": {"status": "unavailable", "reason": gsc},
