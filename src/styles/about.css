@@ -6,6 +6,20 @@
 .ab section {
   padding-top: clamp(72px, 9vw, 140px);
 }
+.ab-top {
+  padding-top: 104px;
+}
+.ab-top + .ab-story {
+  padding-top: 24px;
+}
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
 
 /* ---------- первый экран ---------- */
 .ab-hero {

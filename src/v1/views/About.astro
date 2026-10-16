@@ -47,23 +47,15 @@ const ld = [
 
 <V1 title="О бренде ALEX KROWN – основатель Алексей Жоркин, показы и пресса" description="ALEX KROWN – бренд дизайнерской одежды Алексея Жоркина из Новосибирска: киберпанк и футуризм, монохром и асимметрия. Показы в Милане и Москве, публикации в прессе." path="about" ld={ld} image={a('founder')}>
   <main class="ab">
-    <section class="ab-hero">
-      <div class="ab-hero__text">
-        <nav aria-label="Хлебные крошки"><ol class="crumbs"><li><a href={v1('')}>Главная</a></li><li><span aria-current="page">О бренде</span></li></ol></nav>
-        <p class="label">Основатель и дизайнер</p>
-        <h1 class="ab-hero__name"><span>Алексей Жоркин</span><span class="ab-hero__alias" aria-hidden="true">Alex Krown</span></h1>
-        <p class="ab-hero__lead">Одежда для тех, кто создаёт свои правила. Новосибирск – Москва – Милан.</p>
-      </div>
-      <figure class="ab-hero__photo ab-hero__photo--frame glitch" style={`--src:url(${a('founder')})`}>
-        <img src={a('founder')} width="605" height="807" alt="Алексей Жоркин в магазине ALEX KROWN" fetchpriority="high" />
-      </figure>
-      <p class="ab-hero__word" aria-hidden="true">NO RULES</p>
-    </section>
+    <header class="ab-top wrap">
+      <nav aria-label="Хлебные крошки"><ol class="crumbs"><li><a href={v1('')}>Главная</a></li><li><span aria-current="page">О бренде</span></li></ol></nav>
+      <h1 class="visually-hidden">О бренде ALEX KROWN: Алексей Жоркин, основатель и дизайнер</h1>
+    </header>
 
     <section class="ab-story wrap">
       <figure class="ab-story__photo">
-        <img data-src={home('cat-man')} width="768" height="816" alt="Образ ALEX KROWN: куртка и худи бренда" loading="lazy" />
-        <figcaption>Образ ALEX KROWN</figcaption>
+        <img src={home('cat-man')} width="768" height="816" alt="Алексей Жоркин, основатель и дизайнер бренда ALEX KROWN" fetchpriority="high" />
+        <figcaption>Алексей Жоркин – основатель и дизайнер бренда ALEX KROWN</figcaption>
       </figure>
       <div class="ab-story__text">
         <p class="ab-story__big">Долгое время я мучился поиском одежды, которая бы отражала мой внутренний мир и подчёркивала индивидуальность. Но таких вещей не было.</p>
