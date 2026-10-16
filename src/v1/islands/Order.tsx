@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'preact/hooks';
 import { cart, cartTotal, clearCart, fmt, MAX_QTY, removeFromCart, setQty } from '../store';
+import { ecPurchase } from '../ecommerce';
 
 /* Оформление заказа магазина «Вариант 1». Своего сервера у сайта нет, поэтому заказ собирается
    в сообщение и уходит менеджеру бренда в WhatsApp (ORDER_CHANNEL). Поменять канал – одна константа:
@@ -110,6 +111,8 @@ export default function Order({ catalogHref, policyHref, offerHref }: { catalogH
       ...(f.comment.trim() ? [`Комментарий: ${f.comment.trim()}`] : []),
     ];
     const order = { no, text: lines.join('\n') };
+    /* заказ отправлен – «покупка» в Метрике, как у корзины Тильды (оплата у ALEX KROWN – после, у менеджера) */
+    ecPurchase(no, items.map((i) => ({ uid: i.uid, title: i.title, price: i.price, size: i.size, qty: i.qty })), cartTotal.value);
     setDone(order);
     try {
       sessionStorage.setItem(LAST, JSON.stringify(order));

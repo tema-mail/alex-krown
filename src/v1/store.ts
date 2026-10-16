@@ -1,4 +1,5 @@
 import { signal, computed, effect } from '@preact/signals';
+import { ecAdd, ecRemove } from './ecommerce';
 
 /* Корзина и избранное магазина «Вариант 1» – общие для всех островов страницы и живут между
    страницами (localStorage). Позиция корзины – товар + размер: id = `${uid}:${size}`. */
@@ -55,13 +56,25 @@ export function addToCart(p: Omit<CartItem, 'qty' | 'id'>, qty = 1) {
   const i = list.findIndex((x) => x.id === id);
   if (i >= 0) list[i] = { ...list[i], qty: Math.min(MAX_QTY, list[i].qty + qty) };
   else list.push({ ...p, id, qty: Math.min(MAX_QTY, qty) });
+  const added = (list.find((x) => x.id === id)?.qty ?? 0) - (cart.value.find((x) => x.id === id)?.qty ?? 0);
   cart.value = list;
+  if (added > 0) ecAdd({ uid: p.uid, title: p.title, price: p.price, size: p.size, qty: added });
   toast.value = { text: `«${p.title}»${p.size ? `, ${p.size}` : ''} – в корзине`, key: Date.now() };
 }
+/* изменение количества – событие Метрики на разницу: больше – «добавили», меньше – «убрали» */
+const ecDelta = (x: CartItem, from: number, to: number) =>
+  to > from ? ecAdd({ uid: x.uid, title: x.title, price: x.price, size: x.size, qty: to - from }) : to < from && ecRemove({ uid: x.uid, title: x.title, price: x.price, size: x.size, qty: from - to });
 export function setQty(id: string, qty: number) {
-  cart.value = cart.value.map((x) => (x.id === id ? { ...x, qty: Math.min(MAX_QTY, qty) } : x)).filter((x) => x.qty > 0);
+  const x = cart.value.find((i) => i.id === id);
+  const to = Math.max(0, Math.min(MAX_QTY, qty));
+  cart.value = cart.value.map((i) => (i.id === id ? { ...i, qty: to } : i)).filter((i) => i.qty > 0);
+  if (x) ecDelta(x, x.qty, to);
 }
-export const removeFromCart = (id: string) => (cart.value = cart.value.filter((x) => x.id !== id));
+export function removeFromCart(id: string) {
+  const x = cart.value.find((i) => i.id === id);
+  cart.value = cart.value.filter((i) => i.id !== id);
+  if (x) ecDelta(x, x.qty, 0);
+}
 export const clearCart = () => (cart.value = []);
 
 export const isFav = (uid: string) => favs.value.some((x) => x.uid === uid);
