@@ -43,7 +43,7 @@ metrika.COUNTER = COUNTER
 
 # Служебные и юридические страницы вне семантики – как EXCLUDE_* в seo_map
 seo_map.EXCLUDE_PREFIXES = ("/admin/", "/feeds/", "/img/")
-seo_map.EXCLUDE_ROUTES = ("/order/", "/favorites/", "/firmware/", "/privatepolicy/",
+seo_map.EXCLUDE_ROUTES = ("/order/", "/favorites/", "/privatepolicy/",
                           "/processing_of_personal_data/", "/offer_agreement/")
 
 # Брендовая фраза – правило из src/v1/admin/demand.ts (brandShare) плюс опечатки, которые реально есть в выгрузке
