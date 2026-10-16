@@ -31,6 +31,12 @@ const { title, description, path, image, ld = [], hero = false, ogType = 'websit
 const canonical = new URL(v1(path), Astro.site).href;
 /* показ на GitHub Pages закрыт от поиска (дубль живого сайта); на боевом домене PUBLIC_INDEX=1 */
 const noindex = process.env.PUBLIC_INDEX !== '1';
+/* счётчик Метрики – только на боевом домене (PUBLIC_METRIKA_ID, у alex-krown.com 112281637): на показе в GitHub
+   события электронной коммерции (v1/ecommerce.ts) копятся в dataLayer и никуда не уходят, статистика сайта чистая */
+const metrika = Number(process.env.PUBLIC_METRIKA_ID) || 0;
+const metrikaTag = metrika
+  ? `window.dataLayer=window.dataLayer||[];(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})(window,document,"script","https://mc.yandex.ru/metrika/tag.js","ym");ym(${metrika},"init",{clickmap:true,trackLinks:true,accurateTrackBounce:true,webvisor:true,ecommerce:"dataLayer"});`
+  : '';
 const ogImage = image ? new URL(image, Astro.site).href : undefined;
 const org = {
   '@context': 'https://schema.org',
@@ -62,6 +68,7 @@ const org = {
     {hero && <link rel="preload" href={pfLatin} as="font" type="font/woff2" crossorigin />}
     {lcp && <link rel="preload" as="image" href={lcp.href} imagesrcset={lcp.srcset} imagesizes={lcp.sizes} fetchpriority="high" />}
     <script type="application/ld+json" set:html={JSON.stringify(path === '' ? [org, ...ld] : ld)} />
+    {metrikaTag && <script is:inline set:html={metrikaTag} />}
   </head>
   <body style={`--logo:url(${asset('concepts/img/logo.svg')})`}>
     {/* заставка-глитч – только на главной: варианты по ?intro=1…5 (см. v1/Preloader.astro) */}

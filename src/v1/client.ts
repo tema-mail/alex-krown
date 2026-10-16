@@ -1,9 +1,20 @@
 /* Общий скрипт страниц магазина «Вариант 1» (подключает layouts/V1.astro):
    шапка, меню, ленивые картинки, сердечки избранного на карточках, счётчики шапки, открытие шторок,
-   видео первого экрана, видео в карточках по наведению и большие видео блоков.
+   видео первого экрана, видео в карточках по наведению и большие видео блоков, событие Метрики «просмотр товара».
    Обычный модуль, а не остров: карточек десятки, по острову на каждую – лишний JS. */
 import { effect } from '@preact/signals';
 import { cartCount, favs, sheet, toggleFav, type FavItem } from './store';
+import { ecDetail } from './ecommerce';
+
+/* ---------- Метрика: просмотр карточки товара (данные кладёт ProductPage.astro) ---------- */
+const ecEl = document.getElementById('ec-detail');
+if (ecEl) {
+  try {
+    ecDetail(JSON.parse(ecEl.textContent || ''));
+  } catch {
+    /* битые данные – без события */
+  }
+}
 
 const $$ = <T extends Element = HTMLElement>(s: string, root: ParentNode = document) => [...root.querySelectorAll<T>(s)];
 const still = matchMedia('(prefers-reduced-motion: reduce)').matches;

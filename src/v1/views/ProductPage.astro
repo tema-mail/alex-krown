@@ -71,6 +71,8 @@ const first = p.photos[0];
       <div class="pp__info">
         <h1>{p.title}</h1>
         <p class="pp__price" data-base-price>{priceVaries(p) ? `от ${rub(minPrice(p))}` : rub(p.price)}{off && <s>{rub(off)}</s>}</p>
+        {/* данные для события «просмотр товара» Метрики (v1/client.ts → v1/ecommerce.ts) – без ожидания острова */}
+        <script type="application/json" id="ec-detail" set:html={JSON.stringify({ uid: p.uid, title: p.title, price: p.price, category: home ? sectionName(home) : '' })} />
         <ProductBuy
           client:visible
           p={{ uid: p.uid, title: p.title, price: p.price, priceOld: p.priceOld, img: first ? img(first.name + '-s') : '', path: v1(p.path), sizes: p.sizes, orderHref: v1('order') }}
