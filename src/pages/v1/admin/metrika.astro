@@ -1,0 +1,58 @@
+---
+/** Админка → Метрика и спрос: трафик, источники, устройства, цели и анализ товарного спроса (v1/admin/demand.ts).
+    Данные – src/data/v1/analytics/metrika.json (scripts/tochka-a.mjs), в публичный репозиторий не попадают:
+    на показе страница говорит, что данные закрыты; полная версия – при сборке с выгрузкой (локально / закрытый сервер). */
+import AdminV1 from '../../../layouts/AdminV1.astro';
+import { demand, type Metrika } from '../../../v1/admin/demand';
+import { v1, img } from '../../../v1/site';
+const files = import.meta.glob<Metrika>('../../../data/v1/analytics/metrika.json', { eager: true, import: 'default' });
+const m = Object.values(files)[0];
+const d = m ? demand(m) : null;
+const rub = (n: number) => Math.round(n).toLocaleString('ru-RU').replace(/ /g, ' ') + ' ₽';
+const pct = (n: number) => (n * 100).toFixed(1).replace('.', ',') + ' %';
+const t = (x: any) => x?.totals ?? [];
+const segs = d ? ['Хит', 'Смотрят, но не покупают', 'Без покупок', 'Тихий'].map((s) => [s, d.list.filter((x) => x.segment === s).length]) : [];
+---
+
+<AdminV1 title="Метрика и спрос" active="metrika">
+  {
+    !m ? (
+      <>
+        <div class="tools"><h1>Метрика и спрос</h1></div>
+        <p class="demo-note">Данные Метрики (счётчик 112281637) – коммерческие: выручка и продажи бренда. В публичный показ они не выкладываются. Полная версия страницы собирается из закрытой выгрузки; пока сервер админки не выбран – отчёт «Точка А» отдан владельцу закрытой ссылкой.</p>
+        <div class="panel"><h2>Что здесь будет</h2><p>Трафик и источники с покупками, устройства и города, цели; анализ товарного спроса – конверсия просмотр → покупка по каждому товару, ABC по выручке, «смотрят, но не покупают», спрос по каталогам, товары без просмотров.</p></div>
+      </>
+    ) : (
+      <>
+        <div class="tools"><h1>Метрика и спрос</h1><span class="muted">{m.period.from} – {m.period.to} · собрано {m.collectedAt.slice(0, 10)}</span></div>
+        <div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;margin-bottom:14px">
+          {[['Визиты', t(m.byMonth)[0]], ['Посетители', t(m.byMonth)[1]], ['Отказы', (t(m.byMonth)[2] ?? 0).toFixed(1) + ' %'], ['Покупки', t(m.salesByMonth)[1]], ['Выручка', rub(t(m.salesByMonth)[2] ?? 0)], ['Конверсия в покупку', pct((t(m.salesByMonth)[1] ?? 0) / (t(m.byMonth)[0] || 1))]].map(([k, v]) => (
+            <div class="panel" style="margin:0"><p class="muted" style="margin:0 0 6px;font-size:12px">{k}</p><b style="font-size:20px">{v}</b></div>
+          ))}
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div class="panel"><h2>Источники</h2><table class="vt" style="width:100%"><thead><tr><th>Источник</th><th>Визиты</th><th>Покупки</th><th>Выручка</th></tr></thead><tbody>{m.sources.rows?.map((r) => <tr><td>{r.dims[0]}</td><td>{r.m[0]}</td><td>{r.m[1]}</td><td>{rub(r.m[2])}</td></tr>)}</tbody></table></div>
+          <div class="panel"><h2>Устройства и цели</h2><table class="vt" style="width:100%"><tbody>{m.devices.rows?.map((r) => <tr><td>{r.dims[0]}</td><td>{r.m[0]} визитов</td><td>{r.m[1]} покупок</td></tr>)}{m.goals.map((g) => <tr><td colSpan={2}>Цель «{g.name}»</td><td>{g.reaches ?? '–'}</td></tr>)}</tbody></table></div>
+        </div>
+        <div class="panel">
+          <h2>Товарный спрос</h2>
+          <p class="muted" style="margin-top:-6px">{d!.list.length} товаров в отчёте Метрики, сопоставлено с каталогом {d!.matched}; без просмотров за период – {d!.unseen.length}. Добавления в корзину Тильда в Метрику не передавала. Выручка без доставки: {rub(d!.total)} (доставка СДЭК – {rub(d!.delivery)}).</p>
+          <p>{segs.map(([s, n]) => <span class="chip">{s}: {n}</span>)}</p>
+          <table class="vt" style="width:100%">
+            <thead><tr><th></th><th>Товар</th><th>Просмотры</th><th>Куплено, шт.</th><th>Выручка</th><th>Конверсия</th><th>ABC</th><th>Сегмент</th></tr></thead>
+            <tbody>
+              {d!.list.slice(0, 60).map((x) => (
+                <tr>
+                  <td>{x.p?.photos[0] ? <img class="thumb" src={img(x.p.photos[0].name + '-s')} alt="" loading="lazy" /> : null}</td>
+                  <td>{x.p ? <a href={v1(x.p.path)} target="_blank">{x.title}</a> : x.title}</td>
+                  <td>{x.views}</td><td>{x.qty || ''}</td><td>{x.revenue ? rub(x.revenue) : ''}</td><td>{x.qty ? pct(x.conv) : ''}</td><td><b>{x.abc}</b></td><td><span class="chip">{x.segment}</span></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div class="panel"><h2>Спрос по каталогам</h2><table class="vt" style="width:100%"><thead><tr><th>Каталог</th><th>Товаров</th><th>Просмотры</th><th>Куплено</th><th>Выручка</th></tr></thead><tbody>{d!.cats.map((c) => <tr><td><a href={v1(c.path)} target="_blank">{c.name}</a></td><td>{c.products}</td><td>{c.views}</td><td>{c.qty}</td><td>{c.revenue ? rub(c.revenue) : ''}</td></tr>)}</tbody></table></div>
+      </>
+    )
+  }
+</AdminV1>
