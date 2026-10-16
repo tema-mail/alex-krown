@@ -32,12 +32,13 @@ async function table(date1, date2, dimensions, metrics, extra = {}, humans = tru
   if (filters) q.set('filters', filters); else q.delete('filters');
   if (!dimensions) q.delete('dimensions'); // итог без разреза
   for (let i = 0; i < 5; i++) {
-    const r = await fetch(`https://api-metrika.yandex.net/stat/v1/data?${q}`, { headers: { Authorization: 'OAuth ' + TOKEN } });
+    // сбой сети или ответ не JSON (5xx со страницей) – ошибка этого блока, остальные собираются дальше
+    const r = await fetch(`https://api-metrika.yandex.net/stat/v1/data?${q}`, { headers: { Authorization: 'OAuth ' + TOKEN } }).catch((e) => ({ status: 0, ok: false, json: async () => ({ message: `сеть: ${e.message}` }) }));
     if (r.status === 429) {
       await new Promise((ok) => setTimeout(ok, 4000 * (i + 1)));
       continue;
     }
-    const d = await r.json();
+    const d = await r.json().catch(() => ({ message: `ответ ${r.status} не JSON` }));
     if (!r.ok) return { error: d.message || String(r.status) };
     return { totals: d.totals, rows: d.data.map((x) => ({ dims: x.dimensions.map((y) => y.name ?? y.id), m: x.metrics.map((v) => Math.round(v * 100) / 100) })) };
   }

@@ -112,5 +112,7 @@ export function compareDemand(now: Slice, prev: Slice) {
   const tot = (x: ReturnType<typeof demand>) => ({ views: sum(x.list, (d) => d.views), qty: sum(x.list, (d) => d.qty), revenue: x.total, entries: x.entries.reduce((s, e) => s + e.all, 0), search: x.entries.reduce((s, e) => s + e.search, 0) });
   const catsWas = new Map(b.cats.map((c) => [c.path, c]));
   const cats = a.cats.map((c) => ({ ...c, was: catsWas.get(c.path) ?? null }));
+  /* разделы, которые смотрели только в прошлом периоде, – тоже в таблицу, с нулями: «остыли» */
+  for (const c of b.cats) if (!a.cats.some((x) => x.path === c.path)) cats.push({ ...c, views: 0, qty: 0, revenue: 0, was: c });
   return { rows, now: tot(a), prev: tot(b), cats };
 }
