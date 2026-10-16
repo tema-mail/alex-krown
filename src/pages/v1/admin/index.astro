@@ -48,7 +48,7 @@ const order = (p: string) => MENU.findIndex(([, m]) => m === p);
               <span class="pkind">Подраздел</span>
             </div>
           ))}
-          {s.uids.map((u) => allProducts.find((p) => p.uid === u)).filter(Boolean).slice(0, 60).map((p) => (
+          {s.uids.map((u) => allProducts.find((p) => p.uid === u)).filter(Boolean).map((p) => (
             <div class="prow lvl1">
               {p!.photos[0] ? <img class="thumb" src={img(p!.photos[0].name + '-s')} alt="" loading="lazy" /> : <span class="thumb" />}
               <div><span class="pname">{p!.title}{p!.hidden && <span class="chip" style="margin-left:8px">скрыт</span>}</span><div class="muted" style="font-size:12px">{p!.price.toLocaleString('ru-RU')} ₽</div></div>
@@ -70,7 +70,7 @@ const order = (p: string) => MENU.findIndex(([, m]) => m === p);
       </div>
     ))}
 
-    <div class="pgroup">Технические <span>{tech.length + feeds.length}</span></div>
+    <div class="pgroup">Технические страницы <span>{tech.length + feeds.length}</span></div>
     {[...tech, ...feeds].map(([n, p]) => (
       <div class="prow">
         <span></span>

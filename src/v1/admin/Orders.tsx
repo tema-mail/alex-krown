@@ -16,11 +16,12 @@ export interface Order {
   source: { channel: string; utm_source?: string; utm_medium?: string; utm_campaign?: string; referrer?: string };
   comment?: string; history: { at: string; text: string }[];
 }
-export interface Lead { id: string; createdAt: string; name: string; phone: string; form: string; page: string; message?: string; stage: 'новая' | 'в работе' | 'перезвонить' | 'закрыта'; source: string }
+export interface Lead { id: string; createdAt: string; name: string; phone: string; form: string; page: string; message?: string; stage: 'новая' | 'в работе' | 'выполнена' | 'отказ'; source: string }
 
 const PAY: PayStatus[] = ['не оплачен', 'оплачен', 'частично', 'возврат'];
 const FLOW: OrderStatus[] = ['новый', 'подтверждён', 'собран', 'отправлен', 'получен', 'отменён'];
-const STAGES: Lead['stage'][] = ['новая', 'в работе', 'перезвонить', 'закрыта'];
+/* этапы – как на доске EV SIBIR (Новые, В работе, Выполнена, Отказ); «Записан» у EV – запись на услугу, здесь не нужен */
+const STAGES: Lead['stage'][] = ['новая', 'в работе', 'выполнена', 'отказ'];
 const rub = (n: number) => n.toLocaleString('ru-RU').replace(/ /g, ' ') + ' ₽';
 const dt = (s: string) => new Date(s).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
 const sum = (o: Order) => o.items.reduce((s, i) => s + i.price * i.qty, 0) - (o.discount ?? 0) + (o.delivery.cost ?? 0);
