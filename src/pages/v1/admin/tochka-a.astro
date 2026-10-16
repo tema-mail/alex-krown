@@ -1,0 +1,32 @@
+---
+/** Админка → Точка А: срез на дату сбора – трафик, продажи, спрос, SEO; с ним сравниваем «стало» после
+    запуска нового сайта. Сбор – scripts/tochka-a.mjs (Метрика); данные вне репозитория. */
+import AdminV1 from '../../../layouts/AdminV1.astro';
+import { demand, brandShare, type Metrika } from '../../../v1/admin/demand';
+const files = import.meta.glob<Metrika>('../../../data/v1/analytics/metrika.json', { eager: true, import: 'default' });
+const m = Object.values(files)[0];
+const d = m ? demand(m) : null;
+const b = m ? brandShare(m) : null;
+const rub = (n: number) => Math.round(n).toLocaleString('ru-RU').replace(/ /g, ' ') + ' ₽';
+---
+
+<AdminV1 title="Точка А" active="tochka">
+  <div class="tools"><h1>Точка А</h1>{m && <span class="muted">срез {m.collectedAt.slice(0, 10)} · период {m.period.from} – {m.period.to}</span>}</div>
+  {
+    !m ? (
+      <p class="demo-note">Срез собран, но это коммерческие данные бренда – на публичном показе он не выкладывается. Отчёт «Точка А» отдан владельцу закрытой ссылкой.</p>
+    ) : (
+      <div class="panel">
+        <table class="vt" style="width:100%"><tbody>
+          <tr><td>Визиты за период</td><td><b>{m.byMonth.totals?.[0]}</b></td></tr>
+          <tr><td>Покупки / выручка</td><td><b>{m.salesByMonth.totals?.[1]} / {rub(m.salesByMonth.totals?.[2] ?? 0)}</b></td></tr>
+          <tr><td>Средний чек</td><td><b>{rub((m.salesByMonth.totals?.[2] ?? 0) / (m.salesByMonth.totals?.[1] || 1))}</b></td></tr>
+          <tr><td>Доля смартфонов</td><td><b>{(((m.devices.rows?.[0]?.m[0] ?? 0) / (m.devices.totals?.[0] || 1)) * 100).toFixed(0)} %</b></td></tr>
+          <tr><td>Брендовый поиск</td><td><b>{(b!.share * 100).toFixed(0)} %</b> переходов из поиска</td></tr>
+          <tr><td>Товары с покупками / в отчёте</td><td><b>{d!.list.filter((x) => x.qty).length} / {d!.list.length}</b></td></tr>
+          <tr><td>Без просмотров за период</td><td><b>{d!.unseen.length}</b> товаров</td></tr>
+        </tbody></table>
+      </div>
+    )
+  }
+</AdminV1>
