@@ -1,0 +1,12 @@
+---
+/** Админка → Каталоги и товары (остров ProductsAdmin): все товары, включая скрытые, и разделы как в данных. */
+import AdminV1 from '../../../layouts/AdminV1.astro';
+import ProductsAdmin from '../../../v1/admin/ProductsAdmin';
+import { allProducts, allSections, MENU, asset } from '../../../v1/site';
+const labels = Object.fromEntries(MENU.map(([t, p]) => [p, t]));
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+
+<AdminV1 title="Каталоги и товары" active="products">
+  <ProductsAdmin client:load items={allProducts} secs={allSections} labels={labels} imgBase={asset('v1/img').replace(/\/$/, '')} siteBase={`${base}/v1`} />
+</AdminV1>
