@@ -1,0 +1,16 @@
+---
+/** Админка → Заявки (остров Orders, режим leads): обращения без оплаты. Приёмник не подключён –
+    пример подписан «пример». */
+import AdminV1 from '../../../layouts/AdminV1.astro';
+import Orders, { type Lead } from '../../../v1/admin/Orders';
+const at = (d: number, h: number) => new Date(Date.UTC(2026, 9, d, h)).toISOString();
+const sample: Lead[] = [
+  { id: 'L-1015-01', createdAt: at(15, 8), name: 'Пример: Марина', phone: '+7 900 000-00-11', form: 'Подобрать размер', page: '/v1/catalog/woman/', message: 'Рост 168, обхват груди 88 – какой размер худи?', stage: 'новая', source: 'yandex / organic' },
+  { id: 'L-1014-02', createdAt: at(14, 10), name: 'Пример: Сергей', phone: '+7 900 000-00-12', form: 'Перезвоните мне', page: '/v1/catalog/man/', stage: 'в работе', source: 'instagram' },
+  { id: 'L-1013-03', createdAt: at(13, 5), name: 'Пример: Дарья', phone: '+7 900 000-00-13', form: 'Индивидуальный пошив', page: '/v1/about/', message: 'Хочу мантию по своим меркам', stage: 'перезвонить', source: 'прямой заход' },
+];
+---
+
+<AdminV1 title="Заявки" active="leads">
+  <Orders client:load mode="leads" orders={[]} leads={[]} sampleOrders={[]} sampleLeads={sample} />
+</AdminV1>

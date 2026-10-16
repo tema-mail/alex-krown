@@ -1,0 +1,21 @@
+---
+/** Админка → Продажи (остров Orders, режим sales). Реальных заказов пока нет – приёмник не подключён;
+    пример собран из товаров каталога и подписан «пример». */
+import AdminV1 from '../../../layouts/AdminV1.astro';
+import Orders, { type Order } from '../../../v1/admin/Orders';
+import { byUid } from '../../../v1/site';
+const pick = (uid: string, size: string, qty = 1) => {
+  const p = byUid.get(uid)!;
+  return { uid, title: p.title, size, qty, price: p.sizes.find((s) => s.size === size)?.price ?? p.price };
+};
+const day = (d: number, h: number) => new Date(Date.UTC(2026, 9, d, h)).toISOString();
+const sample: Order[] = [
+  { id: 'AK-261015-1412', createdAt: day(15, 7), customer: { name: 'Пример: Иван', phone: '+7 900 000-00-01', city: 'Москва', address: 'пункт СДЭК' }, items: [pick('766491981613', 'L'), pick('238837028463', 'L')], delivery: { method: 'СДЭК', cost: 650 }, payment: { method: 'ЮKassa', status: 'оплачен' }, status: 'отправлен', source: { channel: 'сайт', utm_source: 'yandex', utm_medium: 'cpc', utm_campaign: 'cardiogram' }, history: [{ at: day(15, 7), text: 'Заказ создан' }, { at: day(15, 9), text: 'Оплата: оплачен' }, { at: day(16, 4), text: 'Статус: отправлен' }] },
+  { id: 'AK-261014-1903', createdAt: day(14, 12), customer: { name: 'Пример: Анна', phone: '+7 900 000-00-02', city: 'Санкт-Петербург' }, items: [pick('119034214372', 'M')], delivery: { method: 'СДЭК', cost: null }, payment: { method: 'Долями', status: 'не оплачен' }, status: 'новый', source: { channel: 'WhatsApp' }, comment: 'Уточнить наличие размера', history: [{ at: day(14, 12), text: 'Заказ создан' }] },
+  { id: 'AK-261012-1130', createdAt: day(12, 4), customer: { name: 'Пример: Олег', phone: '+7 900 000-00-03', city: 'Новосибирск' }, items: [pick('604455289852', 'XL')], delivery: { method: 'Срочная доставка', cost: 500 }, payment: { method: 'Картой', status: 'оплачен' }, status: 'получен', source: { channel: 'сайт', utm_source: 'instagram' }, history: [{ at: day(12, 4), text: 'Заказ создан' }, { at: day(13, 6), text: 'Статус: получен' }] },
+];
+---
+
+<AdminV1 title="Продажи" active="sales">
+  <Orders client:load mode="sales" orders={[]} leads={[]} sampleOrders={sample} sampleLeads={[]} />
+</AdminV1>
