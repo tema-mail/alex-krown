@@ -34,8 +34,8 @@ const tabs: [Tab, string, string, string][] = [
         <a class:list={['tab', { on: active === key }]} href={v1(href)}>{label}{n && <span class="n">{n}</span>}</a>
       ))}
       <span class="site">Сайт: <a href={site} target="_blank" rel="noopener">{site.replace(/^https?:\/\//, '')}</a></span>
-      {/* выход из кабинета (вход – scripts/lock-admin.mjs, помнится до закрытия вкладки), как «Выйти» у EV */}
-      <button type="button" class="logout" onclick="try{sessionStorage.removeItem('ak_admin_auth')}catch(e){};location.reload()" style="background:none;border:0;color:rgba(255,255,255,.75);font:inherit;font-size:13px;cursor:pointer;padding:0">Выйти</button>
+      {/* выход из кабинета (вход – scripts/lock-admin.mjs, помнится до закрытия вкладки, с галочкой – и после), как «Выйти» у EV; стирает оба входа */}
+      <button type="button" class="logout" onclick="try{sessionStorage.removeItem('ak_admin_auth');localStorage.removeItem('ak_admin_keep')}catch(e){};location.reload()" style="background:none;border:0;color:rgba(255,255,255,.75);font:inherit;font-size:13px;cursor:pointer;padding:0">Выйти</button>
     </nav>
     <main><slot /></main>
   </body>
