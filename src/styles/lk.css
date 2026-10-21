@@ -1,0 +1,109 @@
+/* Личный кабинет покупателя ALEX KROWN (docs/ПЛАН-ЛК.md, решение 5) – перенос milovini-samara/src/styles/lk.css
+   в токенах бренда (home.css): чёрный фон, светлый текст, Playfair Display в заголовках, Montserrat в тексте.
+   Общие классы – .btn, .chip, .field, .label (home.css, v1.css). Телефон 390 px – одна колонка без горизонтальной
+   прокрутки; с 1024 px – сетка из двух колонок. */
+.lk-page { padding-bottom: clamp(64px, 8vw, 120px); }
+.lk { display: grid; gap: 20px; min-width: 0; }
+.lk-h2 { font: 400 28px/1.15 var(--serif); text-transform: uppercase; }
+.lk-h3 { font: 400 22px/1.2 var(--serif); }
+.lk-muted { color: var(--mute); font-size: 14px; line-height: 1.55; }
+.lk-link { background: none; border: 0; padding: 0; color: var(--paper); font: inherit; font-size: 13px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; justify-self: start; }
+.lk-link:hover { color: var(--mute); }
+.crown { flex: none; }
+
+/* вкладки */
+.lk-nav { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.lk-nav__out { margin-left: auto; background: none; border: 0; color: var(--mute); font: 500 12px/1 var(--sans); letter-spacing: .14em; text-transform: uppercase; cursor: pointer; padding: 10px 4px; }
+.lk-nav__out:hover { color: var(--paper); }
+
+/* плашка «демо» */
+.lk-demo { padding: 14px 16px; border: 1px dashed var(--line); border-radius: 4px; font-size: 13px; line-height: 1.55; color: var(--mute); }
+.lk-demo b { color: var(--paper); font-weight: 600; }
+.lk-reset { color: var(--mute); }
+
+/* вход */
+.lk-login { max-width: 460px; display: grid; gap: 16px; padding: 32px 28px; border-radius: 4px; background: var(--ink-2); border: 1px solid var(--line); }
+.lk-login__icon { display: inline-flex; color: var(--paper); }
+.lk-form { display: grid; gap: 14px; }
+.lk-form .btn, .lk-login > .btn { width: 100%; }
+.lk-code { padding: 12px 14px; border-radius: 4px; background: var(--ink-3); font-size: 14px; line-height: 1.5; }
+.lk-code b { font: 400 22px/1 var(--serif); letter-spacing: .14em; }
+
+/* карточки */
+.lk-grid { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 1024px) { .lk-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+.lk-card { display: grid; gap: 14px; align-content: start; min-width: 0; padding: 24px; border-radius: 4px; background: var(--ink-2); border: 1px solid var(--line); }
+.lk-card__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.lk-card__head a, .lk-how a { font-size: 13px; text-decoration: underline; text-underline-offset: 3px; }
+.lk-card__head a:hover, .lk-how a:hover { color: var(--mute); }
+
+/* баланс – светлая карточка на чёрном */
+.lk-hero { background: var(--paper); color: var(--ink); border-color: var(--paper); }
+.lk-hero .label { color: #5d5d5a; }
+.lk-bal { display: flex; align-items: center; gap: 12px; }
+.lk-bal b { font: 400 clamp(44px, 6vw, 64px)/1 var(--serif); font-variant-numeric: tabular-nums; }
+.lk-bal span { font: 500 15px/1 var(--sans); }
+.lk-hero__sub { font-size: 14px; opacity: .75; }
+.lk-hero__more { padding: 0; list-style: none; display: grid; gap: 4px; font-size: 14px; }
+.lk-hero .btn { justify-self: start; border-color: var(--ink); background: var(--ink); color: var(--paper); margin-top: 4px; }
+.lk-hero .btn:hover { background: transparent; color: var(--ink); }
+
+/* статус */
+.lk-tier__now { font-size: 15px; }
+.lk-tier__now b { font: 400 26px/1 var(--serif); letter-spacing: .04em; }
+.lk-bar { height: 6px; border-radius: 6px; background: var(--ink-3); overflow: hidden; }
+.lk-bar i { display: block; height: 100%; border-radius: 6px; background: var(--paper); transition: width .5s var(--ease); }
+.lk-levels { padding: 0; list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.lk-levels li { display: grid; gap: 4px; padding: 12px; border-radius: 4px; border: 1px solid var(--line); font-size: 13px; }
+.lk-levels li b { font: 400 16px/1.2 var(--serif); letter-spacing: .04em; }
+.lk-levels li span { font: 600 18px/1 var(--sans); }
+.lk-levels li small { color: var(--mute); font-size: 11.5px; }
+.lk-levels li.is-on { border-color: var(--paper); background: var(--ink-3); }
+
+/* заказы кратко */
+.lk-mini { padding: 0; list-style: none; display: grid; gap: 10px; }
+.lk-mini li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; padding-bottom: 10px; border-bottom: 1px solid var(--line); font-size: 14px; }
+.lk-mini li:last-child { border-bottom: 0; padding-bottom: 0; }
+.lk-mini li span { color: #d6d6d2; min-width: 0; }
+.lk-mini li b { text-align: right; font-weight: 600; }
+.lk-st { font-style: normal; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--paper); }
+.lk-st--cancelled { color: var(--mute); text-decoration: line-through; }
+.lk-st--settled, .lk-st--delivered { color: #9fd3a8; }
+
+.lk-how ul { padding-left: 18px; display: grid; gap: 6px; font-size: 14px; line-height: 1.55; color: #d6d6d2; }
+
+@media (max-width: 1023px) {
+  .lk-card { padding: 18px 16px; }
+  .lk-login { padding: 24px 18px; }
+  .lk-levels li { padding: 9px 8px; }
+}
+
+/* история баллов и заказы */
+@media (min-width: 1024px) { .lk-wide { grid-column: 1 / -1; } }
+.lk-hist { padding: 0; list-style: none; display: grid; }
+.lk-hist li { display: grid; grid-template-columns: 170px minmax(0, 1fr) auto; gap: 4px 16px; align-items: baseline; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+.lk-hist li:last-child { border-bottom: 0; }
+.lk-hist__when { color: var(--mute); font-size: 13px; }
+.lk-hist__what { color: #d6d6d2; min-width: 0; }
+.lk-hist__pts { font: 600 16px/1 var(--sans); color: var(--mute); font-variant-numeric: tabular-nums; text-align: right; }
+.lk-hist__pts.is-plus { color: #9fd3a8; }
+.lk-hist__pts.is-minus { color: var(--paper); }
+@media (max-width: 1023px) {
+  .lk-hist li { grid-template-columns: minmax(0, 1fr) auto; }
+  .lk-hist__when { grid-column: 1 / -1; }
+}
+.lk-lines { padding: 0; list-style: none; display: grid; gap: 6px; font-size: 14px; }
+.lk-lines li { display: flex; justify-content: space-between; gap: 12px; }
+.lk-lines li span { min-width: 0; color: #d6d6d2; }
+.lk-order__sum { display: grid; gap: 6px; padding-top: 10px; border-top: 1px solid var(--line); font-size: 14px; }
+.lk-order__sum div { display: flex; justify-content: space-between; gap: 12px; }
+.lk-order__sum dt { color: var(--mute); }
+.lk-order__sum dd { margin: 0; font-weight: 600; text-align: right; }
+.lk-order__btns { display: flex; flex-wrap: wrap; gap: 8px; }
+.lk-order__btns .btn { white-space: normal; text-align: center; padding: 11px 18px; font-size: 11px; }
+.lk-order__btns .btn--demo { border-style: dashed; }
+.lk-profile { max-width: 560px; gap: 16px; }
+.lk-profile .btn { justify-self: start; }
+.lk-check { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; line-height: 1.5; cursor: pointer; }
+.lk-check input { margin-top: 3px; accent-color: var(--paper); }
+.lk-ok { color: #9fd3a8; font-weight: 600; font-size: 14px; }
