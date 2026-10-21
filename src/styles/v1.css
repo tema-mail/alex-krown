@@ -628,3 +628,37 @@
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+.order__pts {
+  display: grid;
+  gap: 8px;
+}
+.order__sum-pts {
+  display: grid;
+  gap: 6px;
+  font-size: 14px;
+}
+.order__sum-pts div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.order__sum-pts dt {
+  color: var(--mute);
+}
+.order__earn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--mute);
+}
+.order__earn svg {
+  flex: none;
+  color: var(--paper);
+}
+.order__earn a,
+.order__lk {
+  color: var(--paper);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
