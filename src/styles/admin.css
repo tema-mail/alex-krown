@@ -171,3 +171,6 @@ details.pcat[open] .caret{transform:rotate(90deg)}
 .kb__col.is-over{outline:2px dashed #1c201f;outline-offset:-2px}
 .kb__card[draggable]{cursor:grab}
 .kb__card.is-drag{opacity:.45}
+/* 10 вкладок с «Бонусами»: на ноутбуке «Выйти» не должна уезжать на вторую строку */
+@media (max-width:1560px){.topnav{gap:16px;font-size:13.5px}.topnav .brand{margin-right:2px}.topnav .site{font-size:12.5px}}
+@media (max-width:1400px){.topnav .site{display:none}.topnav .logout{margin-left:auto}}
