@@ -1,0 +1,15 @@
+---
+/** Кабинет: профиль (docs/ПЛАН-ЛК.md, решение 5). Данные – только в браузере (client:only). */
+import V1 from '../../../layouts/V1.astro';
+import LkProfile from '../../../v1/islands/LkProfile';
+import { v1 } from '../../../v1/site';
+import '../../../styles/lk.css';
+---
+
+<V1 title="Профиль | ALEX KROWN" description="Профиль покупателя ALEX KROWN." path="lk/profil">
+  <main class="page lk-page">
+    <nav aria-label="Хлебные крошки"><ol class="crumbs"><li><a href={v1('')}>Главная</a></li><li><a href={v1('lk')}>Личный кабинет</a></li><li><span aria-current="page">Профиль</span></li></ol></nav>
+    <header class="cat-head"><h1>Профиль</h1></header>
+    <LkProfile client:only="preact" />
+  </main>
+</V1>
