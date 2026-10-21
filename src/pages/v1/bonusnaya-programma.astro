@@ -1,0 +1,97 @@
+---
+/** Бонусная программа ALEX KROWN (docs/ПЛАН-ЛК.md, решение 6) – перенос milovini-samara/src/pages/bonusnaya-programma.astro.
+    Правила и статусы – из той же константы, что считает кабинет (src/v1/loyalty.ts PROGRAM), чтобы страница и баллы
+    не расходились. Страница индексируется (по правилам сайта: PUBLIC_INDEX=1 на боевом домене) и есть в /v1/sitemap.xml. */
+import V1 from '../../layouts/V1.astro';
+import { IconCrown } from '../../v1/islands/LkHome';
+import { PROGRAM } from '../../v1/loyalty';
+import { v1, BRAND } from '../../v1/site';
+import '../../styles/lk.css';
+
+const rub = (n: number) => n.toLocaleString('ru-RU').replace(/ /g, ' ') + ' ₽';
+const base = PROGRAM.levels[0]!;
+const top = PROGRAM.levels.at(-1)!;
+const days = PROGRAM.returnDays === 1 ? 'сутки' : `${PROGRAM.returnDays} дн.`;
+const faq = [
+  { q: 'Сколько стоит один балл?', a: `1 балл = 1 ₽. Баллами можно оплатить до ${PROGRAM.maxRedeemPercent}% следующего заказа.` },
+  { q: 'Когда начисляются баллы за заказ?', a: `Через ${days} после доставки заказа. До этого они видны в кабинете как «ждут доставки». Если заказ отменён, баллы за него не начисляются, а потраченные на него баллы возвращаются.` },
+  { q: 'С какой суммы считаются баллы?', a: 'С суммы за вещи, оплаченной деньгами: без доставки и без части, оплаченной баллами.' },
+  { q: 'Как повысить статус?', a: `Статус растёт с суммой покупок за всё время: ${PROGRAM.levels.map((l) => `${l.title} – ${l.percent}%${l.fromRub ? ` от ${rub(l.fromRub)}` : ' с первого заказа'}`).join(', ')}.` },
+];
+const title = `Бонусная программа ${BRAND} – баллы с каждой покупки`;
+const description = `Копите баллы с каждого заказа в ${BRAND}: ${base.percent}% с первой покупки и до ${top.percent}% в статусе ${top.title}. ${PROGRAM.signupBonus} баллов за регистрацию, 1 балл = 1 ₽.`;
+const ld = [
+  { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) },
+];
+---
+
+<V1 title={title} description={description} path="bonusnaya-programma" ld={ld}>
+  <main class="page lk-page">
+    <nav aria-label="Хлебные крошки"><ol class="crumbs"><li><a href={v1('')}>Главная</a></li><li><span aria-current="page">Бонусная программа</span></li></ol></nav>
+    <header class="cat-head">
+      <h1>Бонусная программа {BRAND}</h1>
+      <p>{base.percent}% баллами с каждого заказа, {PROGRAM.signupBonus} баллов за регистрацию. 1 балл = 1 ₽ – ими можно оплатить до {PROGRAM.maxRedeemPercent}% следующей покупки.</p>
+      <div class="bp-btns"><a class="btn btn--solid" href={v1('lk')}>Войти в кабинет</a><a class="btn" href={v1('catalog')}>В каталог</a></div>
+    </header>
+
+    <section class="bp-sec" aria-labelledby="bp-levels">
+      <h2 class="lk-h2" id="bp-levels">Статусы</h2>
+      <p class="lk-muted">Чем больше покупок за всё время, тем больше баллов с каждого заказа</p>
+      <ol class="bp-levels">
+        {PROGRAM.levels.map((l) => (
+          <li>
+            <IconCrown size={30} />
+            <b class="bp-levels__name">{l.title}</b>
+            <span class="bp-levels__pct">{l.percent}%</span>
+            <span class="bp-levels__from">{l.fromRub ? `от ${rub(l.fromRub)} покупок` : 'с первого заказа'}</span>
+          </li>
+        ))}
+      </ol>
+    </section>
+
+    <section class="bp-sec" aria-labelledby="bp-how">
+      <h2 class="lk-h2" id="bp-how">Как это работает</h2>
+      <ol class="bp-steps">
+        <li><b>Войдите в кабинет</b><span>По почте и коду. За регистрацию – {PROGRAM.signupBonus} баллов.</span></li>
+        <li><b>Выбирайте вещи</b><span>На каждой карточке видно, сколько баллов вы за неё получите.</span></li>
+        <li><b>Получайте баллы</b><span>Через {days} после доставки баллы становятся доступны.</span></li>
+        <li><b>Тратьте</b><span>Оплачивайте баллами до {PROGRAM.maxRedeemPercent}% следующего заказа.</span></li>
+      </ol>
+      <p class="lk-demo">
+        Кабинет на этом сайте сейчас работает в демо-режиме: баллы хранятся в браузере, письмо с кодом не отправляется – код покажем на экране. <a href={v1('lk')}>Открыть кабинет</a>
+      </p>
+    </section>
+
+    <section class="bp-sec" aria-labelledby="bp-faq">
+      <h2 class="lk-h2" id="bp-faq">Вопросы о баллах</h2>
+      <div class="acc">
+        {faq.map((f) => <details><summary>{f.q}</summary><div class="acc__body">{f.a}</div></details>)}
+      </div>
+    </section>
+  </main>
+</V1>
+
+<style>
+  .bp-btns { display: flex; flex-wrap: wrap; gap: 10px; }
+  .bp-sec { padding-top: clamp(40px, 6vw, 72px); display: grid; gap: 16px; max-width: 1100px; }
+  .bp-levels, .bp-steps { list-style: none; padding: 0; display: grid; gap: 12px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .bp-levels li { display: grid; gap: 8px; justify-items: start; padding: 28px; border-radius: 4px; background: var(--ink-2); border: 1px solid var(--line); }
+  .bp-levels li:last-child { background: var(--paper); color: var(--ink); border-color: var(--paper); }
+  .bp-levels__name { font: 400 26px/1.1 var(--serif); letter-spacing: 0.04em; }
+  .bp-levels__pct { font: 400 48px/1 var(--serif); }
+  .bp-levels__from { font-size: 14px; opacity: 0.75; }
+  .bp-steps { grid-template-columns: repeat(4, minmax(0, 1fr)); counter-reset: s; }
+  .bp-steps li { display: grid; gap: 8px; align-content: start; padding: 24px; border-radius: 4px; border: 1px solid var(--line); counter-increment: s; }
+  .bp-steps li::before { content: counter(s, decimal-leading-zero); font: 400 28px/1 var(--serif); color: var(--mute); }
+  .bp-steps b { font-size: 15px; font-weight: 600; }
+  .bp-steps span { font-size: 14px; line-height: 1.55; color: #d6d6d2; }
+  .lk-demo a { color: var(--paper); text-decoration: underline; text-underline-offset: 3px; }
+  @media (max-width: 1023px) {
+    .bp-levels { grid-template-columns: minmax(0, 1fr); }
+    .bp-steps { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
+    .bp-levels li, .bp-steps li { padding: 18px 16px; }
+  }
+  @media (max-width: 420px) {
+    .bp-steps { grid-template-columns: minmax(0, 1fr); }
+  }
+</style>

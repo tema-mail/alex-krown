@@ -5,6 +5,7 @@
 import V1 from '../../layouts/V1.astro';
 import ProductCard from '../ProductCard.astro';
 import ProductBuy from '../islands/ProductBuy';
+import { BASE_RATE, PROGRAM } from '../loyalty';
 import { v1, img, srcset, rub, byUid, homeSection, sectionName, sections, infoPages, metaDescription, minPrice, priceVaries, BRAND, type Product } from '../site';
 
 interface Props { p: Product }
@@ -92,6 +93,7 @@ const first = p.photos[0];
             </details>
           )}
           {delivery && <details><summary>Доставка и оплата</summary><div class="acc__body">{delivery}{'\n'}<a href={v1('payment_and_delivery')}>Подробнее о доставке</a></div></details>}
+          <details><summary>Баллы за покупку</summary><div class="acc__body">{`${BASE_RATE}% от покупки возвращаем баллами, в статусах выше – до ${PROGRAM.levels.at(-1)!.percent}%. За регистрацию в кабинете – ${PROGRAM.signupBonus} баллов. 1 балл = 1 ₽, баллами можно оплатить до ${PROGRAM.maxRedeemPercent}% следующего заказа.`}{'\n'}<a href={v1('bonusnaya-programma')}>Правила бонусной программы</a></div></details>
           {care && <details><summary>Уход</summary><div class="acc__body">{care}{'\n'}<a href={v1('recomendation')}>Все рекомендации</a></div></details>}
         </div>
       </div>
