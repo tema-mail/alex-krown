@@ -229,10 +229,10 @@ export default function Order({ catalogHref, policyHref, offerHref }: { catalogH
                       min={0}
                       max={q.maxPoints}
                       step={1}
-                      value={pointsReq ?? q.maxPoints}
+                      value={Math.min(pointsReq ?? q.maxPoints, q.maxPoints)}
                       onInput={(e) => {
                         const v = (e.target as HTMLInputElement).value;
-                        // пусто – пока печатают; иначе целое от 0 до максимума (больше движок всё равно не спишет)
+                        // пусто – 0; иначе целое от 0 до максимума (больше движок всё равно не спишет); корзина уменьшилась – на экране новый максимум
                         setPointsReq(v === '' ? 0 : Math.max(0, Math.min(q.maxPoints, Math.floor(Number(v)) || 0)));
                       }}
                     />

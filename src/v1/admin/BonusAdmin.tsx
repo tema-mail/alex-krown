@@ -10,10 +10,23 @@ import { buildOf, commit, getToken, humanError, readJson } from './gh';
 export interface Level { id: string; title: string; fromRub: number; percent: number }
 export interface Program { signupBonus: number; maxRedeemPercent: number; levels: Level[]; paymentDays: number; returnDays: number }
 type Status = { kind: 'idle' | 'saving' | 'building' | 'done' | 'error'; text: string; url?: string; sha?: string };
+/** черновик формы – текст, как набран: «7,» не должен превращаться в 7 посреди набора (как Settings.tsx shop-modules) */
+interface DraftLevel { id: string; title: string; fromRub: string; percent: string }
+interface Draft { signupBonus: string; maxRedeemPercent: string; levels: DraftLevel[]; paymentDays: string; returnDays: string }
+const toDraft = (p: Program): Draft => ({
+  signupBonus: String(p.signupBonus), maxRedeemPercent: String(p.maxRedeemPercent), paymentDays: String(p.paymentDays), returnDays: String(p.returnDays),
+  levels: p.levels.map((l) => ({ id: l.id, title: l.title, fromRub: String(l.fromRub), percent: String(l.percent) })),
+});
 
 const PATH = 'src/data/v1/loyalty.json';
 const num = (v: string) => (v.trim() === '' ? NaN : Number(v.replace(',', '.').replace(/\s/g, '')));
 const pctOk = (x: number) => Number.isFinite(x) && x >= 0 && x <= 100;
+const toProgram = (d: Draft): Program => ({
+  signupBonus: num(d.signupBonus), maxRedeemPercent: num(d.maxRedeemPercent), paymentDays: num(d.paymentDays), returnDays: num(d.returnDays),
+  levels: d.levels.map((l) => ({ id: l.id, title: l.title.trim(), fromRub: num(l.fromRub), percent: num(l.percent) })),
+});
+/* движок сравнивает пороги в копейках после округления – так же и здесь, иначе 100 и 100,001 пройдут админку и сломают кабинет */
+const kop = (rub: number) => Math.round(rub * 100);
 
 /** то же, что проверяет движок, – словами для владельца */
 export function problems(p: Program): string[] {
@@ -21,13 +34,14 @@ export function problems(p: Program): string[] {
   if (!pctOk(p.maxRedeemPercent)) out.push('Доля оплаты баллами – от 0 до 100%');
   if (!Number.isInteger(p.signupBonus) || p.signupBonus < 0) out.push('Баллы за регистрацию – целое число от 0');
   if (!p.levels.length) out.push('Нужен хотя бы один статус');
-  if (p.levels[0] && p.levels[0].fromRub !== 0) out.push('Первый статус должен начинаться с 0 ₽');
+  if (p.levels[0] && kop(p.levels[0].fromRub) !== 0) out.push('Первый статус должен начинаться с 0 ₽');
+  if (new Set(p.levels.map((l) => l.id)).size !== p.levels.length) out.push('Статусы повторяются – обновите страницу');
   p.levels.forEach((l, i) => {
     if (!l.title.trim()) out.push(`Статус ${i + 1}: нет названия`);
     if (!pctOk(l.percent)) out.push(`«${l.title || i + 1}»: процент вне 0–100%`);
     if (!Number.isFinite(l.fromRub) || l.fromRub < 0) out.push(`«${l.title || i + 1}»: неверный порог`);
     const prev = p.levels[i - 1];
-    if (prev && !(l.fromRub > prev.fromRub)) out.push(`«${l.title || i + 1}»: порог должен быть больше, чем у «${prev.title}»`);
+    if (prev && !(kop(l.fromRub) > kop(prev.fromRub))) out.push(`«${l.title || i + 1}»: порог должен быть больше, чем у «${prev.title}»`);
   });
   if (!Number.isInteger(p.paymentDays) || p.paymentDays < 1 || p.paymentDays > 7) out.push('Срок оплаты – от 1 до 7 дней');
   if (!Number.isInteger(p.returnDays) || p.returnDays < 0 || p.returnDays > 365) out.push('Баллы после доставки – через 0–365 дней');
@@ -35,7 +49,7 @@ export function problems(p: Program): string[] {
 }
 
 export default function BonusAdmin({ initial }: { initial: Program }) {
-  const [p, setP] = useState<Program>(initial);
+  const [d, setD] = useState<Draft>(toDraft(initial));
   const [saved, setSaved] = useState<Program>(initial);
   const [connected, setConnected] = useState(false);
   const [showConnect, setShowConnect] = useState(false);
@@ -44,7 +58,7 @@ export default function BonusAdmin({ initial }: { initial: Program }) {
   /* с ключом – свежие правила прямо из репозитория: собранный сайт отстаёт на время сборки */
   const reload = async () => {
     const fresh = await readJson<Program>(PATH);
-    setP(fresh);
+    setD(toDraft(fresh));
     setSaved(fresh);
   };
   useEffect(() => {
@@ -79,9 +93,12 @@ export default function BonusAdmin({ initial }: { initial: Program }) {
     };
   }, [status.kind, status.sha]);
 
+  const p = toProgram(d);
   const errs = problems(p);
   const changed = JSON.stringify(p) !== JSON.stringify(saved);
-  const setLevel = (i: number, patch: Partial<Level>) => setP({ ...p, levels: p.levels.map((l, j) => (j === i ? { ...l, ...patch } : l)) });
+  const set = (patch: Partial<Draft>) => setD({ ...d, ...patch });
+  const setLevel = (i: number, patch: Partial<DraftLevel>) => set({ levels: d.levels.map((l, j) => (j === i ? { ...l, ...patch } : l)) });
+  const val = (e: Event) => (e.target as HTMLInputElement).value;
 
   const save = async () => {
     if (errs.length) return;
@@ -107,7 +124,7 @@ export default function BonusAdmin({ initial }: { initial: Program }) {
 
       <div class="tools">
         <h1>Бонусная программа</h1>
-        <button class="btn" disabled={!changed} onClick={() => setP(saved)}>Отменить изменения</button>
+        <button class="btn" disabled={!changed} onClick={() => setD(toDraft(saved))}>Отменить изменения</button>
         <button class="btn primary" disabled={!changed || errs.length > 0 || status.kind === 'saving'} onClick={save}>Сохранить</button>
       </div>
       <p class="demo-note">Кабинет покупателя сейчас демо: баллы хранятся в браузере покупателя. Новые правила действуют на новые заказы; уже оформленные считаются по правилам на момент заказа.</p>
@@ -116,8 +133,8 @@ export default function BonusAdmin({ initial }: { initial: Program }) {
       <div class="panel">
         <h2>Бонусы</h2>
         <div class="fgrid">
-          <label class="f"><span>Сколько процентов заказа можно оплатить баллами</span><input inputMode="decimal" value={String(p.maxRedeemPercent)} onInput={(e) => setP({ ...p, maxRedeemPercent: num((e.target as HTMLInputElement).value) })} /></label>
-          <label class="f"><span>Баллы за регистрацию</span><input inputMode="numeric" value={String(p.signupBonus)} onInput={(e) => setP({ ...p, signupBonus: num((e.target as HTMLInputElement).value) })} /></label>
+          <label class="f"><span>Сколько процентов заказа можно оплатить баллами</span><input inputMode="decimal" value={d.maxRedeemPercent} onInput={(e) => set({ maxRedeemPercent: val(e) })} /></label>
+          <label class="f"><span>Баллы за регистрацию</span><input inputMode="numeric" value={d.signupBonus} onInput={(e) => set({ signupBonus: val(e) })} /></label>
         </div>
         <p class="muted" style="margin:10px 0 0">1 балл = 1 ₽. Покупатель сам вводит, сколько баллов списать, но не больше этой доли суммы заказа и не больше своего баланса.</p>
       </div>
@@ -128,27 +145,29 @@ export default function BonusAdmin({ initial }: { initial: Program }) {
         <table class="vt" style="width:100%">
           <thead><tr><th>Название</th><th>Порог покупок, ₽</th><th>Баллы с заказа, %</th><th></th></tr></thead>
           <tbody>
-            {p.levels.map((l, i) => (
+            {d.levels.map((l, i) => (
               <tr>
-                <td><input aria-label="Название" value={l.title} onInput={(e) => setLevel(i, { title: (e.target as HTMLInputElement).value })} /></td>
-                <td><input aria-label="Порог, ₽" inputMode="numeric" value={String(l.fromRub)} disabled={i === 0} onInput={(e) => setLevel(i, { fromRub: num((e.target as HTMLInputElement).value) })} /></td>
-                <td><input aria-label="Процент" inputMode="decimal" value={String(l.percent)} onInput={(e) => setLevel(i, { percent: num((e.target as HTMLInputElement).value) })} /></td>
-                <td>{i > 0 && <button class="btn ghost" title="Убрать статус" onClick={() => setP({ ...p, levels: p.levels.filter((_, j) => j !== i) })}>×</button>}</td>
+                <td><input aria-label="Название" value={l.title} onInput={(e) => setLevel(i, { title: val(e) })} /></td>
+                <td><input aria-label="Порог, ₽" inputMode="numeric" value={l.fromRub} disabled={i === 0} onInput={(e) => setLevel(i, { fromRub: val(e) })} /></td>
+                <td><input aria-label="Процент" inputMode="decimal" value={l.percent} onInput={(e) => setLevel(i, { percent: val(e) })} /></td>
+                <td>{i > 0 && <button class="btn ghost" title="Убрать статус" onClick={() => set({ levels: d.levels.filter((_, j) => j !== i) })}>×</button>}</td>
               </tr>
             ))}
           </tbody>
         </table>
         <button class="btn" style="margin-top:10px" onClick={() => {
           const last = p.levels[p.levels.length - 1]!;
-          setP({ ...p, levels: [...p.levels, { id: `level-${Date.now().toString(36)}`, title: 'Новый статус', fromRub: last.fromRub + 50_000, percent: last.percent + 1 }] });
+          const fromRub = Number.isFinite(last.fromRub) ? last.fromRub + 50_000 : 0;
+          const percent = Number.isFinite(last.percent) ? Math.min(100, last.percent + 1) : 0;
+          set({ levels: [...d.levels, { id: `level-${Date.now().toString(36)}`, title: 'Новый статус', fromRub: String(fromRub), percent: String(percent) }] });
         }}>+ Добавить статус</button>
       </div>
 
       <div class="panel">
         <h2>Заказы</h2>
         <div class="fgrid">
-          <label class="f"><span>Сколько ждать оплату, дней <em>заказ без оплаты потом отменится, баллы вернутся</em></span><input inputMode="numeric" value={String(p.paymentDays)} onInput={(e) => setP({ ...p, paymentDays: num((e.target as HTMLInputElement).value) })} /></label>
-          <label class="f"><span>Баллы за заказ – через сколько дней после доставки</span><input inputMode="numeric" value={String(p.returnDays)} onInput={(e) => setP({ ...p, returnDays: num((e.target as HTMLInputElement).value) })} /></label>
+          <label class="f"><span>Сколько ждать оплату, дней <em>заказ без оплаты потом отменится, баллы вернутся</em></span><input inputMode="numeric" value={d.paymentDays} onInput={(e) => set({ paymentDays: val(e) })} /></label>
+          <label class="f"><span>Баллы за заказ – через сколько дней после доставки</span><input inputMode="numeric" value={d.returnDays} onInput={(e) => set({ returnDays: val(e) })} /></label>
         </div>
       </div>
 
