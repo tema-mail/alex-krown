@@ -38,7 +38,7 @@ export default function Order({ catalogHref, policyHref, offerHref }: { catalogH
   useEffect(() => setReady(true), []);
   const [f, setF] = useState<Form>({ name: '', phone: '', email: '', city: '', address: '', delivery: 'cdek', payment: 'card', comment: '', agree: false });
   const [tried, setTried] = useState(false);
-  const [done, setDone] = useState<{ no: string; text: string; lk?: boolean } | null>(null);
+  const [done, setDone] = useState<{ no: string; text: string; lk?: boolean; pointsLost?: boolean } | null>(null);
   const [copied, setCopied] = useState(false);
   const [busy, setBusy] = useState(false);
   const [usePoints, setUsePoints] = useState(false);
@@ -92,6 +92,7 @@ export default function Order({ catalogHref, policyHref, offerHref }: { catalogH
         <h2 class="h2">Заказ {done.no} собран</h2>
         <p>Отправьте его менеджеру в {ORDER_CHANNEL.label} – он подтвердит наличие размеров, посчитает доставку и пришлёт ссылку на оплату.</p>
         <p><a class="btn btn--solid" href={href} target="_blank" rel="noopener" onClick={sent}>Отправить в {ORDER_CHANNEL.label}</a></p>
+        {done.pointsLost && <p class="field__err" role="alert">Кабинет не ответил – баллы к этому заказу не применились, заказ собран без них.</p>}
         {done.lk && <p class="pp__hint">Заказ и баллы за него видны в <a class="order__lk" href={v1url('lk/zakazy')}>личном кабинете</a> (демо).</p>}
         <pre>{done.text}</pre>
         <p>
@@ -129,15 +130,17 @@ export default function Order({ catalogHref, policyHref, offerHref }: { catalogH
     const no = `AK-${d.getFullYear().toString().slice(2)}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}-${String(d.getHours()).padStart(2, '0')}${String(d.getMinutes()).padStart(2, '0')}${String(d.getSeconds()).padStart(2, '0')}`; // с секундами: два заказа в одну минуту – разные номера
     /* заказ в кабинете (демо) – до текста менеджеру; любой сбой кабинета – заказ уходит без баллов */
     const demo: string[] = [];
+    let inLk = false, pointsLost = false;
     if (loggedIn) {
       setBusy(true);
       try {
         const shop = await getShop();
         const placed = await shop.placeOrder({ lines: lkLines(), usePoints, meta: { externalNum: no } });
-        demo.push(`Демо-номер в кабинете: ${placed.orderId}`);
+        inLk = true; // номер в кабинете – тот же AK-…, менеджеру отдельной строкой не нужен
         if (placed.pointsUsed > 0) demo.push(`Демо-баллы (не применять): ${placed.pointsUsed} ${pointsWord(placed.pointsUsed)} – демо-кабинет, итог не уменьшать`);
       } catch {
         demo.length = 0;
+        pointsLost = usePoints; // покупатель хотел оплатить баллами – скажем, что не вышло
       }
       setBusy(false);
     }
@@ -158,7 +161,7 @@ export default function Order({ catalogHref, policyHref, offerHref }: { catalogH
       ...(f.address.trim() ? [`Адрес / пункт СДЭК: ${f.address.trim()}`] : []),
       ...(f.comment.trim() ? [`Комментарий: ${f.comment.trim()}`] : []),
     ];
-    const order = { no, text: lines.join('\n'), lk: demo.length > 0 };
+    const order = { no, text: lines.join('\n'), lk: inLk, pointsLost };
     /* заказ отправлен – «покупка» в Метрике, как у корзины Тильды (оплата у ALEX KROWN – после, у менеджера) */
     ecPurchase(no, items.map((i) => ({ uid: i.uid, title: i.title, price: i.price, size: i.size, qty: i.qty })), cartTotal.value);
     setDone(order);
@@ -210,10 +213,11 @@ export default function Order({ catalogHref, policyHref, offerHref }: { catalogH
           <input type="checkbox" checked={f.agree} onChange={set('agree')} />
           <span>
             Согласен на обработку персональных данных по <a href={policyHref}>политике конфиденциальности</a> и с <a href={offerHref}>договором оферты</a>
-            {err('agree')}
+            {err('agree') && <> {err('agree')}</>}
           </span>
         </label>
-        <button type="submit" class="btn btn--solid" disabled={busy}>Оформить заказ</button>
+        {/* стандарт форм: без галочки согласия кнопка неактивна (галочка по умолчанию пустая) */}
+        <button type="submit" class="btn btn--solid" disabled={busy || !f.agree}>Оформить заказ</button>
         {tried && bad && <p class="field__err" role="alert">Проверьте отмеченные поля</p>}
       </form>
 

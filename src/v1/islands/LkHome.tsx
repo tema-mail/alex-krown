@@ -203,7 +203,7 @@ export default function LkHome() {
           <section class="lk-card lk-how">
             <h2 class="lk-h3">Как копить и тратить</h2>
             <ul>
-              <li>Баллы начисляются с суммы, оплаченной деньгами, – через сутки после доставки.</li>
+              <li>Баллы начисляются с суммы, оплаченной деньгами, – через {PROGRAM.returnDays === 1 ? 'сутки' : `${PROGRAM.returnDays} дн.`} после доставки.</li>
               <li>Баллами можно оплатить до {PROGRAM.maxRedeemPercent}% следующего заказа.</li>
               <li>Чем больше покупок, тем выше статус и процент.</li>
             </ul>

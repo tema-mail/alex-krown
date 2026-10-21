@@ -1,6 +1,6 @@
 import { useState } from 'preact/hooks';
 import { fmt } from '../store';
-import { pointsWord } from '../loyalty';
+import { pointsWord, PROGRAM } from '../loyalty';
 import type { Account, OrderView, ShopApi } from '../../vendor/shop-engine/shop-engine.js';
 import { IconCrown, LkShell, Tier, dateRu, pts } from './LkHome';
 
@@ -93,7 +93,7 @@ export function LkOrders() {
     <LkShell active="orders">
       {(a, shop) =>
         a.orders.length === 0 ? (
-          <section class="lk-card"><p class="lk-muted">Заказов пока нет. Оформите первый – баллы начислим через сутки после доставки.</p></section>
+          <section class="lk-card"><p class="lk-muted">Заказов пока нет. Оформите первый – баллы начислим через {PROGRAM.returnDays === 1 ? 'сутки' : `${PROGRAM.returnDays} дн.`} после доставки.</p></section>
         ) : (
           <div class="lk-grid">{a.orders.map((o) => <OrderCard key={o.id} o={o} shop={shop} />)}</div>
         )
