@@ -3,7 +3,7 @@
     Острова (Preact) – src/v1/admin/; сохранение каталога – коммитом через GitHub API (src/v1/admin/gh.ts). */
 import '../styles/admin.css';
 import { v1, asset, allProducts } from '../v1/site';
-type Tab = 'pages' | 'products' | 'leads' | 'sales' | 'metrika' | 'seo' | 'positions' | 'tochka' | 'recommendations';
+type Tab = 'pages' | 'products' | 'leads' | 'sales' | 'bonus' | 'metrika' | 'seo' | 'positions' | 'tochka' | 'recommendations';
 interface Props { title: string; active: Tab }
 const { title, active } = Astro.props;
 const site = new URL(v1(''), Astro.site).href;
@@ -12,6 +12,7 @@ const tabs: [Tab, string, string, string][] = [
   ['products', 'admin/products', 'Товары', String(allProducts.length)],
   ['leads', 'admin/leads', 'Заявки', ''],
   ['sales', 'admin/sales', 'Продажи', ''],
+  ['bonus', 'admin/bonus', 'Бонусы', ''],
   ['metrika', 'admin/metrika', 'Метрика', ''],
   ['seo', 'admin/seo', 'SEO-аналитика', ''],
   ['positions', 'admin/positions', 'Позиции', ''], // закрыт замком (v1/admin/Locked.astro), пока владелец не откроет

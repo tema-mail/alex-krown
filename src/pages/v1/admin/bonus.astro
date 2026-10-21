@@ -1,0 +1,10 @@
+---
+/** Админка → Бонусы (остров BonusAdmin): правила программы лояльности кабинета покупателя – src/data/v1/loyalty.json. */
+import AdminV1 from '../../../layouts/AdminV1.astro';
+import BonusAdmin, { type Program } from '../../../v1/admin/BonusAdmin';
+import program from '../../../data/v1/loyalty.json';
+---
+
+<AdminV1 title="Бонусы" active="bonus">
+  <BonusAdmin client:load initial={program as Program} />
+</AdminV1>
