@@ -120,13 +120,16 @@ export interface ShopApi {
      * данных в памяти: ни записей, ни событий (иначе острова, пересчитывающие корзину по subscribe, зациклились бы, в том
      * числе две вкладки с разным выбором баллов). Больше 99 штук одного товара – ошибка.
      */
+    /** points – сколько баллов списать (целое ≥ 0); без него при usePoints – максимум. Больше доступного и доли списания не спишется. Путь Б пока его не знает – там «всё или ничего». */
     quote(input: {
         lines: Line[];
         usePoints: boolean;
+        points?: number;
     }): Promise<QuoteView | null>;
     placeOrder(input: {
         lines: Line[];
         usePoints: boolean;
+        points?: number;
         meta: {
             externalNum: string;
         };

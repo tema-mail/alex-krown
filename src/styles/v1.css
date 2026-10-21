@@ -662,3 +662,8 @@
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+
+/* оформление: сколько баллов списать – поле и «Максимум» в строку */
+.order__pts-amount{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin:10px 0 0}
+.order__pts-amount .field{flex:1 1 160px;margin:0}
+.order__pts-amount .btn{white-space:nowrap}

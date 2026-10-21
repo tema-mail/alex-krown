@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'preact/hooks';
 import { cart, cartTotal, clearCart, fmt, MAX_QTY, removeFromCart, setQty } from '../store';
 import { ecPurchase } from '../ecommerce';
-import { earnFor, getShop, lineId, pointsWord, snap, v1url } from '../loyalty';
+import { earnFor, getShop, lineId, pointsWord, PROGRAM, snap, v1url } from '../loyalty';
 import type { QuoteView } from '../../vendor/shop-engine/shop-engine.js';
 
 /* Оформление заказа магазина «Вариант 1». Своего сервера у сайта нет, поэтому заказ собирается
@@ -42,6 +42,8 @@ export default function Order({ catalogHref, policyHref, offerHref }: { catalogH
   const [copied, setCopied] = useState(false);
   const [busy, setBusy] = useState(false);
   const [usePoints, setUsePoints] = useState(false);
+  /* сколько баллов списать: null – максимум, что можно (баланс и не больше доли списания программы) */
+  const [pointsReq, setPointsReq] = useState<number | null>(null);
   const [q, setQ] = useState<QuoteView | null>(null);
   const [lkError, setLkError] = useState('');
   /* собранный, но ещё не отправленный заказ переживает обновление страницы */
@@ -74,13 +76,13 @@ export default function Order({ catalogHref, policyHref, offerHref }: { catalogH
     }
     let live = true;
     getShop()
-      .then((shop) => shop.quote({ lines: lkLines(), usePoints }))
+      .then((shop) => shop.quote({ lines: lkLines(), usePoints, points: pointsReq ?? undefined }))
       .then((r) => live && (setQ(r), setLkError('')))
       .catch((e: unknown) => live && (setQ(null), setLkError(e instanceof Error ? e.message : 'Кабинет не ответил')));
     return () => {
       live = false;
     };
-  }, [loggedIn, lineKey, usePoints, !!done]);
+  }, [loggedIn, lineKey, usePoints, pointsReq, !!done]);
   const earn = q ? q.earn : earnFor(ready ? cartTotal.value : 0);
 
   if (!ready) return <p class="pp__hint">Загружаем корзину…</p>;
@@ -135,7 +137,7 @@ export default function Order({ catalogHref, policyHref, offerHref }: { catalogH
       setBusy(true);
       try {
         const shop = await getShop();
-        const placed = await shop.placeOrder({ lines: lkLines(), usePoints, meta: { externalNum: no } });
+        const placed = await shop.placeOrder({ lines: lkLines(), usePoints, points: pointsReq ?? undefined, meta: { externalNum: no } });
         inLk = true; // номер в кабинете – тот же AK-…, менеджеру отдельной строкой не нужен
         if (placed.pointsUsed > 0) demo.push(`Демо-баллы (не применять): ${placed.pointsUsed} ${pointsWord(placed.pointsUsed)} – демо-кабинет, итог не уменьшать`);
       } catch {
@@ -200,10 +202,30 @@ export default function Order({ catalogHref, policyHref, offerHref }: { catalogH
               <label class="radio">
                 <input type="checkbox" checked={usePoints} disabled={!q || (q.maxPoints === 0 && !usePoints)} onChange={(e) => setUsePoints((e.target as HTMLInputElement).checked)} />
                 <span>
-                  Оплатить баллами (демо){q && q.maxPoints > 0 ? ` – до ${q.maxPoints.toLocaleString('ru-RU')} из ${snap.value.available.toLocaleString('ru-RU')}` : ''}
+                  Оплатить баллами (демо){q ? ` – на счету ${snap.value.available.toLocaleString('ru-RU')}, к этому заказу можно до ${q.maxPoints.toLocaleString('ru-RU')} (не больше ${PROGRAM.maxRedeemPercent}% суммы)` : ''}
                   <small>Демо-кабинет: баллы хранятся в этом браузере, менеджер их не списывает – итог заказа не меняется.</small>
                 </span>
               </label>
+              {usePoints && q && q.maxPoints > 0 && (
+                <div class="order__pts-amount">
+                  <label class="field">Сколько баллов списать
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      min={0}
+                      max={q.maxPoints}
+                      step={1}
+                      value={pointsReq ?? q.maxPoints}
+                      onInput={(e) => {
+                        const v = (e.target as HTMLInputElement).value;
+                        // пусто – пока печатают; иначе целое от 0 до максимума (больше движок всё равно не спишет)
+                        setPointsReq(v === '' ? 0 : Math.max(0, Math.min(q.maxPoints, Math.floor(Number(v)) || 0)));
+                      }}
+                    />
+                  </label>
+                  <button type="button" class="btn" onClick={() => setPointsReq(null)}>Максимум – {q.maxPoints.toLocaleString('ru-RU')}</button>
+                </div>
+              )}
               {lkError && <p class="field__err" role="alert">{lkError}</p>}
             </div>
           )}
