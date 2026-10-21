@@ -1,8 +1,10 @@
 ---
 /** Карточка товара в сетке (каталог, главная, «похожие»): два фото (второе – при наведении),
-    сердечко избранного (v1/client.ts), название, цена и старая цена, бейдж скидки.
+    сердечко избранного (v1/client.ts), название, цена и старая цена, бейдж скидки, «+N баллов» с короной
+    (docs/ПЛАН-ЛК.md, решение 3: в HTML – по проценту гостя, вошедшему client.ts пересчитывает по data-pts).
     eager – для карточек первого экрана; остальные картинки ставит скрипт за 600 px до появления. */
 import { v1, img, srcset, rub, minPrice, priceVaries, type Product } from './site';
+import { BASE_RATE, earnFor, pointsWord } from './loyalty';
 
 interface Props {
   p: Product;
@@ -23,6 +25,8 @@ const href = v1(p.path);
 const [a, b] = p.photos;
 const fav = JSON.stringify({ uid: p.uid, title: p.title, price: p.price, priceOld: p.priceOld, img: a ? img(a.name + '-s') : '', path: href });
 const off = p.priceOld && p.priceOld > p.price ? Math.round((1 - p.price / p.priceOld) * 100) : 0;
+const ptsPrice = minPrice(p);
+const ptsN = earnFor(ptsPrice, BASE_RATE);
 const attrs = (ph: typeof a) =>
   eager ? { src: img(ph.name + '-s'), srcset: srcset(ph), loading: 'eager' as const } : { 'data-src': img(ph.name + '-s'), 'data-srcset': srcset(ph), loading: 'lazy' as const };
 ---
@@ -42,5 +46,23 @@ const attrs = (ph: typeof a) =>
       {priceVaries(p) ? `от ${rub(minPrice(p))}` : rub(p.price)}
       {off > 0 && <s>{rub(p.priceOld!)}</s>}
     </p>
+    {ptsN > 0 && (
+      <p class="prod__pts" data-pts={ptsPrice} data-pts-from={priceVaries(p) ? '' : undefined} title="Баллы за покупку: 1 балл = 1 ₽ на следующий заказ">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2.5 7.5 7.5 12 12 4l4.5 8 5-4.5L19.5 18h-15z" /><rect x="4.5" y="19.3" width="15" height="1.9" rx=".4" /></svg>
+        <span>{priceVaries(p) ? 'от ' : ''}+{ptsN.toLocaleString('ru-RU')} {pointsWord(ptsN)}</span>
+      </p>
+    )}
   </a>
 </article>
+
+<style>
+  .prod__pts {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 4px;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: var(--mute);
+  }
+</style>

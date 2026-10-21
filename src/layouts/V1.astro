@@ -29,8 +29,9 @@ interface Props {
 }
 const { title, description, path, image, ld = [], hero = false, ogType = 'website', lcp } = Astro.props;
 const canonical = new URL(v1(path), Astro.site).href;
-/* показ на GitHub Pages закрыт от поиска (дубль живого сайта); на боевом домене PUBLIC_INDEX=1 */
-const noindex = process.env.PUBLIC_INDEX !== '1';
+/* показ на GitHub Pages закрыт от поиска (дубль живого сайта); на боевом домене PUBLIC_INDEX=1.
+   Личный кабинет /v1/lk/* закрыт всегда: данные покупателя, а не страница для поиска (docs/ПЛАН-ЛК.md, решение 5) */
+const noindex = process.env.PUBLIC_INDEX !== '1' || /^lk(\/|$)/.test(path);
 /* счётчик Метрики – только на боевом домене (PUBLIC_METRIKA_ID, у alex-krown.com 112281637): на показе в GitHub
    события электронной коммерции (v1/ecommerce.ts) копятся в dataLayer и никуда не уходят, статистика сайта чистая */
 const metrika = Number(process.env.PUBLIC_METRIKA_ID) || 0;
@@ -83,6 +84,11 @@ const org = {
       <nav class="hd__right">
         <a href={v1('catalog')} class="hd__hide">Каталог</a>
         <button type="button" data-open-sheet="fav" class="hd__hide">Избранное <span data-fav-count>0</span></button>
+        {/* кабинет: гость – «Войти», вошедший – баланс с короной и пометка «демо» (обновляет v1/client.ts по снимку кабинета) */}
+        <a href={v1('lk')} class="hd__lk" data-lk aria-label="Войти в личный кабинет">
+          <svg class="hd__crown" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2.5 7.5 7.5 12 12 4l4.5 8 5-4.5L19.5 18h-15z" /><rect x="4.5" y="19.3" width="15" height="1.9" rx=".4" /></svg>
+          <b data-lk-num></b><span class="hd__lk-word" data-lk-word>Войти</span><small class="hd__demo">демо</small>
+        </a>
         <button type="button" data-open-sheet="cart">Корзина <span data-cart-count>0</span></button>
         <button type="button" data-menu-open aria-expanded="false" aria-controls="menu">Меню</button>
       </nav>
@@ -131,3 +137,39 @@ const org = {
     </script>
   </body>
 </html>
+
+<style>
+  .hd__lk {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .hd__crown,
+  .hd__demo {
+    display: none;
+  }
+  .hd__lk b {
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    font-variant-numeric: tabular-nums;
+  }
+  .hd__demo {
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    color: var(--mute);
+  }
+  .hd__lk.is-in .hd__crown,
+  .hd__lk.is-in .hd__demo {
+    display: inline;
+  }
+  @media (max-width: 560px) {
+    .hd__lk.is-in .hd__lk-word,
+    .hd__lk.is-in .hd__demo {
+      display: none;
+    }
+  }
+</style>

@@ -1,10 +1,12 @@
 /* Общий скрипт страниц магазина «Вариант 1» (подключает layouts/V1.astro):
    шапка, меню, ленивые картинки, сердечки избранного на карточках, счётчики шапки, открытие шторок,
-   видео первого экрана, видео в карточках по наведению и большие видео блоков, событие Метрики «просмотр товара».
+   видео первого экрана, видео в карточках по наведению и большие видео блоков, событие Метрики «просмотр товара»,
+   кабинет в шапке и «+N баллов» на карточках по снимку кабинета (docs/ПЛАН-ЛК.md, решение 3).
    Обычный модуль, а не остров: карточек десятки, по острову на каждую – лишний JS. */
 import { effect } from '@preact/signals';
 import { cartCount, favs, sheet, toggleFav, type FavItem } from './store';
 import { ecDetail } from './ecommerce';
+import { earnFor, pointsWord, snap } from './loyalty';
 
 /* ---------- Метрика: просмотр карточки товара (данные кладёт ProductPage.astro) ---------- */
 const ecEl = document.getElementById('ec-detail');
@@ -87,6 +89,26 @@ effect(() => {
   });
 });
 favBtns.forEach((b) => b.addEventListener('click', (e) => (e.preventDefault(), toggleFav(JSON.parse(b.dataset.fav!)))));
+/* ---------- кабинет: шапка («Войти» / баланс) и баллы на карточках по проценту вошедшего ---------- */
+const lk = $$<HTMLAnchorElement>('[data-lk]');
+const ptsEls = $$('[data-pts]');
+effect(() => {
+  const s = snap.value;
+  const me = s.email !== null;
+  lk.forEach((a) => {
+    a.classList.toggle('is-in', me);
+    a.querySelector('[data-lk-num]')!.textContent = me ? s.available.toLocaleString('ru-RU') : '';
+    a.querySelector('[data-lk-word]')!.textContent = me ? pointsWord(s.available) : 'Войти';
+    a.setAttribute('aria-label', me ? `Личный кабинет: ${s.available} ${pointsWord(s.available)} (демо)` : 'Войти в личный кабинет');
+    a.title = me ? 'Личный кабинет: баллы в демо-режиме хранятся в этом браузере' : '';
+  });
+  ptsEls.forEach((el) => {
+    const n = earnFor(Number(el.dataset.pts), s.rate);
+    const span = el.querySelector('span');
+    if (span) span.textContent = `${el.hasAttribute('data-pts-from') ? 'от ' : ''}+${n.toLocaleString('ru-RU')} ${pointsWord(n)}`;
+    el.hidden = n <= 0;
+  });
+});
 $$('[data-open-sheet]').forEach((b) => b.addEventListener('click', () => (sheet.value = b.dataset.openSheet as 'cart' | 'fav')));
 
 /* ---------- видео первого экрана (главная): после загрузки, только видимые колонки ---------- */
