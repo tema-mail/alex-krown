@@ -1,5 +1,6 @@
 import { signal } from '@preact/signals';
 import type { LoyaltyProgram, ShopApi } from '../vendor/shop-engine/shop-engine.js';
+import program from '../data/v1/loyalty.json';
 
 // Бонусная программа ALEX KROWN и связь магазина «Вариант 1» с кабинетом покупателя (docs/ПЛАН-ЛК.md, решения 2–3).
 // Перенос milovini-samara/src/lib/loyalty.ts, путь А: кабинет – демо в браузере покупателя (localStorage, код входа
@@ -8,20 +9,13 @@ import type { LoyaltyProgram, ShopApi } from '../vendor/shop-engine/shop-engine.
 // Обновление движка – как в Milovini: в shop-modules `npm run build:sdk`, скопировать sdk/browser/dist/shop-engine.js
 // и SOURCE, а index.d.ts – как shop-engine.d.ts; руками не править.
 
-/** Правила программы «под чек ALEX KROWN» – утверждены владельцем 21.10.2026. */
-export const PROGRAM: LoyaltyProgram = {
-  signupBonus: 500,
-  maxRedeemPercent: 30,
-  levels: [
-    { id: 'silver', title: 'Silver', fromRub: 0, percent: 5 },
-    { id: 'gold', title: 'Gold', fromRub: 50_000, percent: 7 },
-    { id: 'black', title: 'Black', fromRub: 150_000, percent: 10 },
-  ],
-  // ссылку на оплату присылает менеджер – заказ не должен отменяться сам через час
-  paymentDays: 7,
-  // баллы за заказ – через сутки после доставки
-  returnDays: 1,
-};
+/**
+ * Правила программы – src/data/v1/loyalty.json: утверждены владельцем 21.10.2026 («под чек ALEX KROWN»), меняются
+ * во вкладке «Бонусы» админки (сохранение коммитом, сайт пересобирается). paymentDays – ссылку на оплату присылает
+ * менеджер, заказ не отменяется сам через час; returnDays – баллы за заказ доступны через столько дней после доставки.
+ * Смена правил доходит до старых браузеров: движок видит другие настройки и заводит новую версию (старые заказы – по своей).
+ */
+export const PROGRAM: LoyaltyProgram = program;
 
 /** Ключи движка – свой префикс: сброс кабинета не тронет корзину и избранное (ak_v1_cart, ak_v1_fav). */
 const ENGINE_PREFIX = 'aklk:';

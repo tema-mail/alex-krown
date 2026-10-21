@@ -1,0 +1,11 @@
+{
+  "signupBonus": 500,
+  "maxRedeemPercent": 30,
+  "levels": [
+    { "id": "silver", "title": "Silver", "fromRub": 0, "percent": 5 },
+    { "id": "gold", "title": "Gold", "fromRub": 50000, "percent": 7 },
+    { "id": "black", "title": "Black", "fromRub": 150000, "percent": 10 }
+  ],
+  "paymentDays": 7,
+  "returnDays": 1
+}
