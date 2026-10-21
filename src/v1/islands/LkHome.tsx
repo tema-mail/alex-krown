@@ -1,8 +1,7 @@
 import type { ComponentChildren } from 'preact';
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { DataError, getShop, pointsWord, PROGRAM, resetCabinet } from '../loyalty';
+import { DataError, getShop, pointsWord, PROGRAM, resetCabinet, v1url as v1 } from '../loyalty';
 import { fmt } from '../store';
-import { v1 } from '../site';
 import type { Account, ShopApi } from '../../vendor/shop-engine/shop-engine.js';
 
 // Личный кабинет покупателя ALEX KROWN (docs/ПЛАН-ЛК.md, решение 5) – перенос milovini-samara/src/islands/LkHome.tsx:
