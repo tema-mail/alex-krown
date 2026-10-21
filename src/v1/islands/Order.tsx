@@ -126,7 +126,7 @@ export default function Order({ catalogHref, policyHref, offerHref }: { catalogH
     setTried(true);
     if (bad || busy) return;
     const d = new Date();
-    const no = `AK-${d.getFullYear().toString().slice(2)}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}-${String(d.getHours()).padStart(2, '0')}${String(d.getMinutes()).padStart(2, '0')}`;
+    const no = `AK-${d.getFullYear().toString().slice(2)}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}-${String(d.getHours()).padStart(2, '0')}${String(d.getMinutes()).padStart(2, '0')}${String(d.getSeconds()).padStart(2, '0')}`; // с секундами: два заказа в одну минуту – разные номера
     /* заказ в кабинете (демо) – до текста менеджеру; любой сбой кабинета – заказ уходит без баллов */
     const demo: string[] = [];
     if (loggedIn) {
