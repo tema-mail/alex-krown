@@ -5,13 +5,20 @@ import { earnFor, getShop, lineId, pointsWord, PROGRAM, snap, v1url } from '../l
 import type { QuoteView } from '../../vendor/shop-engine/shop-engine.js';
 
 /* Оформление заказа магазина «Вариант 1». Своего сервера у сайта нет, поэтому заказ собирается
-   в сообщение и уходит менеджеру бренда в WhatsApp (ORDER_CHANNEL). Поменять канал – одна константа:
+   в сообщение и уходит менеджеру бренда в Telegram или MAX (ORDER_CHANNELS). Поменять канал – одна константа:
    позже сюда встаёт приём заказов (Тильда, CRM, свой сервер). Оплата онлайн без сервера невозможна –
    покупатель выбирает удобный способ, менеджер присылает ссылку на оплату.
    Баллы (docs/ПЛАН-ЛК.md, решение 4; как Order.tsx Milovini): кабинет – демо в браузере, поэтому менеджеру «Итого»
    уходит без вычета баллов, а демо-баллы и номер в кабинете – отдельными строками «не применять». Сбой кабинета
    не мешает настоящему заказу – он уходит без баллов. */
-export const ORDER_CHANNEL = { kind: 'whatsapp' as const, phone: '79830055859', label: 'WhatsApp' };
+/* куда покупатель отправляет заказ (владелец 21.10.2026: «Telegram и MAX, а не WhatsApp»). Ссылки пока тестовые:
+   Telegram – аккаунт бренда с сайта, MAX – общий адрес; ссылки менеджера владелец даст до боя (docs/ТЕХДОЛГ.md).
+   Telegram и MAX не принимают текст в ссылке – кнопка сама копирует заказ, покупатель вставляет его в чат. */
+export const ORDER_CHANNELS = [
+  { label: 'Telegram', href: 'https://t.me/Alex_Krown', test: false },
+  { label: 'MAX', href: 'https://max.ru/', test: true },
+];
+const ORDER_PHONE = { href: 'tel:+79830055859', text: '+7 983-005-58-59' };
 
 /* условия – со страницы «Доставка и оплата» бренда */
 const DELIVERY = [
@@ -88,13 +95,20 @@ export default function Order({ catalogHref, policyHref, offerHref }: { catalogH
   if (!ready) return <p class="pp__hint">Загружаем корзину…</p>;
 
   if (done) {
-    const href = `https://wa.me/${ORDER_CHANNEL.phone}?text=${encodeURIComponent(done.text)}`;
+    const copyText = () => navigator.clipboard?.writeText(done.text).then(() => setCopied(true)).catch(() => {});
     return (
       <div class="done">
-        <h2 class="h2">Заказ {done.no} собран</h2>
-        <p>Отправьте его менеджеру в {ORDER_CHANNEL.label} – он подтвердит наличие размеров, посчитает доставку и пришлёт ссылку на оплату.</p>
-        <p><a class="btn btn--solid" href={href} target="_blank" rel="noopener" onClick={sent}>Отправить в {ORDER_CHANNEL.label}</a></p>
-        {done.pointsLost && <p class="field__err" role="alert">Кабинет не ответил – баллы к этому заказу не применились, заказ собран без них.</p>}
+        <h2 class="h2">Заказ {done.no} оформлен</h2>
+        <p>Отправьте его менеджеру в Telegram или MAX: по кнопке текст заказа скопируется сам – вставьте его в чат. Менеджер подтвердит наличие размеров, посчитает доставку и пришлёт ссылку на оплату.</p>
+        <p class="done__send">
+          {ORDER_CHANNELS.map((c) => (
+            <a class="btn btn--solid" href={c.href} target="_blank" rel="noopener" onClick={() => (copyText(), sent())}>
+              Отправить в {c.label}{c.test ? ' (тест)' : ''}
+            </a>
+          ))}
+        </p>
+        {copied && <p class="pp__hint">Текст заказа скопирован – вставьте его в чат с менеджером.</p>}
+        {done.pointsLost && <p class="field__err" role="alert">Кабинет не ответил – баллы к этому заказу не применились, заказ оформлен без них.</p>}
         {done.lk && <p class="pp__hint">Заказ и баллы за него видны в <a class="order__lk" href={v1url('lk/zakazy')}>личном кабинете</a> (демо).</p>}
         <pre>{done.text}</pre>
         <p>
@@ -102,7 +116,7 @@ export default function Order({ catalogHref, policyHref, offerHref }: { catalogH
             {copied ? 'Скопировано' : 'Скопировать текст заказа'}
           </button>
         </p>
-        <p class="pp__hint">Не открылся {ORDER_CHANNEL.label}? Позвоните: <a href="tel:+79830055859">+7 983-005-58-59</a>.</p>
+        <p class="pp__hint">Не получается написать? Позвоните: <a href={ORDER_PHONE.href}>{ORDER_PHONE.text}</a>.</p>
       </div>
     );
   }
