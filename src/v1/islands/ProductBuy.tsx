@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'preact/hooks';
 import { addToCart, cart, favs, sheet, toggleFav } from '../store';
+import { snap, v1url } from '../loyalty';
+import { Points } from './Sheets';
 
 /* Блок покупки на карточке товара: выбор размера (цена у размера своя), «В корзину», «Купить сразу»,
-   избранное. Товары без размеров (парфюм, аксессуары) кладутся в корзину без размера. */
+   избранное, баллы за вещь (docs/ПЛАН-ЛК.md, решение 3; гостю – «Войдите, чтобы копить»). Товары без размеров (парфюм, аксессуары) кладутся в корзину без размера. */
 interface P { uid: string; title: string; price: number; priceOld: number | null; img: string; path: string; sizes: { size: string; price: number; priceOld: number | null }[]; orderHref: string }
 
 export default function ProductBuy({ p }: { p: P }) {
@@ -48,6 +50,14 @@ export default function ProductBuy({ p }: { p: P }) {
         </div>
       )}
       {cur && <p class="pp__price" style={{ marginTop: '14px' }} aria-live="polite">Размер {cur.size}: {price.toLocaleString('ru-RU').replace(/\u00a0/g, ' ')} ₽</p>}
+      <p class="pb__pts">
+        <Points price={price} size={15} />
+        {ready && snap.value.email !== null ? (
+          <span>за эту вещь – на следующий заказ</span>
+        ) : (
+          <span><a href={v1url('lk')}>Войдите</a>, чтобы копить баллы</span>
+        )}
+      </p>
       <p class={`pp__hint${err ? ' pp__hint--err' : ''}`} aria-live="polite">
         {err ? 'Выберите размер' : inCart.length ? `В корзине: ${inCart.map((i) => `${i.size || 'шт.'} × ${i.qty}`).join(', ')}` : ''}
       </p>

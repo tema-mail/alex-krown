@@ -597,3 +597,34 @@
     gap: 6px;
   }
 }
+
+/* ---------- баллы кабинета (docs/ПЛАН-ЛК.md, решение 3): корона и «+N баллов» на товаре и в корзине ---------- */
+.pts {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--paper);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.pb__pts,
+.dr__pts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  font-size: 13px;
+  color: var(--mute);
+}
+.pb__pts {
+  margin-top: 12px;
+}
+.dr__pts {
+  margin-top: -4px;
+}
+.pb__pts a,
+.dr__pts a {
+  color: var(--paper);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

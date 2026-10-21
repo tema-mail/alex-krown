@@ -1,6 +1,7 @@
 import type { ComponentChildren } from 'preact';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { cart, cartCount, cartTotal, favs, fmt, MAX_QTY, removeFromCart, setQty, sheet, toast, toggleFav } from '../store';
+import { BASE_RATE, earnFor, pointsWord, snap, v1url } from '../loyalty';
 
 /* Шторки магазина «Вариант 1»: корзина, избранное и всплывашка «добавлено». Открываются кнопками
    шапки (data-open-sheet, v1/client.ts) и из блока покупки на карточке. Справа на компьютере,
@@ -49,6 +50,21 @@ function Drawer({ open, label, title, children, footer }: { open: boolean; label
   );
 }
 
+/** «+N баллов» с короной – сколько начислим за покупку (docs/ПЛАН-ЛК.md, решение 3; Points.tsx Milovini). Процент – по
+    статусу вошедшего, гостю – первого уровня; до гидратации – как у гостя: снимка из браузера в HTML сборки нет. */
+export function Points({ price, qty = 1, size = 13 }: { price: number; qty?: number; size?: number }) {
+  const [ready, setReady] = useState(false);
+  useEffect(() => setReady(true), []);
+  const n = earnFor(price * qty, ready ? snap.value.rate : BASE_RATE);
+  if (n <= 0) return null;
+  return (
+    <span class="pts" title="Баллы за покупку: 1 балл = 1 ₽ на следующий заказ">
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2.5 7.5 7.5 12 12 4l4.5 8 5-4.5L19.5 18h-15z" /><rect x="4.5" y="19.3" width="15" height="1.9" rx=".4" /></svg>
+      +{n.toLocaleString('ru-RU')} {pointsWord(n)}
+    </span>
+  );
+}
+
 function Empty({ title, text, href }: { title: string; text: string; href: string }) {
   return (
     <div class="dr__empty">
@@ -82,6 +98,9 @@ export default function Sheets({ catalogHref, orderHref, favHref }: { catalogHre
           items.length > 0 && (
             <>
               <p class="dr__total"><span>Итого</span><b>{fmt(cartTotal.value)}</b></p>
+              <p class="dr__pts">
+                {snap.value.email === null ? <><a href={v1url('lk')}>Войдите</a> – начислим</> : <span>Начислим</span>} <Points price={cartTotal.value} />
+              </p>
               <p class="dr__note">Доставка СДЭК из Новосибирска – по тарифам службы, менеджер посчитает её после заказа.</p>
               <a class="btn btn--solid dr__cta" href={orderHref}>Оформить заказ</a>
               <button type="button" class="dr__more" onClick={() => (sheet.value = null)}>Продолжить покупки</button>
