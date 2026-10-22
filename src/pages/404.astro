@@ -1,0 +1,21 @@
+---
+/** Страница 404 – свой вид вместо стандартной GitHub/сервера: куда идти дальше (каталог, разделы, контакты). Без индексации. */
+import V1 from '../layouts/V1.astro';
+import { v1, PHONE, PHONE_DIGITS } from '../v1/site';
+---
+
+<V1 title="Страница не найдена | ALEX KROWN" description="Такой страницы нет – возможно, товар снят с продажи или адрес изменился." path="404">
+  <main class="page">
+    <header class="cat-head">
+      <h1>Страница не найдена</h1>
+      <p>Возможно, вещь уже снята с продажи или адрес изменился. Загляните в каталог – там всё, что есть сейчас.</p>
+    </header>
+    <p style="display:flex;gap:10px;flex-wrap:wrap;margin:24px 0">
+      <a class="btn btn--solid" href={v1('catalog')}>В каталог</a>
+      <a class="btn" href={v1('catalog/man')}>Мужское</a>
+      <a class="btn" href={v1('catalog/woman')}>Женское</a>
+      <a class="btn" href={v1('')}>На главную</a>
+    </p>
+    <p>Ищете конкретную вещь? Позвоните: <a href={`tel:+${PHONE_DIGITS}`}>{PHONE}</a> или загляните в <a href={v1('contacts')}>контакты</a>.</p>
+  </main>
+</V1>
