@@ -9,6 +9,6 @@ import { v1 } from '../../v1/site';
   <main class="page">
     <nav aria-label="Хлебные крошки"><ol class="crumbs"><li><a href={v1('')}>Главная</a></li><li><span aria-current="page">Оформление заказа</span></li></ol></nav>
     <header class="cat-head"><h1>Оформление заказа</h1></header>
-    <Order client:load catalogHref={v1('catalog')} policyHref={v1('privatepolicy')} offerHref={v1('offer_agreement')} />
+    <Order client:load catalogHref={v1('catalog')} policyHref={v1('privatepolicy')} offerHref={v1('offer_agreement')} consentHref={v1('processing_of_personal_data')} />
   </main>
 </V1>

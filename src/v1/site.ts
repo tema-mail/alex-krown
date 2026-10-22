@@ -100,6 +100,6 @@ export const MENU = [
 ] as const;
 export const FOOTER = [
   ['Подробнее', [['О бренде', 'about'], ['Доставка и оплата', 'payment_and_delivery'], ['Контакты', 'contacts']]],
-  ['Данные', [['Пользовательское соглашение', 'processing_of_personal_data'], ['Политика конфиденциальности', 'privatepolicy'], ['Договор оферты', 'offer_agreement']]],
+  ['Данные', [['Согласие на обработку персональных данных', 'processing_of_personal_data'], ['Политика конфиденциальности', 'privatepolicy'], ['Договор оферты', 'offer_agreement']]],
   ['Помощь', [['Связаться с нами', 'contacts'], ['Рекомендации по уходу', 'recomendation'], ['Размерная сетка', 'size_chart'], ['Обмен и возврат', 'return']]],
 ] as const;

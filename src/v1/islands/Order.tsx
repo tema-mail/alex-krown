@@ -34,13 +34,29 @@ const PAYMENT = [
 
 interface Form { name: string; phone: string; email: string; city: string; address: string; delivery: string; payment: string; comment: string; agree: boolean }
 
-const phoneOk = (s: string) => s.replace(/\D/g, '').length >= 10;
+/* телефон: маска +7 (XXX) XXX-XX-XX, как в профиле кабинета (LkProfile.tsx); 8… и 9… приводятся к +7 */
+function maskPhone(raw: string): string {
+  let d = raw.replace(/\D/g, '');
+  if (!d) return '';
+  if (d.startsWith('8')) d = '7' + d.slice(1);
+  if (!d.startsWith('7')) d = '7' + d;
+  d = d.slice(0, 11);
+  const p = d.slice(1);
+  let out = '+7';
+  if (p.length) out += ' (' + p.slice(0, 3);
+  if (p.length >= 3) out += ')';
+  if (p.length > 3) out += ' ' + p.slice(3, 6);
+  if (p.length > 6) out += '-' + p.slice(6, 8);
+  if (p.length > 8) out += '-' + p.slice(8, 10);
+  return out;
+}
+const phoneOk = (s: string) => /^7\d{10}$/.test(s.replace(/\D/g, ''));
 
 const Crown = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2.5 7.5 7.5 12 12 4l4.5 8 5-4.5L19.5 18h-15z" /><rect x="4.5" y="19.3" width="15" height="1.9" rx=".4" /></svg>
 );
 
-export default function Order({ catalogHref, policyHref, offerHref }: { catalogHref: string; policyHref: string; offerHref: string }) {
+export default function Order({ catalogHref, policyHref, offerHref, consentHref }: { catalogHref: string; policyHref: string; offerHref: string; consentHref: string }) {
   const [ready, setReady] = useState(false);
   useEffect(() => setReady(true), []);
   const [f, setF] = useState<Form>({ name: '', phone: '', email: '', city: '', address: '', delivery: 'cdek', payment: 'card', comment: '', agree: false });
@@ -197,7 +213,7 @@ export default function Order({ catalogHref, policyHref, offerHref }: { catalogH
         <fieldset>
           <legend>Контакты</legend>
           <label class="field">Имя<input value={f.name} onInput={set('name')} autocomplete="name" required />{err('name')}</label>
-          <label class="field">Телефон<input value={f.phone} onInput={set('phone')} type="tel" inputMode="tel" autocomplete="tel" placeholder="+7" required />{err('phone')}</label>
+          <label class="field">Телефон<input value={f.phone} onInput={(e) => setF({ ...f, phone: maskPhone((e.target as HTMLInputElement).value) })} type="tel" inputMode="tel" autocomplete="tel" placeholder="+7 (___) ___-__-__" required />{err('phone')}</label>
           <label class="field">Почта (необязательно)<input value={f.email} onInput={set('email')} type="email" autocomplete="email" /></label>
         </fieldset>
         <fieldset>
@@ -250,13 +266,15 @@ export default function Order({ catalogHref, policyHref, offerHref }: { catalogH
         <label class="radio">
           <input type="checkbox" checked={f.agree} onChange={set('agree')} />
           <span>
-            Согласен на обработку персональных данных по <a href={policyHref}>политике конфиденциальности</a> и с <a href={offerHref}>договором оферты</a>
+            {/* 152-ФЗ ст. 9 (с 01.09.2025): согласие на обработку ПДн – отдельно от других документов */}
+            Даю <a href={consentHref} target="_blank" rel="noopener">согласие на обработку персональных данных</a>
             {err('agree') && <> {err('agree')}</>}
           </span>
         </label>
         {/* стандарт форм: без галочки согласия кнопка неактивна (галочка по умолчанию пустая) */}
         <button type="submit" class="btn btn--solid" disabled={busy || !f.agree}>Оформить заказ</button>
         {tried && bad && <p class="field__err" role="alert">Проверьте отмеченные поля</p>}
+        <p class="pp__hint">Нажимая «Оформить заказ», вы принимаете условия <a href={offerHref} target="_blank" rel="noopener">договора оферты</a> и <a href={policyHref} target="_blank" rel="noopener">политики конфиденциальности</a>.</p>
       </form>
 
       <aside class="summary" aria-label="Ваш заказ">
