@@ -10,6 +10,7 @@ import '../styles/home.css';
 import '../styles/home-blocks.css';
 import '../styles/v1.css';
 import Sheets from '../v1/islands/Sheets';
+import CookieBanner from '../v1/islands/CookieBanner';
 import Preloader from '../v1/Preloader.astro';
 import { v1, asset, MENU, FOOTER, SOCIAL, PHONE, ADDRESS } from '../v1/site';
 
@@ -35,8 +36,10 @@ const noindex = process.env.PUBLIC_INDEX !== '1' || /^(lk(\/|$)|order$|favorites
 /* счётчик Метрики – только на боевом домене (PUBLIC_METRIKA_ID, у alex-krown.com 112281637): на показе в GitHub
    события электронной коммерции (v1/ecommerce.ts) копятся в dataLayer и никуда не уходят, статистика сайта чистая */
 const metrika = Number(process.env.PUBLIC_METRIKA_ID) || 0;
+/* Метрика – только после «Принимаю» в окне cookie (152-ФЗ ст. 9, остров CookieBanner, как у EV SIBIR):
+   akInitMetrika вызывает окно или повторный визит с сохранённым согласием; «Отказаться» – счётчик не грузится */
 const metrikaTag = metrika
-  ? `window.dataLayer=window.dataLayer||[];(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})(window,document,"script","https://mc.yandex.ru/metrika/tag.js","ym");ym(${metrika},"init",{clickmap:true,trackLinks:true,accurateTrackBounce:true,webvisor:true,ecommerce:"dataLayer"});`
+  ? `window.dataLayer=window.dataLayer||[];window.akInitMetrika=function(){if(window.akMetrikaLoaded)return;window.akMetrikaLoaded=true;(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})(window,document,"script","https://mc.yandex.ru/metrika/tag.js","ym");ym(${metrika},"init",{clickmap:true,trackLinks:true,accurateTrackBounce:true,webvisor:true,ecommerce:"dataLayer"});};try{if(localStorage.getItem("ak-cookie-consent")==="accepted")window.akInitMetrika()}catch(e){}`
   : '';
 /* без своей картинки (служебные и текстовые страницы) – кадр бренда с главной, чтобы ссылка в мессенджере была с превью */
 const ogImage = new URL(image ?? asset('concepts/video/milan-mfw2025-street.webp'), Astro.site).href;
@@ -135,6 +138,7 @@ const org = {
     </footer>
 
     <Sheets client:idle catalogHref={v1('catalog')} orderHref={v1('order')} favHref={v1('favorites')} />
+    {metrika > 0 && <CookieBanner client:idle policyHref={v1('privatepolicy')} />}
     <script>
       import '../v1/client';
     </script>

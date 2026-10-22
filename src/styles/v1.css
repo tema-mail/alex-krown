@@ -677,3 +677,13 @@
   .field select,
   .cat-bar select { font-size: 16px; }
 }
+/* окно согласия на cookie (остров CookieBanner, перенос с EV SIBIR): телефон – половина экрана снизу, компьютер – по центру */
+.cookie-backdrop{position:fixed;inset:0;z-index:90;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.6);animation:cookie-in .2s ease-out}
+@keyframes cookie-in{from{opacity:0}to{opacity:1}}
+.cookie-banner{width:100%;min-height:50svh;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;gap:16px;padding:28px 20px calc(28px + env(safe-area-inset-bottom));background:var(--ink-2);color:var(--paper);border:1px solid var(--line);border-radius:24px 24px 0 0;box-shadow:0 -16px 40px rgba(0,0,0,.4)}
+.cookie-banner__title{margin:0;font:400 28px/1.15 var(--serif)}
+.cookie-banner__text{margin:0;font-size:16px;line-height:1.55;color:var(--mute)}
+.cookie-banner__text a{color:var(--paper);text-decoration:underline}
+.cookie-banner__accept{width:100%;min-height:56px}
+.cookie-banner__decline{align-self:center;padding:8px;background:none;border:0;color:var(--mute);font:inherit;font-size:13px;text-decoration:underline;cursor:pointer}
+@media (min-width:768px){.cookie-backdrop{align-items:center;padding:16px}.cookie-banner{width:min(100%,34rem);min-height:0;padding:32px;border-radius:20px;box-shadow:0 24px 60px rgba(0,0,0,.5)}}
