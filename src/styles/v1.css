@@ -670,3 +670,10 @@
 
 /* после заказа – две кнопки мессенджеров в строку, на телефоне друг под другом */
 .done__send{display:flex;gap:10px;flex-wrap:wrap}
+/* поля ввода и выбор сортировки на телефоне – не мельче 16 px: иначе iPhone приближает страницу при касании */
+@media (max-width: 760px) {
+  .field input,
+  .field textarea,
+  .field select,
+  .cat-bar select { font-size: 16px; }
+}
