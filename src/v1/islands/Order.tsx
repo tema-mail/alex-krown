@@ -53,16 +53,17 @@ export default function Order({ catalogHref, policyHref, offerHref }: { catalogH
   const [pointsReq, setPointsReq] = useState<number | null>(null);
   const [q, setQ] = useState<QuoteView | null>(null);
   const [lkError, setLkError] = useState('');
-  /* собранный, но ещё не отправленный заказ переживает обновление страницы */
+  /* оформленный заказ переживает обновление страницы – но только пока покупатель не положил в корзину новое:
+     иначе вместо формы нового заказа снова показывался бы старый «Заказ оформлен» (баг 22.10.2026) */
   useEffect(() => {
     try {
       const last = JSON.parse(sessionStorage.getItem(LAST) || 'null');
-      if (last?.no) setDone(last);
+      if (last?.no && cart.value.length === 0) setDone(last);
+      else sessionStorage.removeItem(LAST);
     } catch {}
   }, []);
-  /* корзина чистится, когда заказ ушёл в мессенджер или скопирован */
+  /* заказ ушёл в мессенджер или скопирован – экран «оформлен» больше не восстанавливаем (корзина уже пуста) */
   const sent = () => {
-    clearCart();
     try {
       sessionStorage.removeItem(LAST);
     } catch {}
@@ -184,6 +185,7 @@ export default function Order({ catalogHref, policyHref, offerHref }: { catalogH
     try {
       sessionStorage.setItem(LAST, JSON.stringify(order));
     } catch {}
+    clearCart(); // заказ оформлен – корзина пуста, следующий товар идёт в новый заказ
     scrollTo({ top: 0, behavior: 'smooth' });
   };
 
