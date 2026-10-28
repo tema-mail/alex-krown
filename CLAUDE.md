@@ -27,7 +27,8 @@
   feeds.ts – фиды и sitemap, views/ – шаблоны, islands/ – Preact: Sheets, ProductBuy, Order, FavPage),
   каркас `src/layouts/V1.astro`, страницы `src/pages/v1/`, стили home.css + home-blocks.css + v1.css.
 - Адреса страниц – как на alex-krown.com под `/v1/`; фиды `/v1/feeds/google.xml`, `/v1/feeds/yandex.xml`, `/v1/sitemap.xml`.
-- Заказ покупатель отправляет менеджеру в Telegram или MAX (`ORDER_CHANNELS` в islands/Order.tsx, ссылки тестовые до боя). Индексация – только с `PUBLIC_INDEX=1`.
+- Заказ покупатель отправляет менеджеру в Telegram (`ORDER_CHANNELS` в islands/Order.tsx; MAX – когда владелец даст ссылку). Индексация – только с `PUBLIC_INDEX=1`.
+- Кабинет покупателя (src/v1/loyalty.ts): по умолчанию демо в браузере (Pages); `PUBLIC_LOYALTY=api` – кабинет на сервере shop-modules, стенд выкладывает `zsh ~/Sites/shop-modules/deploy/alexkrown/deploy.sh` (docs/ПЛАН-ЛК-СЕРВЕР.md).
 - Видео в карточках – `docs/ВИДЕО-В-КАРТОЧКАХ.md`.
 
 ## Правила работы
