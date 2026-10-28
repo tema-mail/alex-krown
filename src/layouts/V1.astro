@@ -33,7 +33,7 @@ const { title, description, path, image, ld = [], hero = false, ogType = 'websit
 const canonical = new URL(v1(path), Astro.site).href;
 /* показ на GitHub Pages закрыт от поиска (дубль живого сайта); на боевом домене PUBLIC_INDEX=1.
    Личный кабинет /v1/account/* закрыт всегда: данные покупателя, а не страница для поиска (docs/ПЛАН-ЛК.md, решение 5) */
-const noindex = process.env.PUBLIC_INDEX !== '1' || /^(account(\/|$)|checkout$|favorites$|404$)/.test(path); // оформление, избранное и 404 – служебные, не для поиска
+const noindex = process.env.PUBLIC_INDEX !== '1' || /^(account(\/|$)|checkout$|checkout-paid$|favorites$|404$)/.test(path); // оформление, итог оплаты, избранное и 404 – служебные, не для поиска
 /* счётчик Метрики – только на боевом домене (PUBLIC_METRIKA_ID, у alex-krown.com 112281637): на показе в GitHub
    события электронной коммерции (v1/ecommerce.ts) копятся в dataLayer и никуда не уходят, статистика сайта чистая */
 const metrika = Number(process.env.PUBLIC_METRIKA_ID) || 0;

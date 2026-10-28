@@ -11,6 +11,7 @@ export const GET: APIRoute = ({ site }) => {
           `Disallow: ${base}/v1/admin/`,
           `Disallow: ${base}/v1/account/`,
           `Disallow: ${base}/v1/checkout/`,
+          `Disallow: ${base}/v1/checkout-paid/`,
           `Disallow: ${base}/v1/favorites/`,
           `Disallow: ${base}/concepts/`,
           `Disallow: ${base}/new/`,
