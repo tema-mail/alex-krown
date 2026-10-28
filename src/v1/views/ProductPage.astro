@@ -17,6 +17,8 @@ const related = (home ? home.uids : []).filter((u) => u !== p.uid).map((u) => by
 const delivery = infoPages.find((x) => x.path === 'payment_and_delivery')?.paras.slice(0, 2).join('\n\n') ?? '';
 const care = infoPages.find((x) => x.path === 'recomendation')?.paras.slice(1, 5).join('\n') ?? '';
 const off = p.priceOld && p.priceOld > p.price ? p.priceOld : null;
+/* другие цвета этой модели (владелец 28.10.2026: цвета – отдельные страницы с переключателем) */
+const colors = p.group ? [...byUid.values()].filter((x) => x.group === p.group && !x.hidden).sort((a, b) => (a.color || '').localeCompare(b.color || '', 'ru')) : [];
 const site = Astro.site!;
 const abs = (x: string) => new URL(x, site).href;
 const description = metaDescription(p);
@@ -73,6 +75,12 @@ const first = p.photos[0];
         <h1>{p.title}</h1>
         <p class="pp__price" data-base-price>{priceVaries(p) ? `от ${rub(minPrice(p))}` : rub(p.price)}{off && <s>{rub(off)}</s>}</p>
         <p class="pp__avail" style="margin:-4px 0 14px;font-size:13px;color:var(--mute)">{p.preorder ? 'Под заказ – срок изготовления уточнит менеджер' : 'В наличии'}</p>
+        {colors.length > 1 && (
+          <div class="pp__colors">
+            <p class="pp__label">Цвет: {p.color}</p>
+            <div class="chips">{colors.map((c) => (c.uid === p.uid ? <span class="chip" aria-current="true">{c.color}</span> : <a class="chip" href={v1(c.path)}>{c.color}</a>))}</div>
+          </div>
+        )}
         {/* данные для события «просмотр товара» Метрики (v1/client.ts → v1/ecommerce.ts) – без ожидания острова */}
         <script type="application/json" id="ec-detail" set:html={JSON.stringify({ uid: p.uid, title: p.title, price: p.price, category: home ? sectionName(home) : '' }).replace(/</g, '\\u003c')} />
         <ProductBuy

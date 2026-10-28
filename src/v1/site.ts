@@ -17,6 +17,8 @@ export interface Product {
   seoDescr?: string;
   /** под заказ (админка, владелец 28.10.2026); нет поля – в наличии. Остатки не ведём */
   preorder?: boolean;
+  /** модель в нескольких цветах: общий id (m<uid>) у всех цветов – переключатель цвета на карточке, группа в фидах */
+  group?: string;
 }
 export interface Section { path: string; storepart: string; title: string; description: string; h1: string; name: string | null; uids: string[]; /** текст раздела под H1 */ intro?: string }
 export interface InfoPage { path: string; title: string; description: string; h1: string; paras: string[] }

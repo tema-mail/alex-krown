@@ -1,6 +1,6 @@
 /** Фиды товаров магазина «Вариант 1» для рекламы и карта сайта.
     Google Merchant – RSS 2.0 с пространством g:, Яндекс – YML. Предложение – товар в конкретном
-    размере (id = <uid>-<размер>), размеры одного товара связаны общим item_group_id / group_id.
+    размере (id = <uid>-<размер>), размеры одного товара и цвета одной модели (Product.group) связаны общим item_group_id / group_id.
     Цена со скидкой: Google – price (старая) + sale_price, Яндекс – price + oldprice. */
 import { products, sections, infoPages, homeSection, sectionName, gender, metaDescription, adSafe, v1, img, BRAND, type Product } from './site';
 
@@ -48,7 +48,7 @@ export function googleFeed(site: URL) {
         const g = gender(p);
         return `<item>
 <g:id>${esc(v.size ? `${p.uid}-${v.size}` : p.uid)}</g:id>
-<g:item_group_id>${p.uid}</g:item_group_id>
+<g:item_group_id>${p.group ?? p.uid}</g:item_group_id>
 <g:title>${esc(`${p.title}${v.size ? `, размер ${v.size}` : ''} – ${BRAND}`.slice(0, 150))}</g:title>
 <g:description>${esc(feedDescription(p))}</g:description>
 <g:link>${esc(abs(sizeLink(p, v.size)))}</g:link>
@@ -99,7 +99,7 @@ export function yandexFeed(site: URL, date = new Date()) {
         const h = homeSection(p);
         const sale = v.priceOld && v.priceOld > v.price;
         const g = gender(p);
-        return `<offer id="${(v.size ? `${p.uid}${v.size.replace(/[^A-Za-z0-9]/g, '')}` : p.uid).slice(0, 20)}" group_id="${p.uid.slice(-9)}" available="${p.preorder ? 'false' : 'true'}">
+        return `<offer id="${(v.size ? `${p.uid}${v.size.replace(/[^A-Za-z0-9]/g, '')}` : p.uid).slice(0, 20)}" group_id="${(p.group ? p.group.slice(1) : p.uid).slice(-9)}" available="${p.preorder ? 'false' : 'true'}">
 <name>${esc(p.title)}</name>
 <vendor>${BRAND}</vendor>
 <url>${esc(abs(sizeLink(p, v.size)))}</url>
