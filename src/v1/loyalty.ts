@@ -107,6 +107,9 @@ async function refresh(shop: ShopApi): Promise<void> {
   }
 }
 
+/** Перечитать снимок для шапки и карточек (кабинет сам дочитал счёт – событие движка не пришло). */
+export const syncSnap = (shop: ShopApi) => refresh(shop).catch(() => undefined);
+
 let pending: Promise<ShopApi> | null = null;
 
 /**

@@ -1,6 +1,6 @@
 import type { ComponentChildren } from 'preact';
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { API_MODE, DataError, getShop, pointsWord, PROGRAM, resetCabinet, STAND, v1url as v1 } from '../loyalty';
+import { API_MODE, DataError, getShop, pointsWord, PROGRAM, resetCabinet, STAND, syncSnap, v1url as v1 } from '../loyalty';
 import { fmt } from '../store';
 import type { Account, ShopApi } from '../../vendor/shop-engine/shop-engine.js';
 
@@ -131,6 +131,23 @@ export function LkShell({ active, children }: { active: LkTab; children: (a: Acc
         setError(e instanceof Error ? e.message : 'Кабинет не открылся');
       });
   };
+  /* сервер: баллы за регистрацию начисляет очередь через пару секунд после входа – пока счёт пуст, дочитываем его,
+     иначе новый покупатель видит «0 баллов» вместо обещанных */
+  useEffect(() => {
+    if (!API_MODE || !shop || !account || PROGRAM.signupBonus <= 0 || account.history.length || account.orders.length) return;
+    let n = 0;
+    const t = setInterval(() => {
+      if (++n > 6) return clearInterval(t);
+      shop.account().then((a) => {
+        if (a && (a.history.length || a.orders.length)) {
+          clearInterval(t);
+          setAccount(a);
+          void syncSnap(shop);
+        }
+      }).catch(() => undefined);
+    }, 2000);
+    return () => clearInterval(t);
+  }, [shop, account]);
   useEffect(() => {
     open();
     return () => off.current?.();
@@ -197,7 +214,7 @@ export default function LkHome() {
             <p class="lk-hero__sub">1 балл = 1 ₽ · можно оплатить до {PROGRAM.maxRedeemPercent}% заказа</p>
             {(a.balance.pending > 0 || a.balance.held > 0) && (
               <ul class="lk-hero__more">
-                {a.balance.pending > 0 && <li>ждут доставки: <b>{pts(a.balance.pending)}</b></li>}
+                {a.balance.pending > 0 && <li>ждут начисления: <b>{pts(a.balance.pending)}</b></li>}
                 {a.balance.held > 0 && <li>отложены на заказ: <b>{pts(a.balance.held)}</b></li>}
               </ul>
             )}
