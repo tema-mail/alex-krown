@@ -15,6 +15,8 @@ export interface Product {
   hidden?: boolean;
   seoTitle?: string;
   seoDescr?: string;
+  /** под заказ (админка, владелец 28.10.2026); нет поля – в наличии. Остатки не ведём */
+  preorder?: boolean;
 }
 export interface Section { path: string; storepart: string; title: string; description: string; h1: string; name: string | null; uids: string[] }
 export interface InfoPage { path: string; title: string; description: string; h1: string; paras: string[] }

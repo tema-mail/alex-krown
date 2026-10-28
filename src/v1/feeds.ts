@@ -54,7 +54,7 @@ export function googleFeed(site: URL) {
 <g:link>${esc(abs(sizeLink(p, v.size)))}</g:link>
 <g:image_link>${esc(abs(img(p.photos[0].name)))}</g:image_link>
 ${p.photos.slice(1, 11).map((ph) => `<g:additional_image_link>${esc(abs(img(ph.name)))}</g:additional_image_link>`).join('\n')}
-<g:availability>in_stock</g:availability>
+<g:availability>in_stock</g:availability>${'' /* «под заказ» Google без даты поступления не принимает – остаётся in_stock, срок – в доставке (ТЕХДОЛГ) */}
 <g:price>${money(sale ? v.priceOld! : v.price)} RUB</g:price>
 ${sale ? `<g:sale_price>${money(v.price)} RUB</g:sale_price>` : ''}
 <g:brand>${BRAND}</g:brand>
@@ -99,7 +99,7 @@ export function yandexFeed(site: URL, date = new Date()) {
         const h = homeSection(p);
         const sale = v.priceOld && v.priceOld > v.price;
         const g = gender(p);
-        return `<offer id="${(v.size ? `${p.uid}${v.size.replace(/[^A-Za-z0-9]/g, '')}` : p.uid).slice(0, 20)}" group_id="${p.uid.slice(-9)}" available="true">
+        return `<offer id="${(v.size ? `${p.uid}${v.size.replace(/[^A-Za-z0-9]/g, '')}` : p.uid).slice(0, 20)}" group_id="${p.uid.slice(-9)}" available="${p.preorder ? 'false' : 'true'}">
 <name>${esc(p.title)}</name>
 <vendor>${BRAND}</vendor>
 <url>${esc(abs(sizeLink(p, v.size)))}</url>

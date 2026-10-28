@@ -26,7 +26,7 @@ const offers = (p.sizes.length ? p.sizes : [{ size: '', price: p.price, priceOld
   ...(s.size ? { name: `${p.title}, размер ${s.size}` } : {}),
   price: s.price,
   priceCurrency: 'RUB',
-  availability: 'https://schema.org/InStock',
+  availability: p.preorder ? 'https://schema.org/MadeToOrder' : 'https://schema.org/InStock', // «под заказ» – шьют под покупателя
   itemCondition: 'https://schema.org/NewCondition',
   url: abs(v1(p.path)),
   hasMerchantReturnPolicy: {
@@ -72,6 +72,7 @@ const first = p.photos[0];
       <div class="pp__info">
         <h1>{p.title}</h1>
         <p class="pp__price" data-base-price>{priceVaries(p) ? `от ${rub(minPrice(p))}` : rub(p.price)}{off && <s>{rub(off)}</s>}</p>
+        <p class="pp__avail" style="margin:-4px 0 14px;font-size:13px;color:var(--mute)">{p.preorder ? 'Под заказ – срок изготовления уточнит менеджер' : 'В наличии'}</p>
         {/* данные для события «просмотр товара» Метрики (v1/client.ts → v1/ecommerce.ts) – без ожидания острова */}
         <script type="application/json" id="ec-detail" set:html={JSON.stringify({ uid: p.uid, title: p.title, price: p.price, category: home ? sectionName(home) : '' }).replace(/</g, '\\u003c')} />
         <ProductBuy
