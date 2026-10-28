@@ -1,0 +1,283 @@
+адрес,название,сущность,откуда (старый адрес),индексируется
+/,Главная,Главная,/,да
+/katalog/aksessuary/,Сумки и аксессуары,Каталог,/accessories,да
+/katalog/,Каталог дизайнерской одежды,Хаб,/catalog,да
+/katalog/muzhskaya-odezhda/,Мужская дизайнерская одежда,Хаб,/catalog/man,да
+/katalog/muzhskaya-odezhda/pidzhaki/,Мужские пиджаки,Каталог,/catalog/man/blazers,да
+/katalog/muzhskaya-odezhda/bridzhi/,Мужские бриджи,Каталог,/catalog/man/breeches,да
+/katalog/muzhskaya-odezhda/kostyumy/,Мужские костюмы,Каталог,/catalog/man/costumes,да
+/katalog/muzhskaya-odezhda/khudi/,Мужские худи,Каталог,/catalog/man/hoodie,да
+/katalog/muzhskaya-odezhda/kurtki/,Мужские куртки,Каталог,/catalog/man/jackets,да
+/katalog/muzhskaya-odezhda/dzhoggery/,Мужские джоггеры,Каталог,/catalog/man/joggers,да
+/katalog/muzhskaya-odezhda/dzhempery/,Мужской джемпер из экокожи,Каталог,/catalog/man/jumpers,да
+/katalog/muzhskaya-odezhda/pulovery/,Мужские пуловеры,Каталог,/catalog/man/pullovers,да
+/katalog/muzhskaya-odezhda/mantii/,Мужские мантии с капюшоном,Каталог,/catalog/man/robes,да
+/katalog/muzhskaya-odezhda/rubashki/,Мужские рубашки,Каталог,/catalog/man/shirts,да
+/katalog/muzhskaya-odezhda/shorty/,Мужские шорты,Каталог,/catalog/man/shorts,да
+/katalog/muzhskaya-odezhda/svitshoty/,Мужские свитшоты,Каталог,/catalog/man/sweatshirts,да
+/katalog/muzhskaya-odezhda/futbolki/,Мужские футболки,Каталог,/catalog/man/t-shirts,да
+/katalog/muzhskaya-odezhda/mayki/,Мужские майки,Каталог,/catalog/man/tank_top,да
+/katalog/muzhskaya-odezhda/bryuki/,Мужские брюки,Каталог,/catalog/man/trousers,да
+/katalog/zhenskaya-odezhda/,Женская дизайнерская одежда,Хаб,/catalog/woman,да
+/katalog/zhenskaya-odezhda/bodi/,Женские боди,Каталог,/catalog/woman/bodysuit,да
+/katalog/zhenskaya-odezhda/nakidki/,Женская накидка из льна,Каталог,/catalog/woman/capes,да
+/katalog/zhenskaya-odezhda/kurtki/,Женские куртки,Каталог,/catalog/woman/coats,да
+/katalog/zhenskaya-odezhda/kostyumy/,Женские костюмы,Каталог,/catalog/woman/costumes,да
+/katalog/zhenskaya-odezhda/platya/,Женские платья,Каталог,/catalog/woman/dresses,да
+/katalog/zhenskaya-odezhda/khudi/,Женские худи,Каталог,/catalog/woman/hoodie,да
+/katalog/zhenskaya-odezhda/zhakety/,Женские жакеты,Каталог,/catalog/woman/jackets,да
+/katalog/zhenskaya-odezhda/dzhoggery/,Женские джоггеры,Каталог,/catalog/woman/joggers,да
+/katalog/zhenskaya-odezhda/legginsy/,Женские лосины,Каталог,/catalog/woman/leggings,да
+/katalog/zhenskaya-odezhda/longslivy/,Женские лонгсливы,Каталог,/catalog/woman/longsleeves,да
+/katalog/zhenskaya-odezhda/kombinezony/,Женские комбинезоны,Каталог,/catalog/woman/overalls,да
+/katalog/zhenskaya-odezhda/pulovery/,Женские пуловеры,Каталог,/catalog/woman/pullovers,да
+/katalog/zhenskaya-odezhda/mantii/,Женские мантии,Каталог,/catalog/woman/robes,да
+/katalog/zhenskaya-odezhda/rubashki/,Женская рубашка,Каталог,/catalog/woman/shirts,да
+/katalog/zhenskaya-odezhda/shorty/,Женские шорты,Каталог,/catalog/woman/shorts,да
+/katalog/zhenskaya-odezhda/yubki/,Женская юбка,Каталог,/catalog/woman/skirts,да
+/katalog/zhenskaya-odezhda/svitshoty/,Женские свитшоты,Каталог,/catalog/woman/sweatshirts,да
+/katalog/zhenskaya-odezhda/futbolki/,Женские футболки,Каталог,/catalog/woman/t-shirts,да
+/katalog/zhenskaya-odezhda/mayki/,Женская майка,Каталог,/catalog/woman/tank_top,да
+/katalog/zhenskaya-odezhda/topy/,Женские топы,Каталог,/catalog/woman/tops,да
+/katalog/zhenskaya-odezhda/trenchi/,Женские тренчи,Каталог,/catalog/woman/trenchcoats,да
+/katalog/zhenskaya-odezhda/bryuki/,Женские брюки,Каталог,/catalog/woman/trousers,да
+/katalog/zhenskaya-odezhda/tuniki/,Женские туники,Каталог,/catalog/woman/tunics,да
+/katalog/zhenskaya-odezhda/vodolazki/,Женская водолазка,Каталог,/catalog/woman/turtlenecks,да
+/katalog/pereproshivka/,Футболки «Перепрошивка»,Каталог (подборка),/firmware,да
+/katalog/golovnye-ubory/,Бейсболки и шапки,Каталог,/hats,да
+/katalog/muzhskaya-obuv/,Мужские кожаные кроссовки,Каталог,/menshoes,да
+/katalog/parfyum/,Парфюм,Каталог,/perfume,да
+/katalog/nabory-so-skidkoy/,Наборы со скидкой,Каталог (подборка),/sale,да
+/katalog/noski/,Гетры унисекс,Каталог,/socks,да
+/katalog/zhenskaya-obuv/,Женские кожаные кроссовки,Каталог,/womenshoes,да
+/katalog/muzhskaya-odezhda/futbolki/futbolka-muzhskaya/,Футболка мужская,Карточка товара,/catalog/man/tproduct/894573673672-futbolka-muzhskaya,да
+/katalog/muzhskaya-odezhda/mayki/mayka-iayi/,Майка IAYI,Карточка товара,/catalog/man/tproduct/336419747572-maika-iayi,да
+/katalog/muzhskaya-odezhda/shorty/shorty-muzhskie/,Шорты мужские,Карточка товара,/catalog/man/tproduct/119088566132-shorti-muzhskie,да
+/katalog/muzhskaya-odezhda/kurtki/muzhskaya-kurtka/,Мужская куртка,Карточка товара,/catalog/man/tproduct/466090107072-muzhskaya-kurtka,да
+/katalog/muzhskaya-odezhda/kurtki/kurtka-black-smoke/,Куртка “Black smoke”,Карточка товара,/catalog/man/tproduct/471021355902-kurtka-black-smoke,да
+/katalog/muzhskaya-odezhda/kurtki/kurtka-bomber-black-rock/,Куртка бомбер “Black Rock”,Карточка товара,/catalog/man/tproduct/529522506282-kurtka-bomber-black-rock,да
+/katalog/muzhskaya-odezhda/bryuki/bryuki-white-summer/,Брюки «White Summer»,Карточка товара,/catalog/man/tproduct/232564284652-bryuki-white-summer,да
+/katalog/muzhskaya-odezhda/bryuki/bryuki-black-summer/,Брюки «Black Summer»,Карточка товара,/catalog/man/tproduct/995139719952-bryuki-black-summer,да
+/katalog/muzhskaya-odezhda/dzhoggery/dzhoggery-house/,Джогеры «House»,Карточка товара,/catalog/man/tproduct/387012211642-dzhogeri-house,да
+/katalog/muzhskaya-odezhda/khudi/khudi-warlock/,Худи «Warlock»,Карточка товара,/catalog/man/tproduct/726062543492-hudi-warlock,да
+/katalog/muzhskaya-odezhda/dzhoggery/dzhoggery-tornado/,Джоггеры «TORNADO»,Карточка товара,/catalog/man/tproduct/526047893702-dzhoggeri-tornado,да
+/katalog/muzhskaya-odezhda/futbolki/futbolka-tornado/,Футболка «TORNADO»,Карточка товара,/catalog/man/tproduct/680779928102-futbolka-tornado,да
+/katalog/muzhskaya-odezhda/kurtki/kurtka-black-city/,Куртка «Black City»,Карточка товара,/catalog/man/tproduct/913791459862-kurtka-black-city,да
+/katalog/muzhskaya-odezhda/dzhempery/dzhemper-kozha/,Джемпер кожа,Карточка товара,/catalog/man/tproduct/443477137552-dzhemper-kozha,да
+/katalog/muzhskaya-odezhda/shorty/shorty-black-edition/,Шорты Black Edition,Карточка товара,/catalog/man/tproduct/181726261672-shorti-black-edition,да
+/katalog/muzhskaya-odezhda/shorty/shorty-white-edition/,Шорты White Edition,Карточка товара,/catalog/man/tproduct/605972252762-shorti-white-edition,да
+/katalog/aksessuary/sumka-dorozhnaya-uniseks/,Сумка дорожная (унисекс),Карточка товара,/accessories/tproduct/987771220542-sumka-dorozhnaya-uniseks,да
+/katalog/aksessuary/sumka-poyasnaya-belaya/,Сумка поясная белая,Карточка товара,/accessories/tproduct/249480458932-sumka-poyasnaya-belaya,да
+/katalog/aksessuary/rezinka-dlya-volos/,Резинка для волос,Карточка товара,/accessories/tproduct/844024651142-rezinka-dlya-volos,да
+/katalog/muzhskaya-odezhda/mantii/mantiya-black-men/,Мантия Black men,Карточка товара,/catalog/man/tproduct/290765166042-mantiya-black-men,да
+/katalog/muzhskaya-odezhda/mantii/mantiya-white-men/,Мантия White men,Карточка товара,/catalog/man/tproduct/604455289852-mantiya-white-men,да
+/katalog/muzhskaya-odezhda/mantii/mantiya-geometric-gray/,Мантия “Geometric gray”,Карточка товара,/catalog/man/tproduct/252816217932-mantiya-geometric-gray,да
+/katalog/muzhskaya-odezhda/futbolki/futbolka-black-cross/,Футболка Black Cross,Карточка товара,/catalog/man/tproduct/400615090862-futbolka-black-cross,да
+/katalog/muzhskaya-odezhda/rubashki/rubashka-ak-men/,Рубашка “AK MEN”,Карточка товара,/catalog/man/tproduct/473797695712-rubashka-ak-men,да
+/katalog/muzhskaya-odezhda/rubashki/rubashka-ak-men-black/,Рубашка “AK MEN BLACK”,Карточка товара,/catalog/man/tproduct/584210642292-rubashka-ak-men-black,да
+/katalog/muzhskaya-odezhda/futbolki/futbolka-white-ak/,Футболка “White AK”,Карточка товара,/catalog/man/tproduct/323159362212-futbolka-white-ak,да
+/katalog/muzhskaya-odezhda/futbolki/futbolka-black-ak/,Футболка “BLACK AK”,Карточка товара,/catalog/man/tproduct/566132933262-futbolka-black-ak,да
+/katalog/muzhskaya-odezhda/futbolki/futbolka-white-cross/,Футболка White Cross,Карточка товара,/catalog/man/tproduct/791960603462-futbolka-white-cross,да
+/katalog/muzhskaya-odezhda/dzhoggery/dzhoggery-iayi/,Джоггеры IAYI,Карточка товара,/catalog/man/tproduct/683601968402-dzhoggeri-iayi,да
+/katalog/muzhskaya-odezhda/dzhoggery/dzhoggery-trapeze/,Джоггеры “ Trapeze”,Карточка товара,/catalog/man/tproduct/318117451182-dzhoggeri-trapeze,да
+/katalog/muzhskaya-odezhda/dzhoggery/dzhoggery-cardiogram-white/,Джоггеры “Cardiogram White”,Карточка товара,/catalog/man/tproduct/486523206593-dzhoggeri-cardiogram-white,да
+/katalog/muzhskaya-odezhda/dzhoggery/dzhoggery-cardiogram-black/,Джоггеры “Cardiogram Black”,Карточка товара,/catalog/man/tproduct/766491981613-dzhoggeri-cardiogram-black,да
+/katalog/muzhskaya-odezhda/dzhoggery/dzhoggery-krown/,Джоггеры “ KROWN”,Карточка товара,/catalog/man/tproduct/555218039642-dzhoggeri-krown,да
+/katalog/muzhskaya-odezhda/dzhoggery/dzhoggery-trapeze-black/,Джоггеры “ Trapeze black”,Карточка товара,/catalog/man/tproduct/783641647262-dzhoggeri-trapeze-black,да
+/katalog/muzhskaya-odezhda/dzhoggery/dzhoggery-white-iayi/,Джоггеры “ White IAYI”,Карточка товара,/catalog/man/tproduct/248866258622-dzhoggeri-white-iayi,да
+/katalog/muzhskaya-odezhda/bridzhi/bridzhi-uniseks/,Бриджи унисекс,Карточка товара,/catalog/man/tproduct/468393884142-bridzhi-uniseks,да
+/katalog/muzhskaya-odezhda/pidzhaki/pidzhak/,Пиджак,Карточка товара,/catalog/man/tproduct/661977000052-pidzhak,да
+/katalog/muzhskaya-odezhda/pidzhaki/pidzhak-roks/,Пиджак “ROKS”,Карточка товара,/catalog/man/tproduct/584885716383-pidzhak-roks,да
+/katalog/muzhskaya-odezhda/kostyumy/kostyum-plush-devil/,Костюм Plush Devil,Карточка товара,/catalog/man/tproduct/256471020622-kostyum-plush-devil,да
+/katalog/muzhskaya-odezhda/kostyumy/kostyum-black-milk/,Костюм “Black Milk”,Карточка товара,/catalog/man/tproduct/230323070382-kostyum-black-milk,да
+/katalog/muzhskaya-odezhda/kostyumy/kostyum-full/,Костюм «Full»,Карточка товара,/catalog/man/tproduct/284742574102-kostyum-full,да
+/katalog/muzhskaya-odezhda/khudi/khudi-black-cross/,Худи Black Cross,Карточка товара,/catalog/man/tproduct/490866216152-hudi-black-cross,да
+/katalog/muzhskaya-odezhda/khudi/khudi-white-cross/,Худи White Cross,Карточка товара,/catalog/man/tproduct/842754072282-hudi-white-cross,да
+/katalog/muzhskaya-odezhda/khudi/khudi-geometry-men-white/,Худи “Geometry men White”,Карточка товара,/catalog/man/tproduct/430818839072-hudi-geometry-men-white,да
+/katalog/muzhskaya-odezhda/khudi/khudi-cardiogram-white/,Худи “Cardiogram White”,Карточка товара,/catalog/man/tproduct/764867709973-hudi-cardiogram-white,да
+/katalog/muzhskaya-odezhda/khudi/khudi-cardiogram-black/,Худи “Cardiogram Black”,Карточка товара,/catalog/man/tproduct/238837028463-hudi-cardiogram-black,да
+/katalog/muzhskaya-odezhda/khudi/khudi-white-lightning/,Худи “White Lightning”,Карточка товара,/catalog/man/tproduct/736367086472-hudi-white-lightning,да
+/katalog/muzhskaya-odezhda/khudi/khudi-white-lightning-black/,Худи “White Lightning Black”,Карточка товара,/catalog/man/tproduct/434889713152-hudi-white-lightning-black,да
+/katalog/muzhskaya-odezhda/khudi/khudi-black-lightning-black/,Худи “Black Lightning Black”,Карточка товара,/catalog/man/tproduct/936826484312-hudi-black-lightning-black,да
+/katalog/zhenskaya-odezhda/khudi/khudi-white-memory/,Худи (White memory),Карточка товара,/catalog/woman/tproduct/239015422242-hudi-white-memory,да
+/katalog/muzhskaya-odezhda/dzhoggery/dzhoggery-black-geometry-dirt/,Джоггеры “Black geometry Dirt”,Карточка товара,/catalog/man/tproduct/414530267282-dzhoggeri-black-geometry-dirt,да
+/katalog/muzhskaya-odezhda/dzhoggery/dzhoggery-black-man-uteplennye/,Джоггеры black man (утепленные),Карточка товара,/catalog/man/tproduct/314438953822-dzhoggeri-black-man-uteplennie,да
+/katalog/muzhskaya-odezhda/dzhoggery/dzhoggery-geometriya-black/,Джоггеры “Геометрия Black”,Карточка товара,/catalog/man/tproduct/848564431472-dzhoggeri-geometriya-black,да
+/katalog/muzhskaya-odezhda/dzhoggery/dzhoggery-white-man-uteplennye/,Джоггеры White man (утепленные),Карточка товара,/catalog/man/tproduct/550765990892-dzhoggeri-white-man-uteplennie,да
+/katalog/muzhskaya-odezhda/dzhoggery/dzhoggery-geometriya/,Джоггеры «Геометрия»,Карточка товара,/catalog/man/tproduct/938592888782-dzhoggeri-geometriya,да
+/katalog/muzhskaya-odezhda/dzhoggery/dzhoggery-kozha-winter/,Джоггеры кожа “Winter”,Карточка товара,/catalog/man/tproduct/955448990682-dzhoggeri-kozha-winter,да
+/katalog/muzhskaya-odezhda/dzhoggery/dzhoggery-white-lightning-black/,Джоггеры « White Lightning Black»,Карточка товара,/catalog/man/tproduct/736226665742-dzhoggeri-white-lightning-black,да
+/katalog/muzhskaya-odezhda/dzhoggery/dzhoggery-black-lightning-black/,Джоггеры « Black Lightning Black»,Карточка товара,/catalog/man/tproduct/724587987692-dzhoggeri-black-lightning-black,да
+/katalog/muzhskaya-odezhda/kurtki/zimnyaya-kurtka/,Зимняя куртка,Карточка товара,/catalog/man/tproduct/528409286852-zimnyaya-kurtka,да
+/katalog/muzhskaya-odezhda/kurtki/kurtka-zimnyaya-muzhskaya/,Куртка зимняя мужская,Карточка товара,/catalog/man/tproduct/745838692132-kurtka-zimnyaya-muzhskaya,да
+/katalog/muzhskaya-odezhda/kurtki/dzhinsovaya-kurtka/,Джинсовая куртка,Карточка товара,/catalog/man/tproduct/489464825812-dzhinsovaya-kurtka,да
+/katalog/muzhskaya-odezhda/kurtki/dzhinsovaya-kurtka-black-oil/,Джинсовая куртка “BLACK OIL”,Карточка товара,/catalog/man/tproduct/169510743163-dzhinsovaya-kurtka-black-oil,да
+/katalog/muzhskaya-odezhda/kurtki/kurtka-black-skin/,Куртка «Black Skin»,Карточка товара,/catalog/man/tproduct/598126318532-kurtka-black-skin,да
+/katalog/muzhskaya-odezhda/kurtki/kurtka-backstreet-transformer/,Куртка «Backstreet» трансформер,Карточка товара,/catalog/man/tproduct/820675739302-kurtka-backstreet-transformer,да
+/katalog/muzhskaya-odezhda/kurtki/kurtka-black-or-white/,Куртка Black or White,Карточка товара,/catalog/man/tproduct/399630753362-kurtka-black-or-white,да
+/katalog/muzhskaya-odezhda/kurtki/kurtka-white-cross-men/,Куртка White Cross Men,Карточка товара,/catalog/man/tproduct/131140473482-kurtka-white-cross-men,да
+/katalog/muzhskaya-odezhda/kurtki/kurtka-dzhinsovaya-belaya/,Куртка джинсовая белая,Карточка товара,/catalog/man/tproduct/477224782002-kurtka-dzhinsovaya-belaya,да
+/katalog/muzhskaya-odezhda/pulovery/uteplennyy-pulover/,Утепленный пуловер,Карточка товара,/catalog/man/tproduct/320757651222-uteplennii-pulover,да
+/katalog/muzhskaya-odezhda/pulovery/pulover-black/,Пуловер Black,Карточка товара,/catalog/man/tproduct/207506312432-pulover-black,да
+/katalog/muzhskaya-odezhda/shorty/shorty-geometry/,Шорты «Geometry»,Карточка товара,/catalog/man/tproduct/714811800552-shorti-geometry,да
+/katalog/muzhskaya-odezhda/shorty/shorty-ak-black/,Шорты «AK Black»,Карточка товара,/catalog/man/tproduct/888534358522-shorti-ak-black,да
+/katalog/muzhskaya-odezhda/shorty/shorty-ak-white/,Шорты «AK White»,Карточка товара,/catalog/man/tproduct/927777114352-shorti-ak-white,да
+/katalog/muzhskaya-odezhda/shorty/shorty-white-bamboo/,Шорты «White Bamboo»,Карточка товара,/catalog/man/tproduct/122611258702-shorti-white-bamboo,да
+/katalog/muzhskaya-odezhda/shorty/shorty-geometry-black/,Шорты «Geometry black»,Карточка товара,/catalog/man/tproduct/424007587352-shorti-geometry-black,да
+/katalog/muzhskaya-odezhda/shorty/shorty-no-rules-men/,Шорты «No Rules men»,Карточка товара,/catalog/man/tproduct/590488773852-shorti-no-rules-men,да
+/katalog/muzhskaya-odezhda/shorty/shorty-white-wind/,Шорты “WHITE WIND”,Карточка товара,/catalog/man/tproduct/925468804983-shorti-white-wind,да
+/katalog/muzhskaya-odezhda/shorty/shorty-white-geometri/,Шорты White Geometri,Карточка товара,/catalog/man/tproduct/237621122912-shorti-white-geometri,да
+/katalog/muzhskaya-odezhda/svitshoty/svitshot-uniseks/,Свитшот унисекс,Карточка товара,/catalog/man/tproduct/204512546332-svitshot-uniseks,да
+/katalog/muzhskaya-odezhda/svitshoty/svitshot-kozha-lightning/,Свитшот кожа “ Lightning”,Карточка товара,/catalog/man/tproduct/676566841472-svitshot-kozha-lightning,да
+/katalog/muzhskaya-odezhda/futbolki/futbolka-house-white/,Футболка House White,Карточка товара,/catalog/man/tproduct/931631712572-futbolka-house-white,да
+/katalog/muzhskaya-odezhda/futbolki/futbolka-geometry-sun/,Футболка “Geometry Sun”,Карточка товара,/catalog/man/tproduct/289872337942-futbolka-geometry-sun,да
+/katalog/muzhskaya-odezhda/futbolki/futbolka-kozha/,Футболка кожа,Карточка товара,/catalog/man/tproduct/309690191072-futbolka-kozha,да
+/katalog/muzhskaya-odezhda/futbolki/futbolka-ak-white-oversayz/,Футболка AK White (оверсайз),Карточка товара,/catalog/man/tproduct/928685863802-futbolka-ak-white-oversaiz,да
+/katalog/muzhskaya-odezhda/futbolki/futbolka-ak-black-oversayz/,Футболка AK Black (оверсайз),Карточка товара,/catalog/man/tproduct/798265763232-futbolka-ak-black-oversaiz,да
+/katalog/muzhskaya-odezhda/futbolki/futbolka-house-black/,Футболка House Black,Карточка товара,/catalog/man/tproduct/817895056522-futbolka-house-black,да
+/katalog/muzhskaya-odezhda/futbolki/futbolka-iz-velyura/,Футболка из велюра,Карточка товара,/catalog/man/tproduct/768935005402-futbolka-iz-velyura,да
+/katalog/muzhskaya-odezhda/futbolki/futbolka-muzhskaya-pereproshivka/,Футболка мужская «Перепрошивка»,Карточка товара,/catalog/man/tproduct/580390081822-futbolka-muzhskaya-pereproshivka,да
+/katalog/zhenskaya-odezhda/futbolki/futbolka-uniseks-oversayz-s-printom/,Футболка унисекс (оверсайз),Карточка товара,/catalog/woman/tproduct/204584590922-futbolka-uniseks-oversaiz,да
+/katalog/zhenskaya-odezhda/futbolki/futbolka-uniseks-oversayz-s-ornamentom/,Футболка унисекс (оверсайз),Карточка товара,/catalog/woman/tproduct/698296891903-futbolka-uniseks-oversaiz,да
+/katalog/muzhskaya-odezhda/mayki/mayka-geometry/,Майка «Geometry»,Карточка товара,/catalog/man/tproduct/769576249182-maika-geometry,да
+/katalog/muzhskaya-odezhda/mayki/mayka-abstract/,Майка «ABSTRACT»,Карточка товара,/catalog/man/tproduct/780254044112-maika-abstract,да
+/katalog/muzhskaya-odezhda/mayki/mayka-geometry-black/,Майка «Geometry black»,Карточка товара,/catalog/man/tproduct/841640507702-maika-geometry-black,да
+/katalog/muzhskaya-odezhda/mayki/mayka-geometry-black-premium/,Майка «Geometry black premium»,Карточка товара,/catalog/man/tproduct/390480434392-maika-geometry-black-premium,да
+/katalog/muzhskaya-odezhda/mayki/mayka-black-edition/,Майка Black Edition,Карточка товара,/catalog/man/tproduct/264919084212-maika-black-edition,да
+/katalog/muzhskaya-odezhda/mayki/mayka-white-edition/,Майка “White Edition”,Карточка товара,/catalog/man/tproduct/616748265382-maika-white-edition,да
+/katalog/muzhskaya-odezhda/mayki/mayka-no-rules/,Майка “NO RULES”,Карточка товара,/catalog/man/tproduct/343796867452-maika-no-rules,да
+/katalog/muzhskaya-odezhda/mayki/mayka-white-geometri/,Майка White Geometri,Карточка товара,/catalog/man/tproduct/778663996492-maika-white-geometri,да
+/katalog/muzhskaya-odezhda/mayki/mayka-white-wind/,Майка “WHITE WIND”,Карточка товара,/catalog/man/tproduct/520276087743-maika-white-wind,да
+/katalog/zhenskaya-odezhda/mayki/mayka-zhenskaya-smart-house/,Майка женская (smart house),Карточка товара,/catalog/woman/tproduct/398632058342-maika-zhenskaya-smart-house,да
+/katalog/muzhskaya-odezhda/mayki/mayka-muzhskaya-smart-house/,Майка мужская (smart house),Карточка товара,/catalog/man/tproduct/204404999012-maika-muzhskaya-smart-house,да
+/katalog/zhenskaya-odezhda/bodi/bodi/,Боди,Карточка товара,/catalog/woman/tproduct/332476198322-bodi,да
+/katalog/zhenskaya-odezhda/bodi/bodi-s-kapyushonom-belyy/,Боди с капюшоном (белый),Карточка товара,/catalog/woman/tproduct/612385919362-bodi-s-kapyushonom-belii,да
+/katalog/zhenskaya-odezhda/bodi/bodi-s-kapyushonom-chernyy/,Боди с капюшоном (черный),Карточка товара,/catalog/woman/tproduct/425167238002-bodi-s-kapyushonom-chernii,да
+/katalog/zhenskaya-odezhda/dzhoggery/dzhoggery/,Джоггеры,Карточка товара,/catalog/woman/tproduct/806115296822-dzhoggeri,да
+/katalog/zhenskaya-odezhda/mantii/mantiya-black-woman/,Мантия Black woman,Карточка товара,/catalog/woman/tproduct/525230764682-mantiya-black-woman,да
+/katalog/zhenskaya-odezhda/platya/plate-b-w/,Платье B & W,Карточка товара,/catalog/woman/tproduct/330897489422-plate-b-amp-w,да
+/katalog/zhenskaya-odezhda/platya/plate-w-b/,Платье W & B,Карточка товара,/catalog/woman/tproduct/983870548322-plate-w-amp-b,да
+/katalog/zhenskaya-odezhda/topy/krop-top-black/,Кроп топ “Black”,Карточка товара,/catalog/woman/tproduct/732749178242-krop-top-black,да
+/katalog/zhenskaya-odezhda/topy/top-abstract/,Топ “abstract”,Карточка товара,/catalog/woman/tproduct/652337065992-top-abstract,да
+/katalog/zhenskaya-odezhda/topy/top-trapeze/,Топ “TRAPEZE”,Карточка товара,/catalog/woman/tproduct/796037336292-top-trapeze,да
+/katalog/zhenskaya-odezhda/khudi/khudi/,Худи,Карточка товара,/catalog/woman/tproduct/397167436462-hudi,да
+/katalog/zhenskaya-odezhda/khudi/khudi-belaya/,Худи белая,Карточка товара,/catalog/woman/tproduct/797620854102-hudi-belaya,да
+/katalog/zhenskaya-odezhda/khudi/khudi-geometry-women-white/,Худи “Geometry women White”,Карточка товара,/catalog/woman/tproduct/678238180382-hudi-geometry-women-white,да
+/katalog/zhenskaya-odezhda/khudi/khudi-white-lightning-woman/,Худи “White Lightning woman”,Карточка товара,/catalog/woman/tproduct/119034214372-hudi-white-lightning-woman,да
+/katalog/zhenskaya-odezhda/khudi/khudi-white-shot-woman/,Худи “White Shot woman”,Карточка товара,/catalog/woman/tproduct/209766000592-hudi-white-shot-woman,да
+/katalog/zhenskaya-odezhda/kurtki/kurtka-zhaket/,Куртка - жакет,Карточка товара,/catalog/woman/tproduct/196324870052-kurtka-zhaket,да
+/katalog/zhenskaya-odezhda/kurtki/kurtka-black-smoke-woman/,Куртка “BLACK SMOKE WOMAN”,Карточка товара,/catalog/woman/tproduct/180696771693-kurtka-black-smoke-woman,да
+/katalog/zhenskaya-odezhda/kurtki/kurtka-zhaket-milan/,Куртка - жакет “MILAN”,Карточка товара,/catalog/woman/tproduct/888893865192-kurtka-zhaket-milan,да
+/katalog/zhenskaya-odezhda/legginsy/losiny/,Лосины,Карточка товара,/catalog/woman/tproduct/634469130762-losini,да
+/katalog/muzhskaya-odezhda/bryuki/bryuki-dzhinsovye-s-knopkami/,Брюки джинсовые,Карточка товара,/catalog/man/tproduct/476227267502-bryuki-dzhinsovie,да
+/katalog/muzhskaya-odezhda/bryuki/bryuki-dzhinsovye-roks/,Брюки джинсовые “ROKS”,Карточка товара,/catalog/man/tproduct/911658999183-bryuki-dzhinsovie-roks,да
+/katalog/muzhskaya-odezhda/bryuki/bryuki-dzhinsovye-s-razrezami/,Брюки джинсовые,Карточка товара,/catalog/man/tproduct/851403057733-bryuki-dzhinsovie,да
+/katalog/muzhskaya-odezhda/bryuki/bryuki-dzhinsy-white-paint/,Брюки джинсы «White Paint»,Карточка товара,/catalog/man/tproduct/897257599762-bryuki-dzhinsi-white-paint,да
+/katalog/zhenskaya-odezhda/nakidki/lnyanaya-nakidka/,Льняная накидка,Карточка товара,/catalog/woman/tproduct/175476649552-lnyanaya-nakidka,да
+/katalog/zhenskaya-odezhda/kurtki/kurtka-zimnyaya-white-hart/,Куртка зимняя (White hart),Карточка товара,/catalog/woman/tproduct/796289796462-kurtka-zimnyaya-white-hart,да
+/katalog/zhenskaya-odezhda/kurtki/kurtka-zimnyaya-black-hart/,Куртка зимняя (Black hart),Карточка товара,/catalog/woman/tproduct/634053478442-kurtka-zimnyaya-black-hart,да
+/katalog/zhenskaya-odezhda/kurtki/kurtka-zimnyaya-black-cross/,Куртка зимняя (Black Cross),Карточка товара,/catalog/woman/tproduct/368068799422-kurtka-zimnyaya-black-cross,да
+/katalog/zhenskaya-odezhda/kurtki/kurtka-black-or-white-woman/,Куртка Black or White woman,Карточка товара,/catalog/woman/tproduct/915246580162-kurtka-black-or-white-woman,да
+/katalog/zhenskaya-odezhda/kurtki/kurtka-zhenskaya/,Куртка женская,Карточка товара,/catalog/woman/tproduct/581177549752-kurtka-zhenskaya,да
+/katalog/zhenskaya-odezhda/kurtki/kurtka-dzhinsovaya-no-rules/,Куртка джинсовая «No Rules»,Карточка товара,/catalog/woman/tproduct/473197181442-kurtka-dzhinsovaya-no-rules,да
+/katalog/zhenskaya-odezhda/kostyumy/kostyum-no-rules-white/,Костюм «No Rules White»,Карточка товара,/catalog/woman/tproduct/883110873202-kostyum-no-rules-white,да
+/katalog/zhenskaya-odezhda/kostyumy/kostyum-no-rules-black/,Костюм «No Rules Black»,Карточка товара,/catalog/woman/tproduct/907515967742-kostyum-no-rules-black,да
+/katalog/zhenskaya-odezhda/kostyumy/kostyum-lady-black/,Костюм «Lady Black»,Карточка товара,/catalog/woman/tproduct/565135271072-kostyum-lady-black,да
+/katalog/zhenskaya-odezhda/kostyumy/kostyum-geometryc/,Костюм «Geometryc»,Карточка товара,/catalog/woman/tproduct/496321733952-kostyum-geometryc,да
+/katalog/zhenskaya-odezhda/platya/plate/,Платье,Карточка товара,/catalog/woman/tproduct/908379812252-plate,да
+/katalog/zhenskaya-odezhda/platya/plate-black-jadua/,Платье «Black jadua”,Карточка товара,/catalog/woman/tproduct/249065119492-plate-black-jadua,да
+/katalog/zhenskaya-odezhda/platya/plate-sarafan-black-cut/,Платье-сарафан «Black Cut»,Карточка товара,/catalog/woman/tproduct/661186048012-plate-sarafan-black-cut,да
+/katalog/zhenskaya-odezhda/platya/plate-train/,Платье «Train»,Карточка товара,/catalog/woman/tproduct/721613461062-plate-train,да
+/katalog/zhenskaya-odezhda/platya/plate-white-train/,Платье «White Train»,Карточка товара,/catalog/woman/tproduct/671254613442-plate-white-train,да
+/katalog/zhenskaya-odezhda/platya/plate-italian-temptation/,Платье «Italian Temptation»,Карточка товара,/catalog/woman/tproduct/746714872822-plate-italian-temptation,да
+/katalog/zhenskaya-odezhda/platya/plate-sarafan-cut-white/,Платье-сарафан «Cut White»,Карточка товара,/catalog/woman/tproduct/183903806002-plate-sarafan-cut-white,да
+/katalog/zhenskaya-odezhda/dzhoggery/dzhoggery-black-uteplennye/,Джоггеры Black (утепленные),Карточка товара,/catalog/woman/tproduct/898423765182-dzhoggeri-black-uteplennie,да
+/katalog/zhenskaya-odezhda/dzhoggery/dzhoggery-geomety-woman/,Джоггеры «Geomety woman»,Карточка товара,/catalog/woman/tproduct/487566039942-dzhoggeri-geomety-woman,да
+/katalog/zhenskaya-odezhda/dzhoggery/dzhoggery-white-lightning-woman/,Джоггеры « White Lightning woman»,Карточка товара,/catalog/woman/tproduct/467642549712-dzhoggeri-white-lightning-woman,да
+/katalog/zhenskaya-odezhda/zhakety/zhaket/,Жакет,Карточка товара,/catalog/woman/tproduct/466616006642-zhaket,да
+/katalog/zhenskaya-odezhda/zhakety/zhaket-foton/,Жакет “FOTON”,Карточка товара,/catalog/woman/tproduct/763345773542-zhaket-foton,да
+/katalog/zhenskaya-odezhda/longslivy/longsliv-s-vorotnikom/,Лонгслив с воротником,Карточка товара,/catalog/woman/tproduct/663851335242-longsliv-s-vorotnikom,да
+/katalog/zhenskaya-odezhda/longslivy/longsliv-x-white/,Лонгслив X White,Карточка товара,/catalog/woman/tproduct/138851035852-longsliv-x-white,да
+/katalog/zhenskaya-odezhda/longslivy/longsliv-x-black/,Лонгслив X Black,Карточка товара,/catalog/woman/tproduct/925792075102-longsliv-x-black,да
+/katalog/zhenskaya-odezhda/khudi/khudi-plyush/,Худи плюш,Карточка товара,/catalog/woman/tproduct/654539001082-hudi-plyush,да
+/katalog/zhenskaya-odezhda/legginsy/losiny-s-krestami/,Лосины с крестами,Карточка товара,/catalog/woman/tproduct/822610177102-losini-s-krestami,да
+/katalog/zhenskaya-odezhda/legginsy/losiny-black-dragon/,Лосины «Black dragon»,Карточка товара,/catalog/woman/tproduct/984801477262-losini-black-dragon,да
+/katalog/zhenskaya-odezhda/legginsy/losiny-s-krestami-belye/,Лосины с крестами (белые),Карточка товара,/catalog/woman/tproduct/607292215822-losini-s-krestami-belie,да
+/katalog/zhenskaya-odezhda/kombinezony/kombinezon-letniy-belyy/,Комбинезон летний белый,Карточка товара,/catalog/woman/tproduct/696069602072-kombinezon-letnii-belii,да
+/katalog/zhenskaya-odezhda/kombinezony/kombinezon-white-krown/,Комбинезон White Krown,Карточка товара,/catalog/woman/tproduct/152283673302-kombinezon-white-krown,да
+/katalog/zhenskaya-odezhda/kombinezony/kombinezon-black-krown/,Комбинезон Black Krown,Карточка товара,/catalog/woman/tproduct/603842537302-kombinezon-black-krown,да
+/katalog/zhenskaya-odezhda/yubki/yubka/,Юбка,Карточка товара,/catalog/woman/tproduct/216703640062-yubka,да
+/katalog/zhenskaya-odezhda/mantii/mantiya-white-woman/,Мантия White woman,Карточка товара,/catalog/woman/tproduct/439155576892-mantiya-white-woman,да
+/katalog/zhenskaya-odezhda/rubashki/rubashka-total/,Рубашка “TOTAL”,Карточка товара,/catalog/woman/tproduct/168613017922-rubashka-total,да
+/katalog/zhenskaya-odezhda/shorty/shorty-kozhanye/,Шорты кожаные,Карточка товара,/catalog/woman/tproduct/505359789372-shorti-kozhanie,да
+/katalog/zhenskaya-odezhda/shorty/shorty-no-rules/,Шорты «No Rules»,Карточка товара,/catalog/woman/tproduct/761894198242-shorti-no-rules,да
+/katalog/zhenskaya-odezhda/shorty/shorty-geometry-woman/,Шорты «Geometry woman»,Карточка товара,/catalog/woman/tproduct/943389848462-shorti-geometry-woman,да
+/katalog/zhenskaya-odezhda/shorty/shorty-abstract/,Шорты «ABSTRACT»,Карточка товара,/catalog/woman/tproduct/165288921032-shorti-abstract,да
+/katalog/zhenskaya-odezhda/shorty/shorty-geometry-black-woman/,Шорты «Geometry Black woman»,Карточка товара,/catalog/woman/tproduct/195345772832-shorti-geometry-black-woman,да
+/katalog/zhenskaya-odezhda/shorty/shorty-dzhins-black-lightning/,Шорты джинс «Black lightning»,Карточка товара,/catalog/woman/tproduct/342899895332-shorti-dzhins-black-lightning,да
+/katalog/zhenskaya-odezhda/shorty/shorty/,Шорты,Карточка товара,/catalog/woman/tproduct/147640427412-shorti,да
+/katalog/zhenskaya-odezhda/pulovery/pulover-white/,Пуловер White,Карточка товара,/catalog/woman/tproduct/848956925092-pulover-white,да
+/katalog/zhenskaya-odezhda/pulovery/pulover-black-uteplennyy/,Пуловер Black (утепленный),Карточка товара,/catalog/woman/tproduct/827193876032-pulover-black-uteplennii,да
+/katalog/zhenskaya-odezhda/futbolki/futbolka-zhenskaya-pereproshivka/,Футболка женская «Перепрошивка»,Карточка товара,/catalog/woman/tproduct/703696079232-futbolka-zhenskaya-pereproshivka,да
+/katalog/zhenskaya-odezhda/topy/top-no-rules/,Топ «No Rules»,Карточка товара,/catalog/woman/tproduct/827495152472-top-no-rules,да
+/katalog/zhenskaya-odezhda/topy/top-lightning/,Топ «Lightning»,Карточка товара,/catalog/woman/tproduct/398776445422-top-lightning,да
+/katalog/zhenskaya-odezhda/trenchi/trench-customs/,Тренч Customs,Карточка товара,/catalog/woman/tproduct/401532833572-trench-customs,да
+/katalog/zhenskaya-odezhda/trenchi/trench-black-shadow/,Тренч «Black shadow»,Карточка товара,/catalog/woman/tproduct/420565200952-trench-black-shadow,да
+/katalog/zhenskaya-odezhda/vodolazki/vodolazka/,Водолазка,Карточка товара,/catalog/woman/tproduct/989008167992-vodolazka,да
+/katalog/zhenskaya-odezhda/tuniki/tunika-white/,Туника White,Карточка товара,/catalog/woman/tproduct/998346580572-tunika-white,да
+/katalog/zhenskaya-odezhda/tuniki/tunika-chernaya/,Туника черная,Карточка товара,/catalog/woman/tproduct/230943448682-tunika-chernaya,да
+/katalog/zhenskaya-odezhda/bryuki/bryuki-white-uteplennye/,Брюки White (утепленные),Карточка товара,/catalog/woman/tproduct/622930145312-bryuki-white-uteplennie,да
+/katalog/zhenskaya-odezhda/bryuki/bryuki-dzhinsy-milan/,Брюки (джинсы) “MILAN”,Карточка товара,/catalog/woman/tproduct/196508372842-bryuki-dzhinsi-milan,да
+/katalog/zhenskaya-odezhda/bryuki/bryuki-dzhinsy-krwn/,Брюки (джинсы) “KRWN”,Карточка товара,/catalog/woman/tproduct/242401934722-bryuki-dzhinsi-krwn,да
+/katalog/zhenskaya-odezhda/bryuki/bryuki-dzhins-black-explosion/,Брюки (джинс) “BLACK EXPLOSION”,Карточка товара,/catalog/woman/tproduct/215567713503-bryuki-dzhins-black-explosion,да
+/katalog/zhenskaya-odezhda/bryuki/bryuki-krown/,Брюки “KROWN”,Карточка товара,/catalog/woman/tproduct/155210294742-bryuki-krown,да
+/katalog/golovnye-ubory/beysbolka-uniseks/,Бейсболка унисекс,Карточка товара,/hats/tproduct/168164936122-beisbolka-uniseks,да
+/katalog/golovnye-ubory/beysbolka-black-cross-uniseks/,Бейсболка “Black Cross” унисекс,Карточка товара,/hats/tproduct/296025952292-beisbolka-black-cross-uniseks,да
+/katalog/golovnye-ubory/beysbolka-white-cross-uniseks/,Бейсболка “White Cross” унисекс,Карточка товара,/hats/tproduct/256772005012-beisbolka-white-cross-uniseks,да
+/katalog/golovnye-ubory/beysbolka-neft-uniseks/,Бейсболка “НЕФТЬ” унисекс,Карточка товара,/hats/tproduct/887132121852-beisbolka-neft-uniseks,да
+/katalog/golovnye-ubory/beysbolka-black-uniseks/,Бейсболка black унисекс,Карточка товара,/hats/tproduct/237551607232-beisbolka-black-uniseks,да
+/katalog/golovnye-ubory/beysbolka-white-iceberg-uniseks/,Бейсболка “WHITE ICEBERG” унисекс,Карточка товара,/hats/tproduct/942645684313-beisbolka-white-iceberg-uniseks,да
+/katalog/golovnye-ubory/shapka-muzhskaya/,Шапка мужская,Карточка товара,/hats/tproduct/977023776582-shapka-muzhskaya,да
+/katalog/golovnye-ubory/shapka-katsuro-uniseks/,Шапка «Katsuro» унисекс,Карточка товара,/catalog/man/tproduct/243844535122-shapka-katsuro-uniseks,да
+/katalog/golovnye-ubory/shapka-zhenskaya/,Шапка женская,Карточка товара,/hats/tproduct/814511245852-shapka-zhenskaya,да
+/katalog/golovnye-ubory/shapka-muzhskaya-kichiro/,Шапка мужская “Kichiro”,Карточка товара,/hats/tproduct/528576101802-shapka-muzhskaya-kichiro,да
+/katalog/muzhskaya-obuv/krossovki-black-demons-hi-muzhskie/,Кроссовки “Black Demons Hi”,Карточка товара,/menshoes/tproduct/820277704702-krossovki-black-demons-hi,да
+/katalog/muzhskaya-obuv/krossovki-black-white-demons/,Кроссовки “Black White Demons”,Карточка товара,/menshoes/tproduct/616315678593-krossovki-black-white-demons,да
+/katalog/muzhskaya-obuv/krossovki-black-devil-hi/,Кроссовки “Black Devil Hi”,Карточка товара,/menshoes/tproduct/432421784723-krossovki-black-devil-hi,да
+/katalog/muzhskaya-obuv/krossovki-black-demons-low/,Кроссовки “Black Demons Low”,Карточка товара,/menshoes/tproduct/306937710772-krossovki-black-demons-low,да
+/katalog/muzhskaya-obuv/krossovki-white-demons-low/,Кроссовки “White Demons Low”,Карточка товара,/menshoes/tproduct/493115711503-krossovki-white-demons-low,да
+/katalog/parfyum/dukhi-black-or-white/,Духи Black or White,Карточка товара,/perfume/tproduct/304016444332-duhi-black-or-white,да
+/katalog/parfyum/dukhi-black-seduction/,Духи Black Seduction,Карточка товара,/perfume/tproduct/719239199112-duhi-black-seduction,да
+/katalog/zhenskaya-obuv/krossovki-black-demons-hi-zhenskie/,Кроссовки “Black Demons Hi”,Карточка товара,/womenshoes/tproduct/510491755123-krossovki-black-demons-hi,да
+/katalog/zhenskaya-obuv/krossovki-white-demons/,Кроссовки “White Demons”,Карточка товара,/womenshoes/tproduct/311046140923-krossovki-white-demons,да
+/katalog/noski/getry-uniseks/,Гетры унисекс,Карточка товара,/catalog/man/tproduct/989932552462-getri-uniseks,да
+/katalog/noski/getry-uniseks-2/,Гетры унисекс,Карточка товара,/catalog/woman/tproduct/618192229372-getri-uniseks,да
+/katalog/muzhskaya-odezhda/dzhoggery/dzhoggery-kozha/,Джогеры кожа,Карточка товара,/catalog/man/tproduct/954418637272-dzhogeri-kozha,да
+/katalog/muzhskaya-odezhda/dzhoggery/dzhoggery-black-smoke/,Джогеры “Black Smoke”,Карточка товара,/catalog/man/tproduct/199951775162-dzhogeri-black-smoke,да
+/katalog/zhenskaya-odezhda/kurtki/kosukha/,Косуха,Карточка товара,/catalog/woman/tproduct/859147291692-kosuha,да
+/katalog/zhenskaya-odezhda/kurtki/palto-zimnee-demons/,Пальто зимнее “Demons”,Карточка товара,/catalog/woman/tproduct/166002485742-palto-zimnee-demons,да
+/katalog/zhenskaya-odezhda/platya/sarafan-infinity/,Сарафан «INFINITY»,Карточка товара,/catalog/woman/tproduct/919907242212-sarafan-infinity,да
+/katalog/podarochnyy-sertifikat/,Подарочный сертификат,Карточка товара,/catalog/tproduct/958987974882-podarochnii-sertifikat,да
+/o-brende/,О бренде ALEX KROWN,Страница,/about,да
+/kontakty/,Контакты ALEX KROWN,Страница,/contacts,да
+/dostavka-i-oplata/,Доставка и оплата ALEX KROWN,Страница,/payment_and_delivery,да
+/obmen-i-vozvrat/,Обмен и возврат товаров ALEX KROWN,Страница,/return,да
+/razmernaya-setka/,Размерная сетка ALEX KROWN,Страница,/size_chart,да
+/ukhod-za-odezhdoy/,Рекомендации по уходу за одеждой ALEX KROWN,Страница,/recomendation,да
+/politika-konfidentsialnosti/,Политика конфиденциальности,Юридическая,/privatepolicy,нет
+/soglasie-na-obrabotku-personalnykh-dannykh/,Согласие Пользователя на обработку персональных данных,Юридическая,/processing_of_personal_data,нет
+/dogovor-oferty/,Договор оферты,Юридическая,/offer_agreement,нет
+/bonusnaya-programma/,Бонусная программа,Страница,v1: /bonusnaya-programma,да
+/izbrannoe/,Избранное,Техническая,v1: /favorites,нет
+/oformlenie-zakaza/,Оформление заказа,Техническая,v1: /order,нет
+/spasibo/,Спасибо за заказ,Техническая,"/thank_you_page, /sucsess",нет
+/lk/,Личный кабинет: вход и главная,Техническая (ЛК),v1: /lk,нет
+/lk/zakazy/,Мои заказы,Техническая (ЛК),v1: /lk/zakazy,нет
+/lk/bally/,Мои баллы,Техническая (ЛК),v1: /lk/bally,нет
+/lk/profil/,Профиль,Техническая (ЛК),v1: /lk/profil,нет
+/admin/,Админка (10 разделов),Техническая,v1: /admin/*,нет
+/404,Страница не найдена,Техническая,"/problem_page, /erropage",нет
+/sitemap.xml,Карта сайта для роботов,Техническая,/sitemap.xml,нет
+/robots.txt,robots.txt,Техническая,/robots.txt,нет
+/feeds/yandex.xml,Фид Яндекса (YML),Техническая,v1: /feeds/yandex.xml,нет
+/feeds/google.xml,Фид Google Merchant,Техническая,v1: /feeds/google.xml,нет
