@@ -16,7 +16,7 @@ function PointsView({ a }: { a: Account }) {
         <p class="label">Можно потратить</p>
         <p class="lk-bal"><IconCrown size={34} /><b>{a.balance.available.toLocaleString('ru-RU')}</b><span>{pointsWord(a.balance.available)}</span></p>
         <ul class="lk-hero__more">
-          <li>ждут доставки: <b>{pts(a.balance.pending)}</b></li>
+          <li>ждут начисления: <b>{pts(a.balance.pending)}</b></li>
           <li>отложены на неоплаченные заказы: <b>{pts(a.balance.held)}</b></li>
         </ul>
       </section>
@@ -71,7 +71,7 @@ function OrderCard({ o, shop }: { o: OrderView; shop: ShopApi }) {
       <dl class="lk-order__sum">
         {o.pointsSpent > 0 && <div><dt>Баллами</dt><dd>−{pts(o.pointsSpent)}</dd></div>}
         <div><dt>Товары к оплате</dt><dd>{fmt(o.totalRub)}</dd></div>
-        {o.pointsEarn > 0 && <div><dt>Баллы за заказ</dt><dd>+{pts(o.pointsEarn)}{o.status === 'settled' ? '' : ' – после доставки'}</dd></div>}
+        {o.pointsEarn > 0 && <div><dt>Баллы за заказ</dt><dd>+{pts(o.pointsEarn)}{o.status === 'settled' ? '' : o.status === 'delivered' ? ` – через ${PROGRAM.returnDays === 1 ? 'сутки' : `${PROGRAM.returnDays} дн.`} после доставки` : ' – после доставки'}</dd></div>}
       </dl>
       {error && <p class="field__err" role="alert">{error}</p>}
       <div class="lk-order__btns">
