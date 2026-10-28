@@ -16,7 +16,7 @@ import type { QuoteView } from '../../vendor/shop-engine/shop-engine.js';
    Telegram и MAX не принимают текст в ссылке – кнопка сама копирует заказ, покупатель вставляет его в чат. */
 export const ORDER_CHANNELS = [
   { label: 'Telegram', href: 'https://t.me/Alex_Krown', test: false },
-  { label: 'MAX', href: 'https://max.ru/', test: true },
+  // MAX: на живом alex-krown.com (28.10.2026) ссылки на MAX нет – кнопка вернётся, когда владелец даст адрес
 ];
 const ORDER_PHONE = { href: 'tel:+79830055859', text: '+7 983-005-58-59' };
 
@@ -116,7 +116,7 @@ export default function Order({ catalogHref, policyHref, offerHref, consentHref 
     return (
       <div class="done">
         <h2 class="h2">Заказ {done.no} оформлен</h2>
-        <p>Отправьте его менеджеру в Telegram или MAX: по кнопке текст заказа скопируется сам – вставьте его в чат. Менеджер подтвердит наличие размеров, посчитает доставку и пришлёт ссылку на оплату.</p>
+        <p>Отправьте его менеджеру в {ORDER_CHANNELS.map((c) => c.label).join(' или ')}: по кнопке текст заказа скопируется сам – вставьте его в чат. Менеджер подтвердит наличие размеров, посчитает доставку и пришлёт ссылку на оплату.</p>
         <p class="done__send">
           {ORDER_CHANNELS.map((c) => (
             <a class="btn btn--solid" href={c.href} target="_blank" rel="noopener" onClick={() => (copyText(), sent())}>
