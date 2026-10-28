@@ -1,16 +1,17 @@
 import { useEffect, useState } from 'preact/hooks';
 import { cart, cartTotal, clearCart, fmt, MAX_QTY, removeFromCart, setQty } from '../store';
 import { ecPurchase } from '../ecommerce';
-import { earnFor, getShop, lineId, pointsWord, PROGRAM, snap, v1url } from '../loyalty';
-import type { QuoteView } from '../../vendor/shop-engine/shop-engine.js';
+import { API_MODE, earnFor, getShop, lineId, pointsWord, PROGRAM, snap, v1url } from '../loyalty';
+import type { QuoteView, ShopApi } from '../../vendor/shop-engine/shop-engine.js';
 
 /* Оформление заказа магазина «Вариант 1». Своего сервера у сайта нет, поэтому заказ собирается
    в сообщение и уходит менеджеру бренда в Telegram или MAX (ORDER_CHANNELS). Поменять канал – одна константа:
    позже сюда встаёт приём заказов (Тильда, CRM, свой сервер). Оплата онлайн без сервера невозможна –
    покупатель выбирает удобный способ, менеджер присылает ссылку на оплату.
-   Баллы (docs/ПЛАН-ЛК.md, решение 4; как Order.tsx Milovini): кабинет – демо в браузере, поэтому менеджеру «Итого»
-   уходит без вычета баллов, а демо-баллы и номер в кабинете – отдельными строками «не применять». Сбой кабинета
-   не мешает настоящему заказу – он уходит без баллов. */
+   Баллы (docs/ПЛАН-ЛК.md, решение 4; как Order.tsx Milovini): в демо-кабинете менеджеру «Итого» уходит без вычета
+   баллов, а демо-баллы – отдельной строкой «не применять». Кабинет на сервере (API_MODE, docs/ПЛАН-ЛК-СЕРВЕР.md,
+   решение 6): заказ записывается в базу магазина, баллы удерживаются до оплаты (отмечает магазин в админке),
+   менеджеру – «Баллами» и «К оплате» с вычетом. Сбой кабинета не мешает настоящему заказу – он уходит без баллов. */
 /* куда покупатель отправляет заказ (владелец 21.10.2026: «Telegram и MAX, а не WhatsApp»). Ссылки пока тестовые:
    Telegram – аккаунт бренда с сайта, MAX – общий адрес; ссылки менеджера владелец даст до боя (docs/ТЕХДОЛГ.md).
    Telegram и MAX не принимают текст в ссылке – кнопка сама копирует заказ, покупатель вставляет его в чат. */
@@ -51,6 +52,9 @@ function maskPhone(raw: string): string {
   return out;
 }
 const phoneOk = (s: string) => /^7\d{10}$/.test(s.replace(/\D/g, ''));
+
+/* обрыв связи до ответа сервера (ShopApiError code 'network') – заказ мог и записаться: повтор с тем же ключом */
+const isNetwork = (e: unknown) => (e as { code?: unknown } | null)?.code === 'network';
 
 const Crown = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2.5 7.5 7.5 12 12 4l4.5 8 5-4.5L19.5 18h-15z" /><rect x="4.5" y="19.3" width="15" height="1.9" rx=".4" /></svg>
@@ -125,8 +129,14 @@ export default function Order({ catalogHref, policyHref, offerHref, consentHref 
           ))}
         </p>
         {copied && <p class="pp__hint">Текст заказа скопирован – вставьте его в чат с менеджером.</p>}
-        {done.pointsLost && <p class="field__err" role="alert">Кабинет не ответил – баллы к этому заказу не применились, заказ оформлен без них.</p>}
-        {done.lk && <p class="pp__hint">Заказ и баллы за него видны в <a class="order__lk" href={v1url('lk/zakazy')}>личном кабинете</a> (демо).</p>}
+        {done.pointsLost && (
+          <p class="field__err" role="alert">
+            {API_MODE
+              ? 'Кабинет не ответил – заказ оформлен без баллов и в личном кабинете не появится; менеджер получит его как обычно.'
+              : 'Кабинет не ответил – баллы к этому заказу не применились, заказ оформлен без них.'}
+          </p>
+        )}
+        {done.lk && <p class="pp__hint">Заказ и баллы за него видны в <a class="order__lk" href={v1url('lk/zakazy')}>личном кабинете</a>{API_MODE ? '' : ' (демо)'}.</p>}
         <pre>{done.text}</pre>
         <p>
           <button type="button" class="btn" onClick={() => navigator.clipboard?.writeText(done.text).then(() => (setCopied(true), sent())).catch(() => {})}>
@@ -161,19 +171,40 @@ export default function Order({ catalogHref, policyHref, offerHref, consentHref 
     if (bad || busy) return;
     const d = new Date();
     const no = `AK-${d.getFullYear().toString().slice(2)}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}-${String(d.getHours()).padStart(2, '0')}${String(d.getMinutes()).padStart(2, '0')}${String(d.getSeconds()).padStart(2, '0')}`; // с секундами: два заказа в одну минуту – разные номера
-    /* заказ в кабинете (демо) – до текста менеджеру; любой сбой кабинета – заказ уходит без баллов */
-    const demo: string[] = [];
+    /* заказ в кабинете – до текста менеджеру; любой сбой кабинета – заказ уходит без баллов (полная сумма) */
+    const bonus: string[] = []; // строки про баллы для менеджера
     let inLk = false, pointsLost = false;
     if (loggedIn) {
       setBusy(true);
       try {
         const shop = await getShop();
-        const placed = await shop.placeOrder({ lines: lkLines(), usePoints, points: pointsReq ?? undefined, meta: { externalNum: no } });
+        /* idempotencyKey – ключ попытки оформления (фасад createApiShop shop-modules, путь Б): повтор с ним вернёт уже
+           созданный заказ, а не второй. В shop-engine.d.ts его пока нет (старая копия движка) – объект с полем сверх типа */
+        const input: Parameters<ShopApi['placeOrder']>[0] & { idempotencyKey?: string } = {
+          lines: lkLines(),
+          usePoints,
+          points: pointsReq ?? undefined,
+          meta: { externalNum: no },
+          ...(API_MODE ? { idempotencyKey: `ak:${no}` } : {}),
+        };
+        let placed;
+        try {
+          placed = await shop.placeOrder(input);
+        } catch (e) {
+          if (!API_MODE || !isNetwork(e)) throw e;
+          placed = await shop.placeOrder(input); // один повтор при обрыве – тот же ключ
+        }
         inLk = true; // номер в кабинете – тот же AK-…, менеджеру отдельной строкой не нужен
-        if (placed.pointsUsed > 0) demo.push(`Демо-баллы (не применять): ${placed.pointsUsed} ${pointsWord(placed.pointsUsed)} – демо-кабинет, итог не уменьшать`);
+        if (placed.pointsUsed > 0 && API_MODE) {
+          // баллы настоящие: менеджер берёт сумму с вычетом
+          bonus.push(`Баллами: ${placed.pointsUsed} ${pointsWord(placed.pointsUsed)} (1 балл = 1 ₽)`, `К оплате: ${fmt(placed.payRub)} без доставки`);
+        } else if (placed.pointsUsed > 0) {
+          bonus.push(`Демо-баллы (не применять): ${placed.pointsUsed} ${pointsWord(placed.pointsUsed)} – демо-кабинет, итог не уменьшать`);
+        }
       } catch {
-        demo.length = 0;
-        pointsLost = usePoints; // покупатель хотел оплатить баллами – скажем, что не вышло
+        bonus.length = 0;
+        // демо: скажем, только если хотел оплатить баллами; сервер: заказа нет и в кабинете – сказать всегда
+        pointsLost = API_MODE || usePoints;
       }
       setBusy(false);
     }
@@ -185,7 +216,7 @@ export default function Order({ catalogHref, policyHref, offerHref, consentHref 
       `Итого: ${fmt(cartTotal.value)} без доставки`,
       `Доставка: ${DELIVERY.find((x) => x[0] === f.delivery)![1]}`,
       `Оплата: ${PAYMENT.find((x) => x[0] === f.payment)![1]}`,
-      ...demo,
+      ...bonus,
       '',
       `Имя: ${f.name.trim()}`,
       `Телефон: ${f.phone.trim()}`,
@@ -234,8 +265,12 @@ export default function Order({ catalogHref, policyHref, offerHref, consentHref 
               <label class="radio">
                 <input type="checkbox" checked={usePoints} disabled={!q || (q.maxPoints === 0 && !usePoints)} onChange={(e) => setUsePoints((e.target as HTMLInputElement).checked)} />
                 <span>
-                  Оплатить баллами (демо){q ? ` – на счету ${snap.value.available.toLocaleString('ru-RU')}, к этому заказу можно до ${q.maxPoints.toLocaleString('ru-RU')} (не больше ${PROGRAM.maxRedeemPercent}% суммы)` : ''}
-                  <small>Демо-кабинет: баллы хранятся в этом браузере, менеджер их не списывает – итог заказа не меняется.</small>
+                  Оплатить баллами{API_MODE ? '' : ' (демо)'}{q ? ` – на счету ${snap.value.available.toLocaleString('ru-RU')}, к этому заказу можно до ${q.maxPoints.toLocaleString('ru-RU')} (не больше ${PROGRAM.maxRedeemPercent}% суммы)` : ''}
+                  <small>
+                    {API_MODE
+                      ? 'Баллы спишутся, когда магазин подтвердит оплату; отмените заказ – вернутся на счёт.'
+                      : 'Демо-кабинет: баллы хранятся в этом браузере, менеджер их не списывает – итог заказа не меняется.'}
+                  </small>
                 </span>
               </label>
               {usePoints && q && q.maxPoints > 0 && (
@@ -302,8 +337,8 @@ export default function Order({ catalogHref, policyHref, offerHref, consentHref 
         <p class="dr__total"><span>Товары</span><b>{fmt(cartTotal.value)}</b></p>
         {loggedIn && q && q.pointsUsed > 0 && (
           <dl class="order__sum-pts">
-            <div><dt>Баллами (демо)</dt><dd>−{q.pointsUsed.toLocaleString('ru-RU')}</dd></div>
-            <div><dt>С баллами (демо)</dt><dd>{fmt(q.payRub)}</dd></div>
+            <div><dt>Баллами{API_MODE ? '' : ' (демо)'}</dt><dd>−{q.pointsUsed.toLocaleString('ru-RU')}</dd></div>
+            <div><dt>{API_MODE ? 'К оплате' : 'С баллами (демо)'}</dt><dd>{fmt(q.payRub)}</dd></div>
           </dl>
         )}
         {earn > 0 && (
@@ -311,7 +346,7 @@ export default function Order({ catalogHref, policyHref, offerHref, consentHref 
             <Crown />
             <span>
               {!loggedIn && <><a href={v1url('lk')}>Войдите</a> – </>}
-              начислим +{earn.toLocaleString('ru-RU')} {pointsWord(earn)}{loggedIn ? ' (демо)' : ''} на следующий заказ
+              начислим +{earn.toLocaleString('ru-RU')} {pointsWord(earn)}{loggedIn && !API_MODE ? ' (демо)' : ''} на следующий заказ
             </span>
           </p>
         )}
