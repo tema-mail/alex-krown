@@ -200,6 +200,24 @@ export interface ShopApi {
     pay?(orderId: string, outcome?: "success" | "declined.funds" | "declined.card" | "declined.3ds" | "unknown"): Promise<{
         result: string;
     }>;
+    /**
+     * Только путь Б: оплата картой (ЮKassa). available – подключена ли (нет у сервера такого адреса – нет); start – начать
+     * оплату заказа вошедшего покупателя, сайт уводит его по confirmationUrl (https) на страницу ЮKassa; status – итог для
+     * страницы возврата: paid – оплачен, pending – проверяем (не платить повторно), declined – не прошла (можно ещё раз),
+     * none – оплаты нет; message – текст сервера для покупателя.
+     */
+    payments?: {
+        available(): Promise<{
+            card: boolean;
+        }>;
+        start(orderId: string): Promise<{
+            confirmationUrl: string;
+        }>;
+        status(orderId: string): Promise<{
+            state: "pending" | "paid" | "declined" | "none";
+            message: string;
+        }>;
+    };
     /** Только путь А: то, что в бою делает магазин. */
     demo?: {
         markPaid(orderId: string): Promise<void>;
