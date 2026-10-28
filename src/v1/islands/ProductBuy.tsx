@@ -55,7 +55,7 @@ export default function ProductBuy({ p }: { p: P }) {
         {ready && snap.value.email !== null ? (
           <span>за эту вещь – на следующий заказ</span>
         ) : (
-          <span><a href={v1url('lk')}>Войдите</a>, чтобы копить баллы</span>
+          <span><a href={v1url('account')}>Войдите</a>, чтобы копить баллы</span>
         )}
       </p>
       <p class={`pp__hint${err ? ' pp__hint--err' : ''}`} aria-live="polite">

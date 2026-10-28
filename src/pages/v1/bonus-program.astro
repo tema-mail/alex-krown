@@ -25,13 +25,13 @@ const ld = [
 ];
 ---
 
-<V1 title={title} description={description} path="bonusnaya-programma" ld={ld}>
+<V1 title={title} description={description} path="bonus-program" ld={ld}>
   <main class="page lk-page">
     <nav aria-label="Хлебные крошки"><ol class="crumbs"><li><a href={v1('')}>Главная</a></li><li><span aria-current="page">Бонусная программа</span></li></ol></nav>
     <header class="cat-head">
       <h1>Бонусная программа {BRAND}</h1>
       <p>{base.percent}% баллами с каждого заказа, {PROGRAM.signupBonus} баллов за регистрацию. 1 балл = 1 ₽ – ими можно оплатить до {PROGRAM.maxRedeemPercent}% следующей покупки.</p>
-      <div class="bp-btns"><a class="btn btn--solid" href={v1('lk')}>Войти в кабинет</a><a class="btn" href={v1('catalog')}>В каталог</a></div>
+      <div class="bp-btns"><a class="btn btn--solid" href={v1('account')}>Войти в кабинет</a><a class="btn" href={v1('catalog')}>В каталог</a></div>
     </header>
 
     <section class="bp-sec" aria-labelledby="bp-levels">
@@ -59,11 +59,11 @@ const ld = [
       </ol>
       {API_MODE ? (
         <p class="lk-demo">
-          Оплатить заказ баллами – отметьте «Оплатить баллами» при оформлении: баллы спишутся, когда магазин подтвердит оплату. <a href={v1('lk')}>Открыть кабинет</a>
+          Оплатить заказ баллами – отметьте «Оплатить баллами» при оформлении: баллы спишутся, когда магазин подтвердит оплату. <a href={v1('account')}>Открыть кабинет</a>
         </p>
       ) : (
         <p class="lk-demo">
-          Кабинет на этом сайте сейчас работает в демо-режиме: баллы хранятся в браузере, письмо с кодом не отправляется – код покажем на экране. <a href={v1('lk')}>Открыть кабинет</a>
+          Кабинет на этом сайте сейчас работает в демо-режиме: баллы хранятся в браузере, письмо с кодом не отправляется – код покажем на экране. <a href={v1('account')}>Открыть кабинет</a>
         </p>
       )}
     </section>

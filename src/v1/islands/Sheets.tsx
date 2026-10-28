@@ -99,7 +99,7 @@ export default function Sheets({ catalogHref, orderHref, favHref }: { catalogHre
             <>
               <p class="dr__total"><span>Итого</span><b>{fmt(cartTotal.value)}</b></p>
               <p class="dr__pts">
-                {snap.value.email === null ? <><a href={v1url('lk')}>Войдите</a> – начислим</> : <span>Начислим</span>} <Points price={cartTotal.value} />
+                {snap.value.email === null ? <><a href={v1url('account')}>Войдите</a> – начислим</> : <span>Начислим</span>} <Points price={cartTotal.value} />
               </p>
               <p class="dr__note">Доставка СДЭК из Новосибирска – по тарифам службы, менеджер посчитает её после заказа.</p>
               <a class="btn btn--solid dr__cta" href={orderHref}>Оформить заказ</a>

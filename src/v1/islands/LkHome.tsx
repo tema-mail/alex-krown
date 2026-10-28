@@ -6,15 +6,15 @@ import type { Account, ShopApi } from '../../vendor/shop-engine/shop-engine.js';
 
 // Личный кабинет покупателя ALEX KROWN (docs/ПЛАН-ЛК.md, решение 5) – перенос milovini-samara/src/islands/LkHome.tsx:
 // оболочка (вкладки, плашка «демо», вход), вход по коду и главная – баланс, статус с прогрессом, последние заказы.
-// Страницы /v1/lk/* – только в браузере (client:only): данных кабинета в HTML нет. Pages – демо в браузере (путь А),
+// Страницы /v1/account/* – только в браузере (client:only): данных кабинета в HTML нет. Pages – демо в браузере (путь А),
 // сборка PUBLIC_LOYALTY=api – кабинет на сервере (путь Б, docs/ПЛАН-ЛК-СЕРВЕР.md): без «демо», согласие – в verify.
 
 export type LkTab = 'home' | 'points' | 'orders' | 'profile';
 const TABS: [LkTab, string, string][] = [
-  ['home', 'lk', 'Кабинет'],
-  ['points', 'lk/bally', 'Баллы'],
-  ['orders', 'lk/zakazy', 'Заказы'],
-  ['profile', 'lk/profil', 'Профиль'],
+  ['home', 'account', 'Кабинет'],
+  ['points', 'account/points', 'Баллы'],
+  ['orders', 'account/orders', 'Заказы'],
+  ['profile', 'account/profile', 'Профиль'],
 ];
 
 /** Значок баллов – корона, знак бренда. Цвет – currentColor. */
@@ -222,7 +222,7 @@ export default function LkHome() {
           </section>
           <Tier a={a} />
           <section class="lk-card lk-last">
-            <div class="lk-card__head"><h2 class="lk-h3">Последние заказы</h2><a href={v1('lk/zakazy')}>Все заказы</a></div>
+            <div class="lk-card__head"><h2 class="lk-h3">Последние заказы</h2><a href={v1('account/orders')}>Все заказы</a></div>
             {a.orders.length === 0 ? (
               <p class="lk-muted">Заказов пока нет. Оформите первый – баллы начислим после доставки.</p>
             ) : (
@@ -240,7 +240,7 @@ export default function LkHome() {
               <li>Баллами можно оплатить до {PROGRAM.maxRedeemPercent}% следующего заказа.</li>
               <li>Чем больше покупок, тем выше статус и процент.</li>
             </ul>
-            <a href={v1('bonusnaya-programma')}>Правила бонусной программы</a>
+            <a href={v1('bonus-program')}>Правила бонусной программы</a>
           </section>
         </div>
       )}

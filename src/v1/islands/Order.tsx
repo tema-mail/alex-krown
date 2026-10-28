@@ -136,7 +136,7 @@ export default function Order({ catalogHref, policyHref, offerHref, consentHref 
               : 'Кабинет не ответил – баллы к этому заказу не применились, заказ оформлен без них.'}
           </p>
         )}
-        {done.lk && <p class="pp__hint">Заказ и баллы за него видны в <a class="order__lk" href={v1url('lk/zakazy')}>личном кабинете</a>{API_MODE ? '' : ' (демо)'}.</p>}
+        {done.lk && <p class="pp__hint">Заказ и баллы за него видны в <a class="order__lk" href={v1url('account/orders')}>личном кабинете</a>{API_MODE ? '' : ' (демо)'}.</p>}
         <pre>{done.text}</pre>
         <p>
           <button type="button" class="btn" onClick={() => navigator.clipboard?.writeText(done.text).then(() => (setCopied(true), sent())).catch(() => {})}>
@@ -345,7 +345,7 @@ export default function Order({ catalogHref, policyHref, offerHref, consentHref 
           <p class="order__earn">
             <Crown />
             <span>
-              {!loggedIn && <><a href={v1url('lk')}>Войдите</a> – </>}
+              {!loggedIn && <><a href={v1url('account')}>Войдите</a> – </>}
               начислим +{earn.toLocaleString('ru-RU')} {pointsWord(earn)}{loggedIn && !API_MODE ? ' (демо)' : ''} на следующий заказ
             </span>
           </p>

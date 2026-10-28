@@ -9,8 +9,8 @@ export const GET: APIRoute = ({ site }) => {
       ? [
           'User-agent: *',
           `Disallow: ${base}/v1/admin/`,
-          `Disallow: ${base}/v1/lk/`,
-          `Disallow: ${base}/v1/order/`,
+          `Disallow: ${base}/v1/account/`,
+          `Disallow: ${base}/v1/checkout/`,
           `Disallow: ${base}/v1/favorites/`,
           `Disallow: ${base}/concepts/`,
           `Disallow: ${base}/new/`,

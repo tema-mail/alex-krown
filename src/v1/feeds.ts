@@ -135,8 +135,8 @@ ${offers.join('\n')}
 }
 
 export function sitemap(site: URL) {
-  /* bonusnaya-programma – правила программы лояльности (docs/ПЛАН-ЛК.md, решение 6); кабинет /v1/lk/* в карту не входит */
-  const paths = ['', ...sections.map((s) => s.path), ...products.map((p) => p.path), ...infoPages.map((pg) => pg.path), 'bonusnaya-programma'];
+  /* bonus-program – правила программы лояльности (docs/ПЛАН-ЛК.md, решение 6); кабинет /v1/account/* в карту не входит */
+  const paths = ['', ...sections.map((s) => s.path), ...products.map((p) => p.path), ...infoPages.map((pg) => pg.path), 'bonus-program'];
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${paths.map((p) => `<url><loc>${esc(new URL(v1(p), site).href)}</loc></url>`).join('\n')}

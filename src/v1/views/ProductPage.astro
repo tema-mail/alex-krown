@@ -85,7 +85,7 @@ const first = p.photos[0];
         <script type="application/json" id="ec-detail" set:html={JSON.stringify({ uid: p.uid, title: p.title, price: p.price, category: home ? sectionName(home) : '' }).replace(/</g, '\\u003c')} />
         <ProductBuy
           client:visible
-          p={{ uid: p.uid, title: p.title, price: p.price, priceOld: p.priceOld, img: first ? img(first.name + '-s') : '', path: v1(p.path), sizes: p.sizes, orderHref: v1('order') }}
+          p={{ uid: p.uid, title: p.title, price: p.price, priceOld: p.priceOld, img: first ? img(first.name + '-s') : '', path: v1(p.path), sizes: p.sizes, orderHref: v1('checkout') }}
         />
         <div class="acc">
           {p.descr && <details open><summary>Описание</summary><div class="acc__body">{p.descr}</div></details>}
@@ -102,7 +102,7 @@ const first = p.photos[0];
             </details>
           )}
           {delivery && <details><summary>Доставка и оплата</summary><div class="acc__body">{delivery}{'\n'}<a href={v1('payment_and_delivery')}>Подробнее о доставке</a></div></details>}
-          <details><summary>Баллы за покупку</summary><div class="acc__body">{`${BASE_RATE}% от покупки возвращаем баллами, в статусах выше – до ${PROGRAM.levels.at(-1)!.percent}%. За регистрацию в кабинете – ${PROGRAM.signupBonus} баллов. 1 балл = 1 ₽, баллами можно оплатить до ${PROGRAM.maxRedeemPercent}% следующего заказа.`}{'\n'}<a href={v1('bonusnaya-programma')}>Правила бонусной программы</a></div></details>
+          <details><summary>Баллы за покупку</summary><div class="acc__body">{`${BASE_RATE}% от покупки возвращаем баллами, в статусах выше – до ${PROGRAM.levels.at(-1)!.percent}%. За регистрацию в кабинете – ${PROGRAM.signupBonus} баллов. 1 балл = 1 ₽, баллами можно оплатить до ${PROGRAM.maxRedeemPercent}% следующего заказа.`}{'\n'}<a href={v1('bonus-program')}>Правила бонусной программы</a></div></details>
           {care && <details><summary>Уход</summary><div class="acc__body">{care}{'\n'}<a href={v1('recomendation')}>Все рекомендации</a></div></details>}
         </div>
       </div>

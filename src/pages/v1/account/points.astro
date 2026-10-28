@@ -6,9 +6,9 @@ import { v1 } from '../../../v1/site';
 import '../../../styles/lk.css';
 ---
 
-<V1 title="Мои баллы | ALEX KROWN" description="Баллы покупателя ALEX KROWN: баланс, статус и история начислений." path="lk/bally">
+<V1 title="Мои баллы | ALEX KROWN" description="Баллы покупателя ALEX KROWN: баланс, статус и история начислений." path="account/points">
   <main class="page lk-page">
-    <nav aria-label="Хлебные крошки"><ol class="crumbs"><li><a href={v1('')}>Главная</a></li><li><a href={v1('lk')}>Личный кабинет</a></li><li><span aria-current="page">Мои баллы</span></li></ol></nav>
+    <nav aria-label="Хлебные крошки"><ol class="crumbs"><li><a href={v1('')}>Главная</a></li><li><a href={v1('account')}>Личный кабинет</a></li><li><span aria-current="page">Мои баллы</span></li></ol></nav>
     <header class="cat-head"><h1>Мои баллы</h1></header>
     <LkPoints client:only="preact" />
   </main>

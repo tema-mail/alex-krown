@@ -5,7 +5,7 @@ import program from '../data/v1/loyalty.json';
 // Бонусная программа ALEX KROWN и связь магазина «Вариант 1» с кабинетом покупателя (docs/ПЛАН-ЛК.md, решения 2–3).
 // Перенос milovini-samara/src/lib/loyalty.ts: по умолчанию (Pages) кабинет – демо в браузере покупателя (localStorage,
 // код входа на экране); сборка с PUBLIC_LOYALTY=api – кабинет на сервере магазина (docs/ПЛАН-ЛК-СЕРВЕР.md).
-// Движок (собранный shop-modules, src/vendor/shop-engine) и товары грузятся только там, где нужны: /v1/lk/*, оформление и вход. Карточкам и шапке хватает снимка: процент и баланс.
+// Движок (собранный shop-modules, src/vendor/shop-engine) и товары грузятся только там, где нужны: /v1/account/*, оформление и вход. Карточкам и шапке хватает снимка: процент и баланс.
 // Обновление движка – как в Milovini: в shop-modules `npm run build:sdk`, скопировать sdk/browser/dist/shop-engine.js
 // и SOURCE, а index.d.ts – как shop-engine.d.ts; руками не править.
 

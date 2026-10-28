@@ -6,7 +6,7 @@ import { v1, img, allProducts, allSections, infoPages, sectionName, MENU } from 
 const full = (p: string) => new URL(v1(p), Astro.site).href;
 const top = allSections.filter((s) => s.path.split('/').length <= 2 && s.path !== 'catalog');
 const subs = (path: string) => allSections.filter((s) => s.path.startsWith(path + '/'));
-const tech = [['Оформление заказа', 'order'], ['Избранное', 'favorites']];
+const tech = [['Оформление заказа', 'checkout'], ['Избранное', 'favorites']];
 const feeds = [['Фид Google Merchant', 'feeds/google.xml'], ['Фид Яндекса (YML)', 'feeds/yandex.xml'], ['Карта сайта', 'sitemap.xml']];
 const hidden = allProducts.filter((p) => p.hidden).length;
 const total = 1 + allSections.length + allProducts.length - hidden + infoPages.length + tech.length;
