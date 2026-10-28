@@ -10,7 +10,8 @@ export interface AdmProduct {
   uid: string; path: string; title: string; price: number; priceOld: number | null; sizes: Size[];
   kind: string; color: string; descr: string; composition: string; photos: Photo[];
   hidden: boolean; seoTitle: string; seoDescr: string; sections: string[];
-  stock: string; weight: string; dims: string; // пусто – без ограничения / не задано
+  /** наличие: остатки не ведём (владелец 28.10.2026) – только «в наличии» или «под заказ» */
+  preorder: boolean; weight: string; dims: string;
 }
 export interface SectionOpt { path: string; label: string; depth: number }
 
@@ -69,7 +70,7 @@ export default function ProductEditor({ product, sections, imgBase, siteBase, on
               <label class="f"><span>Вид товара</span><input value={p.kind} onInput={set('kind')} placeholder="Худи, Джоггеры, Куртка…" /></label>
               <label class="f"><span>Цвет</span><input value={p.color} onInput={set('color')} placeholder="Чёрный" /></label>
               <label class="f"><span>Номер товара</span><input value={p.uid || 'присвоится при сохранении'} readOnly /></label>
-              <label class="f"><span>Количество</span><input inputMode="numeric" value={p.stock} onInput={(e) => setP({ ...p, stock: digits((e.target as HTMLInputElement).value) })} placeholder="Пусто – без ограничения" /></label>
+              <label class="f"><span>Наличие</span><select value={p.preorder ? 'preorder' : 'stock'} onChange={(e) => setP({ ...p, preorder: (e.target as HTMLSelectElement).value === 'preorder' })}><option value="stock">В наличии</option><option value="preorder">Под заказ</option></select></label>
               <label class="f f--wide"><span>Описание <em>на странице товара и в фидах; мат в фиды не попадёт</em></span><textarea rows={7} value={p.descr} onInput={set('descr')} /></label>
               <label class="f f--wide"><span>Состав</span><input value={p.composition} onInput={set('composition')} placeholder="90% хлопок, 10% полиэстер" /></label>
             </div>

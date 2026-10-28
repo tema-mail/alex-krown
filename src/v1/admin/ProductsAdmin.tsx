@@ -125,7 +125,7 @@ export default function ProductsAdmin({ items, secs, labels, imgBase, siteBase }
   const toAdm = (p: Raw): AdmProduct => ({
     uid: p.uid, path: p.path, title: p.title, price: p.price, priceOld: p.priceOld, sizes: p.sizes ?? [], kind: p.kind ?? '', color: p.color ?? '',
     descr: p.descr ?? '', composition: p.composition ?? '', photos: p.photos ?? [], hidden: !!p.hidden, seoTitle: p.seoTitle ?? '', seoDescr: p.seoDescr ?? '', sections: secOf(p.uid),
-    stock: p.stock == null ? '' : String(p.stock), weight: p.weight ?? '', dims: p.dims ?? '',
+    preorder: !!p.preorder, weight: p.weight ?? '', dims: p.dims ?? '',
   });
 
   const save = async (a: AdmProduct, files: File[]) => {
@@ -157,7 +157,7 @@ export default function ProductsAdmin({ items, secs, labels, imgBase, siteBase }
       uid, path, title: a.title.trim(), price: a.price || sizes[0]?.price || 0, priceOld: a.priceOld, sizes, kind: a.kind.trim(), color: a.color.trim(),
       descr: a.descr.trim(), composition: a.composition.trim(), photos, hidden: a.hidden,
       ...(a.seoTitle.trim() ? { seoTitle: a.seoTitle.trim() } : { seoTitle: undefined }), ...(a.seoDescr.trim() ? { seoDescr: a.seoDescr.trim() } : { seoDescr: undefined }),
-      stock: a.stock === '' ? undefined : Number(a.stock), weight: a.weight.trim() || undefined, dims: a.dims.trim() || undefined,
+      preorder: a.preorder || undefined, stock: undefined, weight: a.weight.trim() || undefined, dims: a.dims.trim() || undefined,
     };
     const nextRaw = isNew ? [next, ...raw] : raw.map((x) => (x.uid === uid ? next : x));
     setEdit(null);
@@ -200,7 +200,7 @@ export default function ProductsAdmin({ items, secs, labels, imgBase, siteBase }
     s.has(uid) ? s.delete(uid) : s.add(uid);
     setSel(s);
   };
-  const blank = (): AdmProduct => ({ uid: '', path: '', title: '', price: 0, priceOld: null, sizes: ['S', 'M', 'L', 'XL'].map((size) => ({ size, price: 0, priceOld: null })), kind: '', color: '', descr: '', composition: '', photos: [], hidden: false, seoTitle: '', seoDescr: '', sections: cur !== 'all' && cur !== 'hidden' ? [cur] : [], stock: '', weight: '', dims: '' });
+  const blank = (): AdmProduct => ({ uid: '', path: '', title: '', price: 0, priceOld: null, sizes: ['S', 'M', 'L', 'XL'].map((size) => ({ size, price: 0, priceOld: null })), kind: '', color: '', descr: '', composition: '', photos: [], hidden: false, seoTitle: '', seoDescr: '', sections: cur !== 'all' && cur !== 'hidden' ? [cur] : [], preorder: false, weight: '', dims: '' });
   const count = (path: string) => sections.find((s) => s.path === path)?.uids.length ?? 0;
   const isSection = cur !== 'all' && cur !== 'hidden';
 
@@ -263,7 +263,7 @@ export default function ProductsAdmin({ items, secs, labels, imgBase, siteBase }
           <div class="pt">
             <div class="pt__head">
               <label><input type="checkbox" checked={allOn} onChange={() => setSel(allOn ? new Set() : new Set(shown.map((p) => p.uid)))} aria-label="Выбрать все" /></label>
-              <span></span><span>Товар</span><span>Разделы</span><span>Цена</span><span>Остаток</span><span>На сайте</span>
+              <span></span><span>Товар</span><span>Разделы</span><span>Цена</span><span>Наличие</span><span>На сайте</span>
             </div>
             {shown.map((p) => (
               <div class={`pt__row${sel.has(p.uid) ? ' is-sel' : ''}${p.hidden ? ' is-off' : ''}`} onClick={() => setEdit(toAdm(p))}>
@@ -272,7 +272,7 @@ export default function ProductsAdmin({ items, secs, labels, imgBase, siteBase }
                 <div><span class="pname">{p.title}</span><span class="muted pt__sku">№ {p.uid}{(p.priceOld ?? 0) > p.price && <i class="pt__mark">-{Math.round((1 - p.price / p.priceOld!) * 100)}%</i>}{p.hidden && <i class="pt__off">скрыт</i>}</span></div>
                 <div>{secOf(p.uid).slice(0, 3).map((s) => <span class="chip">{label(s)}</span>)}{secOf(p.uid).length > 3 && <span class="chip">+{secOf(p.uid).length - 3}</span>}</div>
                 <div class="pt__price"><b>{fmt(p.price)}</b>{p.priceOld && <s>{fmt(p.priceOld)}</s>}{p.sizes?.length > 0 && <small class="muted" style="display:block;font-size:11.5px">{p.sizes.map((s: any) => s.size).join(' ')}</small>}</div>
-                <span class="muted">{p.stock ?? '∞'}</span>
+                <span class="muted">{p.preorder ? 'Под заказ' : 'В наличии'}</span>
                 <label class="sw" onClick={(e) => e.stopPropagation()} title={p.hidden ? 'Показать на сайте' : 'Скрыть с сайта'}>
                   <input type="checkbox" checked={!p.hidden} onChange={() => setHidden([p.uid], !p.hidden)} /><span />
                 </label>

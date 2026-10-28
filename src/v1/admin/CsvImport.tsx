@@ -25,7 +25,7 @@ export const CSV_COLUMNS: [string, string, string][] = [
   ['Price', 'Цена', '3790'],
   ['Price Old', 'Старая цена; пусто – без скидки', '4800'],
   ['Sizes', 'Размеры через «;»; своя цена размера – через «:»', 'S;M;L;XL:3990'],
-  ['Quantity', 'Остаток; пусто – без ограничения', ''],
+  ['Availability', 'Наличие: «в наличии» или «под заказ»; пусто – в наличии', 'в наличии'],
   ['Url', 'Адрес страницы – только выгрузка', ''],
 ];
 const COLS = CSV_COLUMNS.map((c) => c[0]);
@@ -42,7 +42,7 @@ const decSizes = (v: string, price: number, priceOld: number | null) =>
 
 export const csvRow = (p: P, cats: string[], photoUrl: (name: string) => string, url: string) =>
   [p.uid, cats.join(';'), p.title, p.kind, p.color, p.descr, p.composition, (p.photos ?? []).map((ph: any) => photoUrl(ph.name)).join(' '),
-    p.price, p.priceOld ?? '', encSizes(p), p.stock ?? '', url].map(q).join(';');
+    p.price, p.priceOld ?? '', encSizes(p), p.preorder ? 'под заказ' : 'в наличии', url].map(q).join(';');
 /** файл CSV как у эталона: UTF-8 с BOM, разделитель «;» – открывается в Excel */
 export const csvFile = (rows: string[]) => '﻿' + [COLS.join(';'), ...rows].join('\r\n');
 
@@ -120,15 +120,22 @@ function plan(text: string, raw: P[], secs: S[], opts: Opts, placeIn: (s: S[], u
       const v = at(r, col);
       if (v !== undefined && v !== (base[key] ?? '')) (next[key] = v), lines.push(key === 'descr' || key === 'composition' ? `${name}: изменено` : `${name}: «${base[key] ?? ''}» → «${v}»`);
     }
-    for (const [col, key, name] of [['Price', 'price', 'Цена'], ['Price Old', 'priceOld', 'Старая цена'], ['Quantity', 'stock', 'Остаток']] as const) {
+    for (const [col, key, name] of [['Price', 'price', 'Цена'], ['Price Old', 'priceOld', 'Старая цена']] as const) {
       const v = at(r, col);
       if (v === undefined) continue;
       const n = num(v);
-      if (n !== null && (!(n >= 0) || (key === 'stock' && !Number.isInteger(n)))) { warns.push(`Строка ${line}: в колонке ${col} не число «${v}» – значение пропущено`); continue; }
+      if (n !== null && !(n >= 0)) { warns.push(`Строка ${line}: в колонке ${col} не число «${v}» – значение пропущено`); continue; }
       if (key === 'price' && n === null) { if (!old) warns.push(`Строка ${line}: нет цены`); continue; }
-      if (n !== (base[key] ?? null)) (next[key] = n), lines.push(`${name}: ${key === 'stock' ? base[key] ?? '∞' : rub(base[key])} → ${key === 'stock' ? n ?? '∞' : rub(n)}`);
+      if (n !== (base[key] ?? null)) ((next as Record<string, unknown>)[key] = n), lines.push(`${name}: ${rub(base[key])} → ${rub(n)}`); // цена null отсеяна выше, старая цена может быть null
     }
-    if (next.stock === null) delete next.stock;
+    /* наличие: «под заказ» – preorder, иначе в наличии; остатки не ведём, старое поле stock убираем */
+    const av = at(r, 'Availability');
+    if (av !== undefined) {
+      const pre = /под\s*заказ|preorder/i.test(av);
+      if (pre !== !!base.preorder) lines.push(`Наличие: ${base.preorder ? 'под заказ' : 'в наличии'} → ${pre ? 'под заказ' : 'в наличии'}`);
+      if (pre) next.preorder = true; else delete next.preorder;
+    }
+    delete next.stock;
     /* размеры без своей цены идут за ценой товара – как в карточке товара */
     const sz = at(r, 'Sizes') ?? encSizes(base);
     next.sizes = decSizes(sz, next.price, next.priceOld);
