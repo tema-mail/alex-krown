@@ -4,7 +4,7 @@
     не расходились. Страница индексируется (по правилам сайта: PUBLIC_INDEX=1 на боевом домене) и есть в /v1/sitemap.xml. */
 import V1 from '../../layouts/V1.astro';
 import { IconCrown } from '../../v1/islands/LkHome';
-import { PROGRAM } from '../../v1/loyalty';
+import { API_MODE, PROGRAM } from '../../v1/loyalty';
 import { v1, BRAND } from '../../v1/site';
 import '../../styles/lk.css';
 
@@ -57,9 +57,15 @@ const ld = [
         <li><b>Получайте баллы</b><span>Через {days} после доставки баллы становятся доступны.</span></li>
         <li><b>Тратьте</b><span>Оплачивайте баллами до {PROGRAM.maxRedeemPercent}% следующего заказа.</span></li>
       </ol>
-      <p class="lk-demo">
-        Кабинет на этом сайте сейчас работает в демо-режиме: баллы хранятся в браузере, письмо с кодом не отправляется – код покажем на экране. <a href={v1('lk')}>Открыть кабинет</a>
-      </p>
+      {API_MODE ? (
+        <p class="lk-demo">
+          Оплатить заказ баллами – отметьте «Оплатить баллами» при оформлении: баллы спишутся, когда магазин подтвердит оплату. <a href={v1('lk')}>Открыть кабинет</a>
+        </p>
+      ) : (
+        <p class="lk-demo">
+          Кабинет на этом сайте сейчас работает в демо-режиме: баллы хранятся в браузере, письмо с кодом не отправляется – код покажем на экране. <a href={v1('lk')}>Открыть кабинет</a>
+        </p>
+      )}
     </section>
 
     <section class="bp-sec" aria-labelledby="bp-faq">

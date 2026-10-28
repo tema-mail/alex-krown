@@ -10,6 +10,7 @@ import '../styles/home.css';
 import '../styles/home-blocks.css';
 import '../styles/v1.css';
 import Sheets from '../v1/islands/Sheets';
+import { API_MODE } from '../v1/loyalty';
 import CookieBanner from '../v1/islands/CookieBanner';
 import Preloader from '../v1/Preloader.astro';
 import { v1, asset, MENU, FOOTER, SOCIAL, PHONE, ADDRESS } from '../v1/site';
@@ -90,10 +91,10 @@ const org = {
       <nav class="hd__right">
         <a href={v1('catalog')} class="hd__hide">Каталог</a>
         <button type="button" data-open-sheet="fav" class="hd__hide">Избранное <span data-fav-count>0</span></button>
-        {/* кабинет: гость – «Войти», вошедший – баланс с короной и пометка «демо» (обновляет v1/client.ts по снимку кабинета) */}
+        {/* кабинет: гость – «Войти», вошедший – баланс с короной и пометка «демо» – только в демо-кабинете, не в режиме api (обновляет v1/client.ts по снимку кабинета) */}
         <a href={v1('lk')} class="hd__lk" data-lk aria-label="Войти в личный кабинет">
           <svg class="hd__crown" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2.5 7.5 7.5 12 12 4l4.5 8 5-4.5L19.5 18h-15z" /><rect x="4.5" y="19.3" width="15" height="1.9" rx=".4" /></svg>
-          <b data-lk-num></b><span class="hd__lk-word" data-lk-word>Войти</span><small class="hd__demo">демо</small>
+          <b data-lk-num></b><span class="hd__lk-word" data-lk-word>Войти</span>{!API_MODE && <small class="hd__demo">демо</small>}
         </a>
         <button type="button" data-open-sheet="cart">Корзина <span data-cart-count>0</span></button>
         <button type="button" data-menu-open aria-expanded="false" aria-controls="menu">Меню</button>
