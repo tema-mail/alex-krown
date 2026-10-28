@@ -2,6 +2,7 @@
 /** Текстовые страницы (о бренде, контакты, доставка, возврат, уход, размеры, документы): текст оригинала.
     Контакты – из констант сайта ссылками; размерная сетка – таблицы размеров товаров картинками. */
 import V1 from '../../layouts/V1.astro';
+import BonusRules from './BonusRules.astro';
 import { v1, img, products, PHONE, PHONE_DIGITS, EMAIL, ADDRESS, SOCIAL, type InfoPage, type Photo } from '../site';
 
 interface Props { pg: InfoPage }
@@ -32,11 +33,13 @@ const ld = [
             <p>Мы находимся по адресу: {ADDRESS}</p>
             <p>Для вопросов и предложений: <a href={`tel:+${PHONE_DIGITS}`}>{PHONE}</a>, <a href={`mailto:${EMAIL}`}>{EMAIL}</a></p>
             <p>{SOCIAL.map(([t, h], i) => <>{i > 0 && ' · '}<a href={h} target="_blank" rel="noopener">{t}</a></>)}</p>
+            {/* реквизиты продавца – ЗоЗПП ст. 9, ст. 26.1; из договора оферты бренда, раздел 9 */}
+            <p>Индивидуальный предприниматель Жоркин Алексей Сергеевич, ИНН 540538457234, ОГРНИП 320547600079460</p>
           </>
         ) : charts.length ? (
           charts.map((c) => <img data-src={img(c.name)} width={c.w} height={c.h} alt="Таблица размеров ALEX KROWN" loading="lazy" />)
         ) : (
-          paras.map((t) => <p>{t}</p>)
+          <>{paras.map((t) => <p>{t}</p>)}{pg.path === 'offer_agreement' && <BonusRules />}</>
         )
       }
     </article>
