@@ -38,7 +38,7 @@ const cover = list[0]?.photos[0];
     </nav>
     <header class="cat-head">
       <h1>{s.h1}</h1>
-      {s.description && <p>{s.description}</p>}
+      {(s.intro || s.description) && <p>{s.intro || s.description}</p>} {/* свой текст раздела (28.10.2026); description – только в meta */}
       {
         chips.length > 0 && (
           <nav class="chips chips--scroll" aria-label="Подразделы">

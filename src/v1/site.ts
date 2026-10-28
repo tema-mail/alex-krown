@@ -18,7 +18,7 @@ export interface Product {
   /** под заказ (админка, владелец 28.10.2026); нет поля – в наличии. Остатки не ведём */
   preorder?: boolean;
 }
-export interface Section { path: string; storepart: string; title: string; description: string; h1: string; name: string | null; uids: string[] }
+export interface Section { path: string; storepart: string; title: string; description: string; h1: string; name: string | null; uids: string[]; /** текст раздела под H1 */ intro?: string }
 export interface InfoPage { path: string; title: string; description: string; h1: string; paras: string[] }
 
 /** все товары (админка); на сайт, в разделы, фиды и карту сайта идут только видимые */
