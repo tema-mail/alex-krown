@@ -1,0 +1,14 @@
+---
+/** Итог оплаты картой: сюда ЮKassa возвращает покупателя (?order=<номер на сервере>) – остров OrderPaid. */
+import V1 from '../../layouts/V1.astro';
+import OrderPaid from '../../v1/islands/OrderPaid';
+import { v1 } from '../../v1/site';
+---
+
+<V1 title="Оплата заказа | ALEX KROWN" description="Итог оплаты заказа в магазине ALEX KROWN." path="checkout-paid">
+  <main class="page">
+    <nav aria-label="Хлебные крошки"><ol class="crumbs"><li><a href={v1('')}>Главная</a></li><li><span aria-current="page">Оплата заказа</span></li></ol></nav>
+    <header class="cat-head"><h1>Оплата заказа</h1></header>
+    <OrderPaid client:load catalogHref={v1('catalog')} ordersHref={v1('account/orders')} accountHref={v1('account')} />
+  </main>
+</V1>
