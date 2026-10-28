@@ -56,6 +56,8 @@ export interface OrderView {
         amountRub: number;
     }[];
     canCancel: boolean;
+    /** Можно оплатить (путь Б: ждёт оплаты, исход прошлой попытки известен); демо – не задаёт. */
+    canPay?: boolean;
     /** Что можно сделать демо-кнопками (в пути Б – действия магазина). */
     demo: {
         canMarkPaid: boolean;
@@ -93,6 +95,24 @@ export interface QuoteView {
     earn: number;
     percent: number;
 }
+/** Способ доставки для витрины: курьер магазина или служба с пунктами выдачи. */
+export interface DeliveryMethodView {
+    id: string;
+    title: string;
+    kind: "service" | "shop";
+}
+export type DeliveryService = "cdek" | "yandex";
+/**
+ * Выбор покупателя в заказе. Службой – город и пункт из ответов `delivery.locate` / `delivery.points`; цену сервер
+ * спросит у службы сам. Курьер магазина – адрес и прочее строками, как раньше.
+ */
+export type DeliveryChoice = {
+    method: DeliveryService;
+    location: string;
+    point: string;
+} | ({
+    method: "shop";
+} & Record<string, string>);
 export interface ShopApi {
     requestCode(email: string): Promise<{
         demoCode?: string;
@@ -120,12 +140,17 @@ export interface ShopApi {
      * данных в памяти: ни записей, ни событий (иначе острова, пересчитывающие корзину по subscribe, зациклились бы, в том
      * числе две вкладки с разным выбором баллов). Больше 99 штук одного товара – ошибка.
      */
-    /** points – сколько баллов списать (целое ≥ 0); без него при usePoints – максимум. Больше доступного и доли списания не спишется. Путь Б пока его не знает – там «всё или ничего». */
+    /** points – сколько баллов списать (целое ≥ 0); без него при usePoints – максимум. Больше доступного и доли списания не спишется. Путь Б – так же, режет сервер. */
     quote(input: {
         lines: Line[];
         usePoints: boolean;
         points?: number;
     }): Promise<QuoteView | null>;
+    /**
+     * delivery службой требует recipient (имя и телефон получателя); payRub – с доставкой. Демо доставку не знает.
+     * idempotencyKey (путь Б) – ключ одной попытки оформления: повтор после обрыва связи с тем же ключом и тем же заказом
+     * вернёт уже созданный заказ, а не второй. Без него – новый ключ на каждый вызов.
+     */
     placeOrder(input: {
         lines: Line[];
         usePoints: boolean;
@@ -133,6 +158,12 @@ export interface ShopApi {
         meta: {
             externalNum: string;
         };
+        delivery?: DeliveryChoice;
+        recipient?: {
+            name: string;
+            phone: string;
+        };
+        idempotencyKey?: string;
     }): Promise<{
         orderId: string;
         pointsUsed: number;
@@ -143,6 +174,32 @@ export interface ShopApi {
     updateProfile(patch: Partial<Omit<Profile, "email">>): Promise<void>;
     /** Изменения в этой вкладке (демо – и в соседних: общее хранилище); возвращает отписку. */
     subscribe(fn: () => void): () => void;
+    /** Только путь Б: способы доставки, город и пункты службы, цена и срок до пункта (подсказка – итог считает сервер). */
+    delivery?: {
+        methods(): Promise<DeliveryMethodView[]>;
+        locate(service: DeliveryService, q: string): Promise<{
+            id: string;
+            title: string;
+            region: string;
+        }[]>;
+        points(service: DeliveryService, location: string): Promise<{
+            code: string;
+            address: string;
+            work: string;
+        }[]>;
+        quote(service: DeliveryService, location: string, qty: number): Promise<{
+            priceRub: number;
+            daysMin: number;
+            daysMax: number;
+        }>;
+    };
+    /**
+     * Только путь Б вне боя: оплатить тестовым банком (стенд – покупатель проходит путь до «оплачен»; в бою сервер
+     * отвечает «нет такого адреса»). outcome – исход банка, по умолчанию успех.
+     */
+    pay?(orderId: string, outcome?: "success" | "declined.funds" | "declined.card" | "declined.3ds" | "unknown"): Promise<{
+        result: string;
+    }>;
     /** Только путь А: то, что в бою делает магазин. */
     demo?: {
         markPaid(orderId: string): Promise<void>;
