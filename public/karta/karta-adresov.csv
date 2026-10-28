@@ -5,8 +5,8 @@
 /catalog/man/,Мужская дизайнерская одежда,Хаб,/catalog/man,да
 /catalog/man/blazers/,Мужские пиджаки,Каталог,/catalog/man/blazers,да
 /catalog/man/breeches/,Мужские бриджи,Каталог,/catalog/man/breeches,да
-/catalog/man/costumes/,Мужские костюмы,Каталог,/catalog/man/costumes,да
-/catalog/man/hoodie/,Мужские худи,Каталог,/catalog/man/hoodie,да
+/catalog/man/suits/,Мужские костюмы,Каталог,/catalog/man/costumes,да
+/catalog/man/hoodies/,Мужские худи,Каталог,/catalog/man/hoodie,да
 /catalog/man/jackets/,Мужские куртки,Каталог,/catalog/man/jackets,да
 /catalog/man/joggers/,Мужские джоггеры,Каталог,/catalog/man/joggers,да
 /catalog/man/jumpers/,Мужской джемпер из экокожи,Каталог,/catalog/man/jumpers,да
@@ -19,12 +19,12 @@
 /catalog/man/tank-tops/,Мужские майки,Каталог,/catalog/man/tank_top,да
 /catalog/man/trousers/,Мужские брюки,Каталог,/catalog/man/trousers,да
 /catalog/woman/,Женская дизайнерская одежда,Хаб,/catalog/woman,да
-/catalog/woman/bodysuit/,Женские боди,Каталог,/catalog/woman/bodysuit,да
+/catalog/woman/bodysuits/,Женские боди,Каталог,/catalog/woman/bodysuit,да
 /catalog/woman/capes/,Женская накидка из льна,Каталог,/catalog/woman/capes,да
 /catalog/woman/coats/,Женские куртки,Каталог,/catalog/woman/coats,да
-/catalog/woman/costumes/,Женские костюмы,Каталог,/catalog/woman/costumes,да
+/catalog/woman/suits/,Женские костюмы,Каталог,/catalog/woman/costumes,да
 /catalog/woman/dresses/,Женские платья,Каталог,/catalog/woman/dresses,да
-/catalog/woman/hoodie/,Женские худи,Каталог,/catalog/woman/hoodie,да
+/catalog/woman/hoodies/,Женские худи,Каталог,/catalog/woman/hoodie,да
 /catalog/woman/jackets/,Женские жакеты,Каталог,/catalog/woman/jackets,да
 /catalog/woman/joggers/,Женские джоггеры,Каталог,/catalog/woman/joggers,да
 /catalog/woman/leggings/,Женские лосины,Каталог,/catalog/woman/leggings,да
@@ -39,7 +39,7 @@
 /catalog/woman/t-shirts/,Женские футболки,Каталог,/catalog/woman/t-shirts,да
 /catalog/woman/tank-tops/,Женская майка,Каталог,/catalog/woman/tank_top,да
 /catalog/woman/tops/,Женские топы,Каталог,/catalog/woman/tops,да
-/catalog/woman/trenchcoats/,Женские тренчи,Каталог,/catalog/woman/trenchcoats,да
+/catalog/woman/trench-coats/,Женские тренчи,Каталог,/catalog/woman/trenchcoats,да
 /catalog/woman/trousers/,Женские брюки,Каталог,/catalog/woman/trousers,да
 /catalog/woman/tunics/,Женские туники,Каталог,/catalog/woman/tunics,да
 /catalog/woman/turtlenecks/,Женская водолазка,Каталог,/catalog/woman/turtlenecks,да
@@ -59,7 +59,7 @@
 /catalog/man/trousers/trousers-white-summer/,Брюки «White Summer»,Карточка товара,/catalog/man/tproduct/232564284652-bryuki-white-summer,да
 /catalog/man/trousers/trousers-black-summer/,Брюки «Black Summer»,Карточка товара,/catalog/man/tproduct/995139719952-bryuki-black-summer,да
 /catalog/man/joggers/joggers-house/,Джогеры «House»,Карточка товара,/catalog/man/tproduct/387012211642-dzhogeri-house,да
-/catalog/man/hoodie/hoodie-warlock/,Худи «Warlock»,Карточка товара,/catalog/man/tproduct/726062543492-hudi-warlock,да
+/catalog/man/hoodies/hoodie-warlock/,Худи «Warlock»,Карточка товара,/catalog/man/tproduct/726062543492-hudi-warlock,да
 /catalog/man/joggers/joggers-tornado/,Джоггеры «TORNADO»,Карточка товара,/catalog/man/tproduct/526047893702-dzhoggeri-tornado,да
 /catalog/man/t-shirts/t-shirt-tornado/,Футболка «TORNADO»,Карточка товара,/catalog/man/tproduct/680779928102-futbolka-tornado,да
 /catalog/man/jackets/jacket-black-city/,Куртка «Black City»,Карточка товара,/catalog/man/tproduct/913791459862-kurtka-black-city,да
@@ -88,18 +88,18 @@
 /catalog/man/breeches/unisex-breeches/,Бриджи унисекс,Карточка товара,/catalog/man/tproduct/468393884142-bridzhi-uniseks,да
 /catalog/man/blazers/blazer/,Пиджак,Карточка товара,/catalog/man/tproduct/661977000052-pidzhak,да
 /catalog/man/blazers/blazer-roks/,Пиджак “ROKS”,Карточка товара,/catalog/man/tproduct/584885716383-pidzhak-roks,да
-/catalog/man/costumes/suit-plush-devil/,Костюм Plush Devil,Карточка товара,/catalog/man/tproduct/256471020622-kostyum-plush-devil,да
-/catalog/man/costumes/suit-black-milk/,Костюм “Black Milk”,Карточка товара,/catalog/man/tproduct/230323070382-kostyum-black-milk,да
-/catalog/man/costumes/suit-full/,Костюм «Full»,Карточка товара,/catalog/man/tproduct/284742574102-kostyum-full,да
-/catalog/man/hoodie/hoodie-black-cross/,Худи Black Cross,Карточка товара,/catalog/man/tproduct/490866216152-hudi-black-cross,да
-/catalog/man/hoodie/hoodie-white-cross/,Худи White Cross,Карточка товара,/catalog/man/tproduct/842754072282-hudi-white-cross,да
-/catalog/man/hoodie/hoodie-geometry-men-white/,Худи “Geometry men White”,Карточка товара,/catalog/man/tproduct/430818839072-hudi-geometry-men-white,да
-/catalog/man/hoodie/hoodie-cardiogram-white/,Худи “Cardiogram White”,Карточка товара,/catalog/man/tproduct/764867709973-hudi-cardiogram-white,да
-/catalog/man/hoodie/hoodie-cardiogram-black/,Худи “Cardiogram Black”,Карточка товара,/catalog/man/tproduct/238837028463-hudi-cardiogram-black,да
-/catalog/man/hoodie/hoodie-white-lightning/,Худи “White Lightning”,Карточка товара,/catalog/man/tproduct/736367086472-hudi-white-lightning,да
-/catalog/man/hoodie/hoodie-white-lightning-black/,Худи “White Lightning Black”,Карточка товара,/catalog/man/tproduct/434889713152-hudi-white-lightning-black,да
-/catalog/man/hoodie/hoodie-black-lightning-black/,Худи “Black Lightning Black”,Карточка товара,/catalog/man/tproduct/936826484312-hudi-black-lightning-black,да
-/catalog/woman/hoodie/hoodie-white-memory/,Худи (White memory),Карточка товара,/catalog/woman/tproduct/239015422242-hudi-white-memory,да
+/catalog/man/suits/suit-plush-devil/,Костюм Plush Devil,Карточка товара,/catalog/man/tproduct/256471020622-kostyum-plush-devil,да
+/catalog/man/suits/suit-black-milk/,Костюм “Black Milk”,Карточка товара,/catalog/man/tproduct/230323070382-kostyum-black-milk,да
+/catalog/man/suits/suit-full/,Костюм «Full»,Карточка товара,/catalog/man/tproduct/284742574102-kostyum-full,да
+/catalog/man/hoodies/hoodie-black-cross/,Худи Black Cross,Карточка товара,/catalog/man/tproduct/490866216152-hudi-black-cross,да
+/catalog/man/hoodies/hoodie-white-cross/,Худи White Cross,Карточка товара,/catalog/man/tproduct/842754072282-hudi-white-cross,да
+/catalog/man/hoodies/hoodie-geometry-men-white/,Худи “Geometry men White”,Карточка товара,/catalog/man/tproduct/430818839072-hudi-geometry-men-white,да
+/catalog/man/hoodies/hoodie-cardiogram-white/,Худи “Cardiogram White”,Карточка товара,/catalog/man/tproduct/764867709973-hudi-cardiogram-white,да
+/catalog/man/hoodies/hoodie-cardiogram-black/,Худи “Cardiogram Black”,Карточка товара,/catalog/man/tproduct/238837028463-hudi-cardiogram-black,да
+/catalog/man/hoodies/hoodie-white-lightning/,Худи “White Lightning”,Карточка товара,/catalog/man/tproduct/736367086472-hudi-white-lightning,да
+/catalog/man/hoodies/hoodie-white-lightning-black/,Худи “White Lightning Black”,Карточка товара,/catalog/man/tproduct/434889713152-hudi-white-lightning-black,да
+/catalog/man/hoodies/hoodie-black-lightning-black/,Худи “Black Lightning Black”,Карточка товара,/catalog/man/tproduct/936826484312-hudi-black-lightning-black,да
+/catalog/woman/hoodies/hoodie-white-memory/,Худи (White memory),Карточка товара,/catalog/woman/tproduct/239015422242-hudi-white-memory,да
 /catalog/man/joggers/joggers-black-geometry-dirt/,Джоггеры “Black geometry Dirt”,Карточка товара,/catalog/man/tproduct/414530267282-dzhoggeri-black-geometry-dirt,да
 /catalog/man/joggers/insulated-joggers-black-man/,Джоггеры black man (утепленные),Карточка товара,/catalog/man/tproduct/314438953822-dzhoggeri-black-man-uteplennie,да
 /catalog/man/joggers/joggers-geometry-black/,Джоггеры “Геометрия Black”,Карточка товара,/catalog/man/tproduct/848564431472-dzhoggeri-geometriya-black,да
@@ -150,9 +150,9 @@
 /catalog/man/tank-tops/tank-top-white-wind/,Майка “WHITE WIND”,Карточка товара,/catalog/man/tproduct/520276087743-maika-white-wind,да
 /catalog/woman/tank-tops/womens-tank-top-smart-house/,Майка женская (smart house),Карточка товара,/catalog/woman/tproduct/398632058342-maika-zhenskaya-smart-house,да
 /catalog/man/tank-tops/mens-tank-top-smart-house/,Майка мужская (smart house),Карточка товара,/catalog/man/tproduct/204404999012-maika-muzhskaya-smart-house,да
-/catalog/woman/bodysuit/bodysuit/,Боди,Карточка товара,/catalog/woman/tproduct/332476198322-bodi,да
-/catalog/woman/bodysuit/white-bodysuit-with-hood/,Боди с капюшоном (белый),Карточка товара,/catalog/woman/tproduct/612385919362-bodi-s-kapyushonom-belii,да
-/catalog/woman/bodysuit/black-bodysuit-with-hood/,Боди с капюшоном (черный),Карточка товара,/catalog/woman/tproduct/425167238002-bodi-s-kapyushonom-chernii,да
+/catalog/woman/bodysuits/bodysuit/,Боди,Карточка товара,/catalog/woman/tproduct/332476198322-bodi,да
+/catalog/woman/bodysuits/white-bodysuit-with-hood/,Боди с капюшоном (белый),Карточка товара,/catalog/woman/tproduct/612385919362-bodi-s-kapyushonom-belii,да
+/catalog/woman/bodysuits/black-bodysuit-with-hood/,Боди с капюшоном (черный),Карточка товара,/catalog/woman/tproduct/425167238002-bodi-s-kapyushonom-chernii,да
 /catalog/woman/joggers/joggers/,Джоггеры,Карточка товара,/catalog/woman/tproduct/806115296822-dzhoggeri,да
 /catalog/woman/robes/robe-black-woman/,Мантия Black woman,Карточка товара,/catalog/woman/tproduct/525230764682-mantiya-black-woman,да
 /catalog/woman/dresses/dress-b-w/,Платье B & W,Карточка товара,/catalog/woman/tproduct/330897489422-plate-b-amp-w,да
@@ -160,11 +160,11 @@
 /catalog/woman/tops/crop-top-black/,Кроп топ “Black”,Карточка товара,/catalog/woman/tproduct/732749178242-krop-top-black,да
 /catalog/woman/tops/top-abstract/,Топ “abstract”,Карточка товара,/catalog/woman/tproduct/652337065992-top-abstract,да
 /catalog/woman/tops/top-trapeze/,Топ “TRAPEZE”,Карточка товара,/catalog/woman/tproduct/796037336292-top-trapeze,да
-/catalog/woman/hoodie/hoodie/,Худи,Карточка товара,/catalog/woman/tproduct/397167436462-hudi,да
-/catalog/woman/hoodie/white-hoodie/,Худи белая,Карточка товара,/catalog/woman/tproduct/797620854102-hudi-belaya,да
-/catalog/woman/hoodie/hoodie-geometry-women-white/,Худи “Geometry women White”,Карточка товара,/catalog/woman/tproduct/678238180382-hudi-geometry-women-white,да
-/catalog/woman/hoodie/hoodie-white-lightning-woman/,Худи “White Lightning woman”,Карточка товара,/catalog/woman/tproduct/119034214372-hudi-white-lightning-woman,да
-/catalog/woman/hoodie/hoodie-white-shot-woman/,Худи “White Shot woman”,Карточка товара,/catalog/woman/tproduct/209766000592-hudi-white-shot-woman,да
+/catalog/woman/hoodies/hoodie/,Худи,Карточка товара,/catalog/woman/tproduct/397167436462-hudi,да
+/catalog/woman/hoodies/white-hoodie/,Худи белая,Карточка товара,/catalog/woman/tproduct/797620854102-hudi-belaya,да
+/catalog/woman/hoodies/hoodie-geometry-women-white/,Худи “Geometry women White”,Карточка товара,/catalog/woman/tproduct/678238180382-hudi-geometry-women-white,да
+/catalog/woman/hoodies/hoodie-white-lightning-woman/,Худи “White Lightning woman”,Карточка товара,/catalog/woman/tproduct/119034214372-hudi-white-lightning-woman,да
+/catalog/woman/hoodies/hoodie-white-shot-woman/,Худи “White Shot woman”,Карточка товара,/catalog/woman/tproduct/209766000592-hudi-white-shot-woman,да
 /catalog/woman/coats/blazer-jacket/,Куртка - жакет,Карточка товара,/catalog/woman/tproduct/196324870052-kurtka-zhaket,да
 /catalog/woman/coats/jacket-black-smoke-woman/,Куртка “BLACK SMOKE WOMAN”,Карточка товара,/catalog/woman/tproduct/180696771693-kurtka-black-smoke-woman,да
 /catalog/woman/coats/blazer-jacket-milan/,Куртка - жакет “MILAN”,Карточка товара,/catalog/woman/tproduct/888893865192-kurtka-zhaket-milan,да
@@ -180,10 +180,10 @@
 /catalog/woman/coats/jacket-black-or-white-woman/,Куртка Black or White woman,Карточка товара,/catalog/woman/tproduct/915246580162-kurtka-black-or-white-woman,да
 /catalog/woman/coats/womens-jacket/,Куртка женская,Карточка товара,/catalog/woman/tproduct/581177549752-kurtka-zhenskaya,да
 /catalog/woman/coats/denim-jacket-no-rules/,Куртка джинсовая «No Rules»,Карточка товара,/catalog/woman/tproduct/473197181442-kurtka-dzhinsovaya-no-rules,да
-/catalog/woman/costumes/suit-no-rules-white/,Костюм «No Rules White»,Карточка товара,/catalog/woman/tproduct/883110873202-kostyum-no-rules-white,да
-/catalog/woman/costumes/suit-no-rules-black/,Костюм «No Rules Black»,Карточка товара,/catalog/woman/tproduct/907515967742-kostyum-no-rules-black,да
-/catalog/woman/costumes/suit-lady-black/,Костюм «Lady Black»,Карточка товара,/catalog/woman/tproduct/565135271072-kostyum-lady-black,да
-/catalog/woman/costumes/suit-geometryc/,Костюм «Geometryc»,Карточка товара,/catalog/woman/tproduct/496321733952-kostyum-geometryc,да
+/catalog/woman/suits/suit-no-rules-white/,Костюм «No Rules White»,Карточка товара,/catalog/woman/tproduct/883110873202-kostyum-no-rules-white,да
+/catalog/woman/suits/suit-no-rules-black/,Костюм «No Rules Black»,Карточка товара,/catalog/woman/tproduct/907515967742-kostyum-no-rules-black,да
+/catalog/woman/suits/suit-lady-black/,Костюм «Lady Black»,Карточка товара,/catalog/woman/tproduct/565135271072-kostyum-lady-black,да
+/catalog/woman/suits/suit-geometryc/,Костюм «Geometryc»,Карточка товара,/catalog/woman/tproduct/496321733952-kostyum-geometryc,да
 /catalog/woman/dresses/dress/,Платье,Карточка товара,/catalog/woman/tproduct/908379812252-plate,да
 /catalog/woman/dresses/dress-black-jadua/,Платье «Black jadua”,Карточка товара,/catalog/woman/tproduct/249065119492-plate-black-jadua,да
 /catalog/woman/dresses/black-cut-sundress/,Платье-сарафан «Black Cut»,Карточка товара,/catalog/woman/tproduct/661186048012-plate-sarafan-black-cut,да
@@ -199,7 +199,7 @@
 /catalog/woman/longsleeves/longsleeve-with-collar/,Лонгслив с воротником,Карточка товара,/catalog/woman/tproduct/663851335242-longsliv-s-vorotnikom,да
 /catalog/woman/longsleeves/longsleeve-x-white/,Лонгслив X White,Карточка товара,/catalog/woman/tproduct/138851035852-longsliv-x-white,да
 /catalog/woman/longsleeves/longsleeve-x-black/,Лонгслив X Black,Карточка товара,/catalog/woman/tproduct/925792075102-longsliv-x-black,да
-/catalog/woman/hoodie/plush-hoodie/,Худи плюш,Карточка товара,/catalog/woman/tproduct/654539001082-hudi-plyush,да
+/catalog/woman/hoodies/plush-hoodie/,Худи плюш,Карточка товара,/catalog/woman/tproduct/654539001082-hudi-plyush,да
 /catalog/woman/leggings/leggings-with-crosses/,Лосины с крестами,Карточка товара,/catalog/woman/tproduct/822610177102-losini-s-krestami,да
 /catalog/woman/leggings/leggings-black-dragon/,Лосины «Black dragon»,Карточка товара,/catalog/woman/tproduct/984801477262-losini-black-dragon,да
 /catalog/woman/leggings/white-leggings-with-crosses/,Лосины с крестами (белые),Карточка товара,/catalog/woman/tproduct/607292215822-losini-s-krestami-belie,да
@@ -221,8 +221,8 @@
 /catalog/woman/t-shirts/womens-t-shirt-firmware/,Футболка женская «Перепрошивка»,Карточка товара,/catalog/woman/tproduct/703696079232-futbolka-zhenskaya-pereproshivka,да
 /catalog/woman/tops/top-no-rules/,Топ «No Rules»,Карточка товара,/catalog/woman/tproduct/827495152472-top-no-rules,да
 /catalog/woman/tops/top-lightning/,Топ «Lightning»,Карточка товара,/catalog/woman/tproduct/398776445422-top-lightning,да
-/catalog/woman/trenchcoats/trench-coat-customs/,Тренч Customs,Карточка товара,/catalog/woman/tproduct/401532833572-trench-customs,да
-/catalog/woman/trenchcoats/trench-coat-black-shadow/,Тренч «Black shadow»,Карточка товара,/catalog/woman/tproduct/420565200952-trench-black-shadow,да
+/catalog/woman/trench-coats/trench-coat-customs/,Тренч Customs,Карточка товара,/catalog/woman/tproduct/401532833572-trench-customs,да
+/catalog/woman/trench-coats/trench-coat-black-shadow/,Тренч «Black shadow»,Карточка товара,/catalog/woman/tproduct/420565200952-trench-black-shadow,да
 /catalog/woman/turtlenecks/turtleneck/,Водолазка,Карточка товара,/catalog/woman/tproduct/989008167992-vodolazka,да
 /catalog/woman/tunics/tunic-white/,Туника White,Карточка товара,/catalog/woman/tproduct/998346580572-tunika-white,да
 /catalog/woman/tunics/black-tunic/,Туника черная,Карточка товара,/catalog/woman/tproduct/230943448682-tunika-chernaya,да
