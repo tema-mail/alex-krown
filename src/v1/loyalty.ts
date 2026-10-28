@@ -3,9 +3,9 @@ import type { LoyaltyProgram, ShopApi } from '../vendor/shop-engine/shop-engine.
 import program from '../data/v1/loyalty.json';
 
 // Бонусная программа ALEX KROWN и связь магазина «Вариант 1» с кабинетом покупателя (docs/ПЛАН-ЛК.md, решения 2–3).
-// Перенос milovini-samara/src/lib/loyalty.ts, путь А: кабинет – демо в браузере покупателя (localStorage, код входа
-// на экране). Режим сервера (путь Б) не переносится. Движок (собранный shop-modules, src/vendor/shop-engine) и товары
-// грузятся только там, где нужны: /v1/lk/*, оформление и вход. Карточкам и шапке хватает снимка: процент и баланс.
+// Перенос milovini-samara/src/lib/loyalty.ts: по умолчанию (Pages) кабинет – демо в браузере покупателя (localStorage,
+// код входа на экране); сборка с PUBLIC_LOYALTY=api – кабинет на сервере магазина (docs/ПЛАН-ЛК-СЕРВЕР.md).
+// Движок (собранный shop-modules, src/vendor/shop-engine) и товары грузятся только там, где нужны: /v1/lk/*, оформление и вход. Карточкам и шапке хватает снимка: процент и баланс.
 // Обновление движка – как в Milovini: в shop-modules `npm run build:sdk`, скопировать sdk/browser/dist/shop-engine.js
 // и SOURCE, а index.d.ts – как shop-engine.d.ts; руками не править.
 
@@ -16,6 +16,14 @@ import program from '../data/v1/loyalty.json';
  * Смена правил доходит до старых браузеров: движок видит другие настройки и заводит новую версию (старые заказы – по своей).
  */
 export const PROGRAM: LoyaltyProgram = program;
+
+/**
+ * Где живёт кабинет (docs/ПЛАН-ЛК-СЕРВЕР.md, решение 6): по умолчанию – демо в браузере (GitHub Pages); сборка с
+ * PUBLIC_LOYALTY=api – сервер магазина shop-modules на том же хосте (/api): общая база, заказы и баллы видит админка.
+ */
+export const API_MODE = import.meta.env.PUBLIC_LOYALTY === 'api';
+/** Тестовый стенд (PUBLIC_STAND=1 при сборке выкладки): плашка «Тестовый стенд» в кабинете, письма – в перехватчик. */
+export const STAND = import.meta.env.PUBLIC_STAND === '1';
 
 /** Ключи движка – свой префикс: сброс кабинета не тронет корзину и избранное (ak_v1_cart, ak_v1_fav). */
 const ENGINE_PREFIX = 'aklk:';
@@ -106,11 +114,29 @@ let pending: Promise<ShopApi> | null = null;
  * с текстом для покупателя; resetCabinet() стирает только данные кабинета.
  */
 export function getShop(): Promise<ShopApi> {
-  pending ??= openDemoShop().catch((e: unknown) => {
+  pending ??= (API_MODE ? openApiShop() : openDemoShop()).catch((e: unknown) => {
     pending = null;
     throw e;
   });
   return pending;
+}
+
+/** Кабинет на сервере: правила программы и товары – в магазине (выкладка переносит их из loyalty.json и каталога). */
+async function openApiShop(): Promise<ShopApi> {
+  let mod;
+  try {
+    mod = await import('../vendor/shop-engine/shop-engine.js');
+  } catch {
+    throw new LoadError('Кабинет не загрузился – проверьте интернет и обновите страницу.');
+  }
+  const shop = mod.createApiShop('');
+  try {
+    await refresh(shop);
+  } catch {
+    throw new LoadError('Кабинет сейчас не отвечает – обновите страницу через минуту.');
+  }
+  shop.subscribe(() => void refresh(shop).catch(() => undefined));
+  return shop;
 }
 
 interface RawProduct { uid: string; title: string; price: number; sizes: { size: string; price: number }[]; hidden?: boolean }
