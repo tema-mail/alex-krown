@@ -11,7 +11,12 @@ import type { QuoteView, ShopApi } from '../../vendor/shop-engine/shop-engine.js
    Баллы (docs/ПЛАН-ЛК.md, решение 4; как Order.tsx Milovini): в демо-кабинете менеджеру «Итого» уходит без вычета
    баллов, а демо-баллы – отдельной строкой «не применять». Кабинет на сервере (API_MODE, docs/ПЛАН-ЛК-СЕРВЕР.md,
    решение 6): заказ записывается в базу магазина, баллы удерживаются до оплаты (отмечает магазин в админке),
-   менеджеру – «Баллами» и «К оплате» с вычетом. Сбой кабинета не мешает настоящему заказу – он уходит без баллов. */
+   менеджеру – «Баллами» и «К оплате» с вычетом. Сбой кабинета не мешает настоящему заказу – он уходит без баллов.
+   Оплата картой онлайн (план shop-modules ПЛАН-ОПЛАТА-ЮKASSA, P9): вошедший покупатель в режиме API, если у магазина
+   подключена ЮKassa, – заказ на сервере → payments.start → страница ЮKassa → /v1/checkout-paid/. Доставка в платёж не
+   входит (решение по умолчанию, владелец ещё не выбрал): товары картой, доставку менеджер считает отдельно – текст
+   заказа сохраняется в этой вкладке, после оплаты покупатель отправляет его менеджеру. Гость, «Долями», «Рассрочка»
+   и демо-сборка – как раньше, текстом менеджеру. */
 /* куда покупатель отправляет заказ (владелец 21.10.2026: «Telegram и MAX, а не WhatsApp»). Ссылки пока тестовые:
    Telegram – аккаунт бренда с сайта, MAX – общий адрес; ссылки менеджера владелец даст до боя (docs/ТЕХДОЛГ.md).
    Telegram и MAX не принимают текст в ссылке – кнопка сама копирует заказ, покупатель вставляет его в чат. */
@@ -27,6 +32,9 @@ const DELIVERY = [
   ['urgent', 'Срочная доставка', 'Менеджер свяжется и предложит вариант'],
 ] as const;
 const LAST = 'ak_v1_last_order';
+/* оплата картой на сайте – только когда сервер магазина сказал «есть» (payments.available) */
+const ONLINE = ['online', 'Картой онлайн (ЮKassa)'] as const;
+const ONLINE_NOTE = 'Картой оплачиваются товары, доставку менеджер посчитает отдельно';
 const PAYMENT = [
   ['card', 'Картой, ЮMoney или по телефону (ЮKassa)'],
   ['dolyami', 'Долями от Т-Банка'],
@@ -65,7 +73,8 @@ export default function Order({ catalogHref, policyHref, offerHref, consentHref 
   useEffect(() => setReady(true), []);
   const [f, setF] = useState<Form>({ name: '', phone: '', email: '', city: '', address: '', delivery: 'cdek', payment: 'card', comment: '', agree: false });
   const [tried, setTried] = useState(false);
-  const [done, setDone] = useState<{ no: string; text: string; lk?: boolean; pointsLost?: boolean } | null>(null);
+  /* payOrderId – заказ на сервере, который платится картой; payError – оплата не открылась (заказ записан) */
+  const [done, setDone] = useState<{ no: string; text: string; lk?: boolean; pointsLost?: boolean; payOrderId?: string; payError?: string; cardLost?: boolean } | null>(null);
   const [copied, setCopied] = useState(false);
   const [busy, setBusy] = useState(false);
   const [usePoints, setUsePoints] = useState(false);
@@ -76,11 +85,18 @@ export default function Order({ catalogHref, policyHref, offerHref, consentHref 
   /* оформленный заказ переживает обновление страницы – но только пока покупатель не положил в корзину новое:
      иначе вместо формы нового заказа снова показывался бы старый «Заказ оформлен» (баг 22.10.2026) */
   useEffect(() => {
-    try {
-      const last = JSON.parse(sessionStorage.getItem(LAST) || 'null');
-      if (last?.no && cart.value.length === 0) setDone(last);
-      else sessionStorage.removeItem(LAST);
-    } catch {}
+    const restore = () => {
+      try {
+        const last = JSON.parse(sessionStorage.getItem(LAST) || 'null');
+        if (last?.no && cart.value.length === 0) setDone(last);
+        else sessionStorage.removeItem(LAST);
+      } catch {}
+    };
+    restore();
+    /* «назад» со страницы ЮKassa из кэша браузера: экран заказа и кнопка «Оплатить картой» – снова доступны */
+    const back = (e: PageTransitionEvent) => e.persisted && (setBusy(false), restore());
+    addEventListener('pageshow', back);
+    return () => removeEventListener('pageshow', back);
   }, []);
   /* заказ ушёл в мессенджер или скопирован – экран «оформлен» больше не восстанавливаем (корзина уже пуста) */
   const sent = () => {
@@ -96,6 +112,36 @@ export default function Order({ catalogHref, policyHref, offerHref, consentHref 
   const loggedIn = ready && snap.value.email !== null;
   const lkLines = () => items.map((i) => ({ productId: lineId(i.uid, i.size), qty: i.qty }));
   const lineKey = items.map((i) => `${i.id}*${i.qty}`).join(',');
+  /* есть ли оплата картой онлайн: только вошедшему в режиме API (заказ на сервере требует входа) */
+  const [card, setCard] = useState(false);
+  useEffect(() => {
+    if (!API_MODE || !loggedIn) return setCard(false);
+    let live = true;
+    getShop()
+      .then((shop) => shop.payments?.available() ?? { card: false })
+      .then((r) => live && setCard(r.card))
+      .catch(() => live && setCard(false));
+    return () => {
+      live = false;
+    };
+  }, [loggedIn]);
+  /* оплата картой пропала (вышел, сервер отказал) – выбор возвращается к первому способу «через менеджера» */
+  useEffect(() => {
+    if (!card && f.payment === ONLINE[0]) setF((v) => ({ ...v, payment: 'card' }));
+  }, [card]);
+  const online = card && f.payment === ONLINE[0];
+  /* переход на страницу ЮKassa; не открылась – текст ошибки, заказ уже записан */
+  const payNow = async (orderId: string): Promise<string | null> => {
+    try {
+      const shop = await getShop();
+      if (!shop.payments) return 'Оплата картой сейчас недоступна';
+      const { confirmationUrl } = await shop.payments.start(orderId);
+      location.assign(confirmationUrl);
+      return null;
+    } catch (e) {
+      return e instanceof Error && e.message ? e.message : 'Оплата не открылась';
+    }
+  };
   /* расчёт баллов кабинета: сколько можно списать и сколько начислим – только для вошедшего */
   useEffect(() => {
     if (!loggedIn || !items.length || done) {
@@ -120,6 +166,26 @@ export default function Order({ catalogHref, policyHref, offerHref, consentHref 
     return (
       <div class="done">
         <h2 class="h2">Заказ {done.no} оформлен</h2>
+        {done.payOrderId && (
+          <div class="order__pay">
+            {done.payError && <p class="field__err" role="alert">Оплата картой не открылась: {done.payError}</p>}
+            <p>
+              <button
+                type="button"
+                class="btn btn--solid"
+                disabled={busy}
+                onClick={async () => {
+                  setBusy(true);
+                  const err = await payNow(done.payOrderId!);
+                  if (err !== null) (setDone({ ...done, payError: err }), setBusy(false));
+                }}
+              >
+                {busy ? 'Открываем оплату…' : 'Оплатить картой'}
+              </button>
+            </p>
+            <p class="pp__hint">{ONLINE_NOTE}. Или отправьте заказ менеджеру – он пришлёт ссылку на оплату.</p>
+          </div>
+        )}
         <p>Отправьте его менеджеру в {ORDER_CHANNELS.map((c) => c.label).join(' или ')}: по кнопке текст заказа скопируется сам – вставьте его в чат. Менеджер подтвердит наличие размеров, посчитает доставку и пришлёт ссылку на оплату.</p>
         <p class="done__send">
           {ORDER_CHANNELS.map((c) => (
@@ -129,6 +195,7 @@ export default function Order({ catalogHref, policyHref, offerHref, consentHref 
           ))}
         </p>
         {copied && <p class="pp__hint">Текст заказа скопирован – вставьте его в чат с менеджером.</p>}
+        {done.cardLost && <p class="field__err" role="alert">Оплатить картой на сайте не получилось – менеджер пришлёт ссылку на оплату.</p>}
         {done.pointsLost && (
           <p class="field__err" role="alert">
             {API_MODE
@@ -174,6 +241,7 @@ export default function Order({ catalogHref, policyHref, offerHref, consentHref 
     /* заказ в кабинете – до текста менеджеру; любой сбой кабинета – заказ уходит без баллов (полная сумма) */
     const bonus: string[] = []; // строки про баллы для менеджера
     let inLk = false, pointsLost = false;
+    let payOrderId: string | undefined; // заказ на сервере для оплаты картой
     if (loggedIn) {
       setBusy(true);
       try {
@@ -195,6 +263,7 @@ export default function Order({ catalogHref, policyHref, offerHref, consentHref 
           placed = await shop.placeOrder(input); // один повтор при обрыве – тот же ключ
         }
         inLk = true; // номер в кабинете – тот же AK-…, менеджеру отдельной строкой не нужен
+        if (online && API_MODE) payOrderId = placed.orderId;
         if (placed.pointsUsed > 0 && API_MODE) {
           // баллы настоящие: менеджер берёт сумму с вычетом
           bonus.push(`Баллами: ${placed.pointsUsed} ${pointsWord(placed.pointsUsed)} (1 балл = 1 ₽)`, `К оплате: ${fmt(placed.payRub)} без доставки`);
@@ -215,7 +284,8 @@ export default function Order({ catalogHref, policyHref, offerHref, consentHref 
       '',
       `Итого: ${fmt(cartTotal.value)} без доставки`,
       `Доставка: ${DELIVERY.find((x) => x[0] === f.delivery)![1]}`,
-      `Оплата: ${PAYMENT.find((x) => x[0] === f.payment)![1]}`,
+      // картой на сайте – только если заказ записан на сервере; иначе ссылку на оплату картой пришлёт менеджер
+      `Оплата: ${payOrderId ? `${ONLINE[1]} на сайте – только товары, доставку посчитать отдельно` : (PAYMENT.find((x) => x[0] === f.payment) ?? PAYMENT[0])[1]}`,
       ...bonus,
       '',
       `Имя: ${f.name.trim()}`,
@@ -225,15 +295,27 @@ export default function Order({ catalogHref, policyHref, offerHref, consentHref 
       ...(f.address.trim() ? [`Адрес / пункт СДЭК: ${f.address.trim()}`] : []),
       ...(f.comment.trim() ? [`Комментарий: ${f.comment.trim()}`] : []),
     ];
-    const order = { no, text: lines.join('\n'), lk: inLk, pointsLost };
+    const order = { no, text: lines.join('\n'), lk: inLk, pointsLost, ...(payOrderId ? { payOrderId } : {}), ...(online && !payOrderId ? { cardLost: true } : {}) };
     /* заказ отправлен – «покупка» в Метрике, как у корзины Тильды (оплата у ALEX KROWN – после, у менеджера) */
     ecPurchase(no, items.map((i) => ({ uid: i.uid, title: i.title, price: i.price, size: i.size, qty: i.qty })), cartTotal.value);
-    setDone(order);
     try {
       sessionStorage.setItem(LAST, JSON.stringify(order));
     } catch {}
     clearCart(); // заказ оформлен – корзина пуста, следующий товар идёт в новый заказ
+    setDone(order); // экран «оформлен» – и пока открывается оплата картой (кнопка «Открываем оплату…»)
     scrollTo({ top: 0, behavior: 'smooth' });
+    if (payOrderId) {
+      // картой: сразу на страницу ЮKassa (текст заказа для менеджера уже в sessionStorage – его покажет страница итога)
+      setBusy(true);
+      const err = await payNow(payOrderId);
+      if (err === null) return;
+      setBusy(false);
+      const failed = { ...order, payError: err };
+      setDone(failed);
+      try {
+        sessionStorage.setItem(LAST, JSON.stringify(failed));
+      } catch {}
+    }
   };
 
   const err = (k: keyof typeof errs) => tried && errs[k] && <span class="field__err">{errs[k]}</span>;
@@ -257,6 +339,9 @@ export default function Order({ catalogHref, policyHref, offerHref, consentHref 
         </fieldset>
         <fieldset>
           <legend>Оплата</legend>
+          {card && (
+            <label class="radio"><input type="radio" name="payment" value={ONLINE[0]} checked={f.payment === ONLINE[0]} onChange={set('payment')} /><span>{ONLINE[1]}<small>Сразу на сайте. {ONLINE_NOTE}</small></span></label>
+          )}
           {PAYMENT.map(([v, t]) => (
             <label class="radio"><input type="radio" name="payment" value={v} checked={f.payment === v} onChange={set('payment')} /><span>{t}<small>Ссылку на оплату пришлёт менеджер после подтверждения заказа</small></span></label>
           ))}
@@ -307,9 +392,10 @@ export default function Order({ catalogHref, policyHref, offerHref, consentHref 
           </span>
         </label>
         {/* стандарт форм: без галочки согласия кнопка неактивна (галочка по умолчанию пустая) */}
-        <button type="submit" class="btn btn--solid" disabled={busy || !f.agree}>Оформить заказ</button>
+        <button type="submit" class="btn btn--solid" disabled={busy || !f.agree}>{online ? 'Оплатить картой' : 'Оформить заказ'}</button>
+        {online && <p class="pp__hint">{ONLINE_NOTE}.</p>}
         {tried && bad && <p class="field__err" role="alert">Проверьте отмеченные поля</p>}
-        <p class="pp__hint">Нажимая «Оформить заказ», вы принимаете условия <a href={offerHref} target="_blank" rel="noopener">договора оферты</a> и <a href={policyHref} target="_blank" rel="noopener">политики конфиденциальности</a>.</p>
+        <p class="pp__hint">Нажимая «{online ? 'Оплатить картой' : 'Оформить заказ'}», вы принимаете условия <a href={offerHref} target="_blank" rel="noopener">договора оферты</a> и <a href={policyHref} target="_blank" rel="noopener">политики конфиденциальности</a>.</p>
       </form>
 
       <aside class="summary" aria-label="Ваш заказ">
