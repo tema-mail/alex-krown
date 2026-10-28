@@ -1,12 +1,12 @@
 import { useState } from 'preact/hooks';
 import { fmt } from '../store';
-import { pointsWord, PROGRAM } from '../loyalty';
+import { API_MODE, pointsWord, PROGRAM } from '../loyalty';
 import type { Account, OrderView, ShopApi } from '../../vendor/shop-engine/shop-engine.js';
 import { IconCrown, LkShell, Tier, dateRu, pts } from './LkHome';
 
 // Кабинет: «Мои баллы» (баланс и история) и «Мои заказы» (docs/ПЛАН-ЛК.md, решение 5) – перенос
 // milovini-samara/src/islands/LkOrders.tsx. Демо-кнопки делают то, что в бою делает магазин: подтверждает оплату,
-// отмечает доставку; «прошли сутки» – перемотка времени кабинета.
+// отмечает доставку; «прошли сутки» – перемотка времени кабинета. Только в демо: на сервере это делает админка магазина.
 
 function PointsView({ a }: { a: Account }) {
   const num = new Map(a.orders.map((o) => [o.id, o.externalNum ?? o.id]));
@@ -57,7 +57,7 @@ function OrderCard({ o, shop }: { o: OrderView; shop: ShopApi }) {
       setBusy(false);
     }
   };
-  const demo = shop.demo;
+  const demo = API_MODE ? undefined : shop.demo;
   return (
     <article class="lk-card lk-order">
       <div class="lk-card__head">

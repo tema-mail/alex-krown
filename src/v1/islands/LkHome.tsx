@@ -1,12 +1,13 @@
 import type { ComponentChildren } from 'preact';
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { DataError, getShop, pointsWord, PROGRAM, resetCabinet, v1url as v1 } from '../loyalty';
+import { API_MODE, DataError, getShop, pointsWord, PROGRAM, resetCabinet, STAND, v1url as v1 } from '../loyalty';
 import { fmt } from '../store';
 import type { Account, ShopApi } from '../../vendor/shop-engine/shop-engine.js';
 
 // Личный кабинет покупателя ALEX KROWN (docs/ПЛАН-ЛК.md, решение 5) – перенос milovini-samara/src/islands/LkHome.tsx:
 // оболочка (вкладки, плашка «демо», вход), вход по коду и главная – баланс, статус с прогрессом, последние заказы.
-// Страницы /v1/lk/* – только в браузере (client:only): данных кабинета в HTML нет. Путь А – демо, сервера нет.
+// Страницы /v1/lk/* – только в браузере (client:only): данных кабинета в HTML нет. Pages – демо в браузере (путь А),
+// сборка PUBLIC_LOYALTY=api – кабинет на сервере (путь Б, docs/ПЛАН-ЛК-СЕРВЕР.md): без «демо», согласие – в verify.
 
 export type LkTab = 'home' | 'points' | 'orders' | 'profile';
 const TABS: [LkTab, string, string][] = [
@@ -28,6 +29,14 @@ export const pts = (n: number) => `${n.toLocaleString('ru-RU')} ${pointsWord(n)}
 export const dateRu = (iso: string) => new Date(iso).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
 
 function Demo() {
+  if (API_MODE) {
+    return STAND ? (
+      <p class="lk-demo">
+        <b>Тестовый стенд.</b> Кабинет и баллы – в базе магазина, заказы и баллы видны в админке магазина.
+        Письмо с кодом не уходит на почту – код смотрите в перехватчике писем стенда.
+      </p>
+    ) : null;
+  }
   return (
     <p class="lk-demo">
       <b>Демо-кабинет.</b> Данные хранятся только в этом браузере, письмо с кодом не отправляется – код покажем на экране.
@@ -36,7 +45,7 @@ function Demo() {
   );
 }
 
-/** Вход: почта → код (в демо – на экране) → кабинет. */
+/** Вход: почта → код (в демо – на экране, на сервере – в письме) → кабинет. */
 function Login({ shop }: { shop: ShopApi }) {
   const [email, setEmail] = useState('');
   /* 152-ФЗ ст. 9: почту собираем только с согласием – галочка пустая, без неё код не запросить */
@@ -85,7 +94,8 @@ function Login({ shop }: { shop: ShopApi }) {
         </form>
       ) : (
         <form class="lk-form" onSubmit={run(async (form) => {
-          await shop.verify(sent, field(form, 'code'));
+          // согласие на ПДн – галочка шага «почта» (без неё код не запросить); сервер регистрирует только с ним
+          await shop.verify(sent, field(form, 'code'), API_MODE && agree ? { pdn: true } : undefined);
         })}>
           {demoCode && <p class="lk-code">Демо: письмо не отправляется. Код для входа – <b>{demoCode}</b></p>}
           <label class="field">Код из письма для {sent}
@@ -147,9 +157,11 @@ export function LkShell({ active, children }: { active: LkTab; children: (a: Acc
       </nav>
       {children(account, shop)}
       <Demo />
-      <button type="button" class="lk-link lk-reset" onClick={() => {
-        if (confirm('Стереть баллы, заказы и профиль демо-кабинета в этом браузере? Корзина и избранное останутся.')) { resetCabinet(); location.reload(); }
-      }}>Сбросить демо-кабинет</button>
+      {!API_MODE && (
+        <button type="button" class="lk-link lk-reset" onClick={() => {
+          if (confirm('Стереть баллы, заказы и профиль демо-кабинета в этом браузере? Корзина и избранное останутся.')) { resetCabinet(); location.reload(); }
+        }}>Сбросить демо-кабинет</button>
+      )}
     </div>
   );
 }
