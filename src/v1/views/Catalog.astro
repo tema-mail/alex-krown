@@ -27,6 +27,7 @@ const ld = [
     '@context': 'https://schema.org', '@type': 'ItemList', name: s.h1, numberOfItems: list.length,
     itemListElement: list.map((p, i) => ({ '@type': 'ListItem', position: i + 1, url: abs(p.path), name: p.title })),
   },
+  ...(s.faq?.length ? [{ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: s.faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) }] : []),
 ];
 const cover = list[0]?.photos[0];
 ---
@@ -60,6 +61,19 @@ const cover = list[0]?.photos[0];
     <div class="grid" data-grid>
       {list.map((p, i) => <div data-price={p.price} data-i={i}><ProductCard p={p} eager={i < 4} first={i === 0} level="h2" /></div>)}
     </div>
+    {
+      (s.text?.length || s.faq?.length) && (
+        <section class="cat-seo" aria-labelledby="cat-seo-h">
+          <h2 id="cat-seo-h">{s.textTitle || s.h1}</h2>
+          {s.text?.map((t) => <p>{t}</p>)}
+          {s.faq?.length && (
+            <div class="acc">
+              {s.faq.map((f) => <details open><summary>{f.q}</summary><div class="acc__body">{f.a}</div></details>)}
+            </div>
+          )}
+        </section>
+      )
+    }
   </main>
 </V1>
 

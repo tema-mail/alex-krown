@@ -70,6 +70,25 @@
   max-width: 70ch;
   line-height: 1.6;
 }
+/* SEO-текст и вопросы под сеткой раздела */
+.cat-seo {
+  display: grid;
+  gap: 14px;
+  max-width: 76ch;
+  margin-top: 56px;
+}
+.cat-seo h2 {
+  font: 400 clamp(22px, 2.6vw, 32px) / 1.15 var(--serif);
+  text-transform: uppercase;
+}
+.cat-seo > p {
+  color: var(--mute);
+  font-size: 14px;
+  line-height: 1.7;
+}
+.cat-seo .acc {
+  margin-top: 8px;
+}
 .cat-bar {
   display: flex;
   justify-content: space-between;

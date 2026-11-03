@@ -20,7 +20,11 @@ export interface Product {
   /** модель в нескольких цветах: общий id (m<uid>) у всех цветов – переключатель цвета на карточке, группа в фидах */
   group?: string;
 }
-export interface Section { path: string; storepart: string; title: string; description: string; h1: string; name: string | null; uids: string[]; /** текст раздела под H1 */ intro?: string }
+export interface Section {
+  path: string; storepart: string; title: string; description: string; h1: string; name: string | null; uids: string[];
+  /** текст раздела под H1 */ intro?: string;
+  /** SEO-текст и вопросы под сеткой товаров (мантии, 03.11.2026) */ textTitle?: string; text?: string[]; faq?: { q: string; a: string }[];
+}
 export interface InfoPage { path: string; title: string; description: string; h1: string; paras: string[] }
 
 /** все товары (админка); на сайт, в разделы, фиды и карту сайта идут только видимые */
