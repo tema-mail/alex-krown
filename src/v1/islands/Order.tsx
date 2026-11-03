@@ -60,6 +60,21 @@ function maskPhone(raw: string): string {
   return out;
 }
 const phoneOk = (s: string) => /^7\d{10}$/.test(s.replace(/\D/g, ''));
+/* получатель в заказ на сервере (путь Б): менеджер видит контакты в админке магазина, а не только в тексте из вкладки
+   покупателя; способы – подписями, как на экране. Сервер принимает строки до 300 знаков (обрезка не режет эмодзи
+   пополам: половинка символа – ошибка jsonb), пустые поля не шлём */
+const label = (list: readonly (readonly string[])[], code: string) => list.find((x) => x[0] === code)?.[1] ?? code;
+const recipientOf = (f: Form) => {
+  const r: Record<string, string> = {
+    name: f.name.trim(), phone: f.phone.trim(), email: f.email.trim(), city: f.city.trim(), address: f.address.trim(),
+    delivery: label(DELIVERY, f.delivery), payment: label([...PAYMENT, ONLINE], f.payment), comment: f.comment.trim(),
+  };
+  for (const k of Object.keys(r)) {
+    if (r[k]) r[k] = r[k].slice(0, 300).replace(/[\uD800-\uDBFF]$/, '');
+    else delete r[k];
+  }
+  return r as { name: string; phone: string } & Record<string, string>;
+};
 
 /* обрыв связи до ответа сервера (ShopApiError code 'network') – заказ мог и записаться: повтор с тем же ключом */
 const isNetwork = (e: unknown) => (e as { code?: unknown } | null)?.code === 'network';
@@ -225,7 +240,7 @@ export default function Order({ catalogHref, policyHref, offerHref, consentHref 
     );
 
   const errs = {
-    name: !f.name.trim() && 'Как к вам обращаться?',
+    name: f.name.trim().length < 2 && 'Как к вам обращаться?', // сервер: имя получателя от 2 знаков
     phone: !phoneOk(f.phone) && 'Нужен телефон для связи',
     city: !f.city.trim() && 'Укажите город',
     agree: !f.agree && 'Нужно согласие на обработку данных',
@@ -253,7 +268,7 @@ export default function Order({ catalogHref, policyHref, offerHref, consentHref 
           usePoints,
           points: pointsReq ?? undefined,
           meta: { externalNum: no },
-          ...(API_MODE ? { idempotencyKey: `ak:${no}` } : {}),
+          ...(API_MODE ? { idempotencyKey: `ak:${no}`, recipient: recipientOf(f) } : {}),
         };
         let placed;
         try {
