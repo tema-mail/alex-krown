@@ -33,7 +33,7 @@ const DELIVERY = [
 ] as const;
 const LAST = 'ak_v1_last_order';
 /* оплата картой на сайте – только когда сервер магазина сказал «есть» (payments.available) */
-const ONLINE = ['online', 'Картой онлайн (ЮKassa)'] as const;
+const ONLINE = ['online', 'Картой онлайн'] as const;
 const ONLINE_NOTE = 'Картой оплачиваются товары, доставку менеджер посчитает отдельно';
 const PAYMENT = [
   ['card', 'Картой, ЮMoney или по телефону (ЮKassa)'],
