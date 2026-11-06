@@ -50,7 +50,7 @@ const org = {
   name: 'ALEX KROWN',
   url: new URL(v1(''), Astro.site).href,
   logo: new URL(asset('concepts/img/logo.svg'), Astro.site).href,
-  sameAs: SOCIAL.filter(([n]) => n !== 'WhatsApp').map(([, h]) => h),
+  sameAs: SOCIAL.map(([, h]) => h),
   telephone: PHONE.replace(/[^\d+]/g, ''),
   address: { '@type': 'PostalAddress', addressLocality: 'Новосибирск', streetAddress: ADDRESS.replace(/^Новосибирск,\s*/, ''), addressCountry: 'RU' },
 };

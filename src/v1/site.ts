@@ -46,7 +46,6 @@ export const SOCIAL = [
   ['Instagram', 'https://instagram.com/alex_krown_'],
   ['Telegram', 'https://t.me/Alex_Krown'],
   ['VK', 'https://vk.com/alex_krown'],
-  ['WhatsApp', 'https://api.whatsapp.com/message/XAQLYFCWCUSSA1?autoload=1&app_absent=0'],
 ] as const;
 
 const BASE = (import.meta.env.BASE_URL || '/').replace(/\/$/, '');
