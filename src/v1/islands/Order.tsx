@@ -1,6 +1,13 @@
 import { useEffect, useState } from 'preact/hooks';
 import { cart, cartTotal, clearCart, fmt, MAX_QTY, removeFromCart, setQty } from '../store';
 import { ecPurchase } from '../ecommerce';
+import { leadFields } from '../attribution';
+
+/** Источник заказа для сервера магазина: кроме источника – страница заказа, страница входа и метки. */
+function orderAttribution() {
+  const { 'Источник': source, 'Страница заявки': page, 'Страница входа': landing, ...marks } = leadFields();
+  return { source, page, landing, marks };
+}
 import { API_MODE, earnFor, getShop, lineId, pointsWord, PROGRAM, snap, v1url } from '../loyalty';
 import type { QuoteView, ShopApi } from '../../vendor/shop-engine/shop-engine.js';
 
@@ -267,7 +274,7 @@ export default function Order({ catalogHref, policyHref, offerHref, consentHref 
           lines: lkLines(),
           usePoints,
           points: pointsReq ?? undefined,
-          meta: { externalNum: no },
+          meta: { externalNum: no, attribution: orderAttribution() } as { externalNum: string },
           ...(API_MODE ? { idempotencyKey: `ak:${no}`, recipient: recipientOf(f) } : {}),
         };
         let placed;
@@ -309,6 +316,8 @@ export default function Order({ catalogHref, policyHref, offerHref, consentHref 
       `Город: ${f.city.trim()}`,
       ...(f.address.trim() ? [`Адрес / пункт СДЭК: ${f.address.trim()}`] : []),
       ...(f.comment.trim() ? [`Комментарий: ${f.comment.trim()}`] : []),
+      '',
+      ...Object.entries(leadFields()).map(([k, v]) => `${k}: ${v}`),
     ];
     const order = { no, text: lines.join('\n'), lk: inLk, pointsLost, ...(payOrderId ? { payOrderId } : {}), ...(online && !payOrderId ? { cardLost: true } : {}) };
     /* заказ отправлен – «покупка» в Метрике, как у корзины Тильды (оплата у ALEX KROWN – после, у менеджера) */
