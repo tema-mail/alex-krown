@@ -13,7 +13,7 @@
   Playwright открывает живые каталоги и карточки, ответы → `src/data/store/`. Маршрут `src/pages/t-store/[name].ts`
   отдаёт их и вставку `snapshot.js`, которая подменяет адрес запроса каталога на снимок.
 - `node scripts/shrink-images.mjs` – пережать JPEG/PNG в `public/_t/` под лимит Pages (1 ГБ); имена не меняются.
-- Порядок пересборки: tilda-port → store-snapshot → shrink-images → `npm run build`.
+- Порядок пересборки: tilda-port → `python3 scripts/strip-whatsapp.py` (снятие с Тильды возвращает WhatsApp, владелец 07.11.2026: не нужен нигде) → store-snapshot → shrink-images → `npm run build`.
 - Концепты главного экрана – `src/pages/concepts/` (каркас `src/components/ConceptLayout.astro`), картинки
   и видео – `public/concepts/`. Анимации – CSS и короткие скрипты без библиотек.
 - Подпапка Pages (`/alex-krown`) задаётся `PUBLIC_BASE` при сборке, пути в данных корневые.
