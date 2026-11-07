@@ -39,7 +39,7 @@
 
 /* баланс – светлая карточка на чёрном */
 .lk-hero { background: var(--paper); color: var(--ink); border-color: var(--paper); }
-.lk-hero .label { color: #5d5d5a; }
+.lk-hero .label { color: var(--ink); opacity: .65; }
 .lk-bal { display: flex; align-items: center; gap: 12px; }
 .lk-bal b { font: 400 clamp(44px, 6vw, 64px)/1 var(--serif); font-variant-numeric: tabular-nums; }
 .lk-bal span { font: 500 15px/1 var(--sans); }
@@ -64,13 +64,13 @@
 .lk-mini { padding: 0; list-style: none; display: grid; gap: 10px; }
 .lk-mini li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; padding-bottom: 10px; border-bottom: 1px solid var(--line); font-size: 14px; }
 .lk-mini li:last-child { border-bottom: 0; padding-bottom: 0; }
-.lk-mini li span { color: #d6d6d2; min-width: 0; }
+.lk-mini li span { color: var(--soft); min-width: 0; }
 .lk-mini li b { text-align: right; font-weight: 600; }
 .lk-st { font-style: normal; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--paper); }
 .lk-st--cancelled { color: var(--mute); text-decoration: line-through; }
-.lk-st--settled, .lk-st--delivered { color: #9fd3a8; }
+.lk-st--settled, .lk-st--delivered { color: var(--ok); }
 
-.lk-how ul { padding-left: 18px; display: grid; gap: 6px; font-size: 14px; line-height: 1.55; color: #d6d6d2; }
+.lk-how ul { padding-left: 18px; display: grid; gap: 6px; font-size: 14px; line-height: 1.55; color: var(--soft); }
 
 @media (max-width: 1023px) {
   .lk-card { padding: 18px 16px; }
@@ -84,9 +84,9 @@
 .lk-hist li { display: grid; grid-template-columns: 170px minmax(0, 1fr) auto; gap: 4px 16px; align-items: baseline; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
 .lk-hist li:last-child { border-bottom: 0; }
 .lk-hist__when { color: var(--mute); font-size: 13px; }
-.lk-hist__what { color: #d6d6d2; min-width: 0; }
+.lk-hist__what { color: var(--soft); min-width: 0; }
 .lk-hist__pts { font: 600 16px/1 var(--sans); color: var(--mute); font-variant-numeric: tabular-nums; text-align: right; }
-.lk-hist__pts.is-plus { color: #9fd3a8; }
+.lk-hist__pts.is-plus { color: var(--ok); }
 .lk-hist__pts.is-minus { color: var(--paper); }
 @media (max-width: 1023px) {
   .lk-hist li { grid-template-columns: minmax(0, 1fr) auto; }
@@ -94,7 +94,7 @@
 }
 .lk-lines { padding: 0; list-style: none; display: grid; gap: 6px; font-size: 14px; }
 .lk-lines li { display: flex; justify-content: space-between; gap: 12px; }
-.lk-lines li span { min-width: 0; color: #d6d6d2; }
+.lk-lines li span { min-width: 0; color: var(--soft); }
 .lk-order__sum { display: grid; gap: 6px; padding-top: 10px; border-top: 1px solid var(--line); font-size: 14px; }
 .lk-order__sum div { display: flex; justify-content: space-between; gap: 12px; }
 .lk-order__sum dt { color: var(--mute); }
@@ -106,7 +106,7 @@
 .lk-profile .btn { justify-self: start; }
 .lk-check { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; line-height: 1.5; cursor: pointer; }
 .lk-check input { margin-top: 3px; accent-color: var(--paper); }
-.lk-ok { color: #9fd3a8; font-weight: 600; font-size: 14px; }
+.lk-ok { color: var(--ok); font-weight: 600; font-size: 14px; }
 
 /* поле даты в профиле – тёмный календарь под тёмный фон сайта */
 .lk input[type='date']{color-scheme:dark}
