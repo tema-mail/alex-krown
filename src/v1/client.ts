@@ -32,6 +32,25 @@ if (hd.hasAttribute('data-hero-page') && hero)
 
 /* ---------- меню ---------- */
 const menu = document.querySelector<HTMLElement>('[data-menu]')!;
+/* переключатель темы: выбор запоминается в браузере, ставит его скрипт в <head> V1.astro */
+const themeBtn = document.querySelector<HTMLElement>('[data-theme-toggle]')!;
+const showTheme = () => {
+  const light = document.documentElement.dataset.theme === 'light';
+  themeBtn.setAttribute('aria-pressed', String(light));
+  themeBtn.setAttribute('aria-label', light ? 'Включить тёмную тему' : 'Включить светлую тему');
+  document.querySelector('meta[name=theme-color]')?.setAttribute('content', light ? '#f4f4f2' : '#0d0d0d');
+};
+showTheme();
+themeBtn.addEventListener('click', () => {
+  const light = document.documentElement.dataset.theme !== 'light';
+  if (light) document.documentElement.dataset.theme = 'light';
+  else delete document.documentElement.dataset.theme;
+  try {
+    localStorage.setItem('ak_theme', light ? 'light' : 'dark');
+  } catch {}
+  showTheme();
+});
+
 const openBtn = document.querySelector<HTMLElement>('[data-menu-open]')!;
 const setMenu = (open: boolean) => {
   menu.classList.toggle('is-open', open);

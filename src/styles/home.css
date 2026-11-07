@@ -24,10 +24,46 @@
   --paper: #f4f4f2;
   --mute: #9a9a96;
   --line: rgba(244, 244, 242, 0.16);
+  --soft: #d6d6d2; /* основной текст блоков, чуть тише --paper */
+  --ok: #9fd3a8;
+  --err: #ff8f8f;
+  --hd-bg: rgba(13, 13, 13, 0.82);
+  --glow: #2a2a2a;
+  color-scheme: dark;
   --serif: 'Playfair Display', 'Times New Roman', serif;
   --sans: 'Montserrat Variable', 'Montserrat', Arial, sans-serif;
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --gut: clamp(16px, 3vw, 40px);
+}
+/* Светлая тема (data-theme ставит скрипт в <head> V1.astro, до отрисовки). --ink – фон, --paper – текст: кнопки
+   «фон paper, текст ink» переворачиваются сами */
+:root[data-theme='light'] {
+  --ink: #f4f4f2;
+  --ink-2: #ebebe7;
+  --ink-3: #dededa;
+  --paper: #0d0d0d;
+  --mute: #5f5f5b;
+  --line: rgba(13, 13, 13, 0.16);
+  --soft: #3a3a38;
+  --ok: #1f7a45;
+  --err: #b3261e;
+  --hd-bg: rgba(244, 244, 242, 0.88);
+  --glow: #d2d2ce;
+  color-scheme: light;
+}
+/* поверх видео и тёмных фото текст остаётся светлым в любой теме */
+:root[data-theme='light'] .hero,
+:root[data-theme='light'] .hd:not(.is-solid) {
+  --ink: #0d0d0d;
+  --ink-2: #161616;
+  --ink-3: #222;
+  --paper: #f4f4f2;
+  --mute: #9a9a96;
+  --line: rgba(244, 244, 242, 0.16);
+  color: var(--paper);
+}
+:root[data-theme='light'] .hero {
+  background: #0d0d0d; /* зазоры между колонками видео */
 }
 *,
 *::before,
@@ -148,7 +184,7 @@ section {
   transition: background 0.4s, backdrop-filter 0.4s;
 }
 .hd.is-solid {
-  background: rgba(13, 13, 13, 0.82);
+  background: var(--hd-bg);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
 }
@@ -159,6 +195,24 @@ section {
 }
 .hd__right {
   justify-content: flex-end;
+}
+/* переключатель темы: в тёмной показывает солнце, в светлой – луну */
+.hd__theme {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+.hd__theme svg {
+  display: block;
+}
+.hd__theme .is-moon,
+:root[data-theme='light'] .hd__theme .is-sun {
+  display: none;
+}
+:root[data-theme='light'] .hd__theme .is-moon {
+  display: block;
 }
 .hd a,
 .hd button {
@@ -476,6 +530,7 @@ section {
   height: 34px;
   border-radius: 50%;
   background: rgba(13, 13, 13, 0.55);
+  color: #f4f4f2; /* кружок на фото – в любой теме */
   backdrop-filter: blur(6px);
   font-size: 17px;
   line-height: 34px;

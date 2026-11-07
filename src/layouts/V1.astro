@@ -72,6 +72,15 @@ const org = {
     {ogImage && <meta property="og:image" content={ogImage} />}
     <meta property="og:locale" content="ru_RU" />
     <meta name="theme-color" content="#0d0d0d" />
+    {/* тема – до отрисовки, чтобы страница не мигала; по умолчанию тёмная (бренд) */}
+    <script is:inline>
+      try {
+        if (localStorage.getItem('ak_theme') === 'light') {
+          document.documentElement.dataset.theme = 'light';
+          document.querySelector('meta[name=theme-color]').content = '#f4f4f2';
+        }
+      } catch {}
+    </script>
     <link rel="icon" href={asset('concepts/img/logo.svg')} type="image/svg+xml" />
     {hero && <link rel="preload" href={pfLatin} as="font" type="font/woff2" crossorigin />}
     {lcp && <link rel="preload" as="image" href={lcp.href} imagesrcset={lcp.srcset} imagesizes={lcp.sizes} fetchpriority="high" />}
@@ -96,6 +105,10 @@ const org = {
           <svg class="hd__crown" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2.5 7.5 7.5 12 12 4l4.5 8 5-4.5L19.5 18h-15z" /><rect x="4.5" y="19.3" width="15" height="1.9" rx=".4" /></svg>
           <b data-lk-num></b><span class="hd__lk-word" data-lk-word>Войти</span>{!API_MODE && <small class="hd__demo">демо</small>}
         </a>
+        <button type="button" class="hd__theme" data-theme-toggle aria-label="Включить светлую тему" aria-pressed="false">
+          <svg class="is-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2" /><path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M5.3 5.3 7 7M17 17l1.7 1.7M5.3 18.7 7 17M17 7l1.7-1.7" /></svg>
+          <svg class="is-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14.2A8.5 8.5 0 1 1 9.8 3.5a6.8 6.8 0 0 0 10.7 10.7Z" /></svg>
+        </button>
         <button type="button" data-open-sheet="cart">Корзина <span data-cart-count>0</span></button>
         <button type="button" data-menu-open aria-expanded="false" aria-controls="menu">Меню</button>
       </nav>
