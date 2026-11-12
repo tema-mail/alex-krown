@@ -1,7 +1,7 @@
 ---
 /** Заставка-глитч с логотипом – 5 вариантов на выбор владельцу. Показ по ссылке ?intro=1…5
     (пока вариант не выбран – на сайте её нет, скорость не страдает). Выбранный вариант потом
-    включается одной константой DEFAULT (раз за визит, sessionStorage).
+    включается одной константой DEFAULT (только при первом заходе с устройства, localStorage – правило владельца 13.11.2026).
     Чистый CSS + 30 строк скрипта; страница под заставкой грузится параллельно; клик – пропустить;
     «уменьшить движение» – без заставки. */
 const DEFAULT = 0; // 0 – заставка выключена; 1…5 – номер варианта для всех посетителей
@@ -12,13 +12,13 @@ const DEFAULT = 0; // 0 – заставка выключена; 1…5 – но�
     var q = +new URLSearchParams(location.search).get('intro');
     var seen = false;
     try {
-      seen = sessionStorage.getItem('ak_intro') === '1';
+      seen = localStorage.getItem('ak_intro') === '1';
     } catch (e) {}
     var n = q >= 1 && q <= 5 ? q : DEFAULT && !seen ? DEFAULT : 0;
     if (!n || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     document.documentElement.classList.add('pl-on', 'pl-' + n);
     try {
-      sessionStorage.setItem('ak_intro', '1');
+      localStorage.setItem('ak_intro', '1');
     } catch (e) {}
   })();
 </script>
