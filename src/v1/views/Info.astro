@@ -3,6 +3,7 @@
     Контакты – из констант сайта ссылками; размерная сетка – таблицы размеров товаров картинками. */
 import V1 from '../../layouts/V1.astro';
 import BonusRules from './BonusRules.astro';
+import { FREE_DELIVERY_RULE } from '../delivery';
 import { v1, img, products, PHONE, PHONE_DIGITS, EMAIL, ADDRESS, SOCIAL, type InfoPage, type Photo } from '../site';
 
 interface Props { pg: InfoPage }
@@ -39,7 +40,7 @@ const ld = [
         ) : charts.length ? (
           charts.map((c) => <img data-src={img(c.name)} width={c.w} height={c.h} alt="Таблица размеров ALEX KROWN" loading="lazy" />)
         ) : (
-          <>{paras.map((t) => <p>{t}</p>)}{pg.path === 'offer_agreement' && <BonusRules />}</>
+          <>{pg.path === 'payment_and_delivery' && <p><strong>{FREE_DELIVERY_RULE}</strong></p>}{paras.map((t) => <p>{t}</p>)}{pg.path === 'offer_agreement' && <BonusRules />}</>
         )
       }
     </article>

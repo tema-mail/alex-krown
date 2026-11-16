@@ -6,6 +6,7 @@ import V1 from '../../layouts/V1.astro';
 import ProductCard from '../ProductCard.astro';
 import ProductBuy from '../islands/ProductBuy';
 import { BASE_RATE, PROGRAM } from '../loyalty';
+import { FREE_DELIVERY_RULE } from '../delivery';
 import { v1, img, srcset, rub, byUid, homeSection, sectionName, sections, infoPages, metaDescription, minPrice, priceVaries, BRAND, type Product } from '../site';
 
 interface Props { p: Product }
@@ -14,7 +15,7 @@ const home = homeSection(p);
 const parent = home && home.path.split('/').length > 2 ? sections.find((x) => x.path === home.path.split('/').slice(0, 2).join('/')) : undefined;
 const crumbs: [string, string][] = [['Главная', ''], ['Каталог', 'catalog'], ...(parent ? ([[sectionName(parent), parent.path]] as [string, string][]) : []), ...(home ? ([[sectionName(home), home.path]] as [string, string][]) : []), [p.title, p.path]];
 const related = (home ? home.uids : []).filter((u) => u !== p.uid).map((u) => byUid.get(u)!).filter(Boolean).slice(0, 8);
-const delivery = infoPages.find((x) => x.path === 'payment_and_delivery')?.paras.slice(0, 2).join('\n\n') ?? '';
+const delivery = [FREE_DELIVERY_RULE, ...(infoPages.find((x) => x.path === 'payment_and_delivery')?.paras.slice(0, 2) ?? [])].join('\n\n');
 const care = infoPages.find((x) => x.path === 'recomendation')?.paras.slice(1, 5).join('\n') ?? '';
 const off = p.priceOld && p.priceOld > p.price ? p.priceOld : null;
 /* другие цвета этой модели (владелец 28.10.2026: цвета – отдельные страницы с переключателем) */
