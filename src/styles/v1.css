@@ -393,6 +393,11 @@
   color: var(--mute);
   line-height: 1.5;
 }
+/* бесплатная доставка набрана – не серым, а цветом текста */
+.dr__note.dr__free {
+  color: var(--ink);
+  font-weight: 600;
+}
 .dr__cta {
   width: 100%;
 }

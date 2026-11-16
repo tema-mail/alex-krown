@@ -2,6 +2,7 @@ import type { ComponentChildren } from 'preact';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { cart, cartCount, cartTotal, favs, fmt, MAX_QTY, removeFromCart, setQty, sheet, toast, toggleFav } from '../store';
 import { BASE_RATE, earnFor, pointsWord, snap, v1url } from '../loyalty';
+import { FREE_DELIVERY_FROM, isFreeDelivery, toFreeDelivery } from '../delivery';
 
 /* Шторки магазина «Вариант 1»: корзина, избранное и всплывашка «добавлено». Открываются кнопками
    шапки (data-open-sheet, v1/client.ts) и из блока покупки на карточке. Справа на компьютере,
@@ -101,7 +102,12 @@ export default function Sheets({ catalogHref, orderHref, favHref }: { catalogHre
               <p class="dr__pts">
                 {snap.value.email === null ? <><a href={v1url('account')}>Войдите</a> – начислим</> : <span>Начислим</span>} <Points price={cartTotal.value} />
               </p>
-              <p class="dr__note">Доставка СДЭК из Новосибирска – по тарифам службы, менеджер посчитает её после заказа.</p>
+              {/* баллы выбираются в оформлении – здесь порог по сумме товаров, с оговоркой про баллы (delivery.ts) */}
+              {isFreeDelivery(cartTotal.value) ? (
+                <p class="dr__note dr__free">Доставка СДЭК – бесплатно, если после списания баллов к оплате останется от {fmt(FREE_DELIVERY_FROM)}.</p>
+              ) : (
+                <p class="dr__note">До бесплатной доставки – {fmt(toFreeDelivery(cartTotal.value))}. Доставка СДЭК из Новосибирска, ниже {fmt(FREE_DELIVERY_FROM)} – по тарифам службы.</p>
+              )}
               <a class="btn btn--solid dr__cta" href={orderHref}>Оформить заказ</a>
               <button type="button" class="dr__more" onClick={() => (sheet.value = null)}>Продолжить покупки</button>
             </>

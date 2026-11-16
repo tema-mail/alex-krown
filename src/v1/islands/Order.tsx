@@ -2,6 +2,7 @@ import { useEffect, useState } from 'preact/hooks';
 import { cart, cartTotal, clearCart, fmt, MAX_QTY, removeFromCart, setQty } from '../store';
 import { ecPurchase } from '../ecommerce';
 import { leadFields } from '../attribution';
+import { FREE_DELIVERY_FROM, FREE_DELIVERY_SHORT, isFreeDelivery, toFreeDelivery } from '../delivery';
 
 /** Источник заказа для сервера магазина: кроме источника – страница заказа, страница входа и метки. */
 function orderAttribution() {
@@ -35,13 +36,14 @@ const ORDER_PHONE = { href: 'tel:+79830055859', text: '+7 983-005-58-59' };
 
 /* условия – со страницы «Доставка и оплата» бренда */
 const DELIVERY = [
-  ['cdek', 'СДЭК', 'Сборка заказа 2–3 рабочих дня, отправка из Новосибирска; сроки и стоимость – по тарифам СДЭК'],
+  ['cdek', 'СДЭК', `Сборка заказа 2–3 рабочих дня, отправка из Новосибирска. ${FREE_DELIVERY_SHORT} к оплате (после баллов), ниже – по тарифам СДЭК`],
   ['urgent', 'Срочная доставка', 'Менеджер свяжется и предложит вариант'],
 ] as const;
 const LAST = 'ak_v1_last_order';
 /* оплата картой на сайте – только когда сервер магазина сказал «есть» (payments.available) */
 const ONLINE = ['online', 'Картой онлайн'] as const;
-const ONLINE_NOTE = 'Картой оплачиваются товары, доставку менеджер посчитает отдельно';
+/* free – доставка бесплатная (к оплате после баллов от порога, delivery.ts) */
+const onlineNote = (free: boolean) => free ? 'Картой оплачиваются товары, доставка бесплатная' : 'Картой оплачиваются товары, доставку менеджер посчитает отдельно';
 const PAYMENT = [
   ['card', 'Картой, ЮMoney или по телефону (ЮKassa)'],
   ['dolyami', 'Долями от Т-Банка'],
@@ -96,7 +98,7 @@ export default function Order({ catalogHref, policyHref, offerHref, consentHref 
   const [f, setF] = useState<Form>({ name: '', phone: '', email: '', city: '', address: '', delivery: 'cdek', payment: 'card', comment: '', agree: false });
   const [tried, setTried] = useState(false);
   /* payOrderId – заказ на сервере, который платится картой; payError – оплата не открылась (заказ записан) */
-  const [done, setDone] = useState<{ no: string; text: string; lk?: boolean; pointsLost?: boolean; payOrderId?: string; payError?: string; cardLost?: boolean } | null>(null);
+  const [done, setDone] = useState<{ no: string; text: string; freeDelivery?: boolean; lk?: boolean; pointsLost?: boolean; payOrderId?: string; payError?: string; cardLost?: boolean } | null>(null);
   const [copied, setCopied] = useState(false);
   const [busy, setBusy] = useState(false);
   const [usePoints, setUsePoints] = useState(false);
@@ -180,6 +182,9 @@ export default function Order({ catalogHref, policyHref, offerHref, consentHref 
     };
   }, [loggedIn, lineKey, usePoints, pointsReq, !!done]);
   const earn = q ? q.earn : earnFor(ready ? cartTotal.value : 0);
+  /* бесплатная доставка – по сумме к оплате после списания баллов (владелец 16.11.2026) */
+  const payable = loggedIn && q ? q.payRub : ready ? cartTotal.value : 0;
+  const freeNow = isFreeDelivery(payable);
 
   if (!ready) return <p class="pp__hint">Загружаем корзину…</p>;
 
@@ -205,10 +210,10 @@ export default function Order({ catalogHref, policyHref, offerHref, consentHref 
                 {busy ? 'Открываем оплату…' : 'Оплатить картой'}
               </button>
             </p>
-            <p class="pp__hint">{ONLINE_NOTE}. Или отправьте заказ менеджеру – он пришлёт ссылку на оплату.</p>
+            <p class="pp__hint">{onlineNote(!!done.freeDelivery)}. Или отправьте заказ менеджеру – он пришлёт ссылку на оплату.</p>
           </div>
         )}
-        <p>Отправьте его менеджеру в {ORDER_CHANNELS.map((c) => c.label).join(' или ')}: по кнопке текст заказа скопируется сам – вставьте его в чат. Менеджер подтвердит наличие размеров, посчитает доставку и пришлёт ссылку на оплату.</p>
+        <p>Отправьте его менеджеру в {ORDER_CHANNELS.map((c) => c.label).join(' или ')}: по кнопке текст заказа скопируется сам – вставьте его в чат. Менеджер подтвердит наличие размеров, {done.freeDelivery ? 'оформит бесплатную доставку' : 'посчитает доставку'} и пришлёт ссылку на оплату.</p>
         <p class="done__send">
           {ORDER_CHANNELS.map((c) => (
             <a class="btn btn--solid" href={c.href} target="_blank" rel="noopener" onClick={() => (copyText(), sent())}>
@@ -264,6 +269,7 @@ export default function Order({ catalogHref, policyHref, offerHref, consentHref 
     const bonus: string[] = []; // строки про баллы для менеджера
     let inLk = false, pointsLost = false;
     let payOrderId: string | undefined; // заказ на сервере для оплаты картой
+    let payRub = cartTotal.value; // к оплате деньгами – по ней порог бесплатной доставки
     if (loggedIn) {
       setBusy(true);
       try {
@@ -284,6 +290,7 @@ export default function Order({ catalogHref, policyHref, offerHref, consentHref 
           if (!API_MODE || !isNetwork(e)) throw e;
           placed = await shop.placeOrder(input); // один повтор при обрыве – тот же ключ
         }
+        payRub = placed.payRub;
         inLk = true; // номер в кабинете – тот же AK-…, менеджеру отдельной строкой не нужен
         if (online && API_MODE) payOrderId = placed.orderId;
         if (placed.pointsUsed > 0 && API_MODE) {
@@ -294,20 +301,22 @@ export default function Order({ catalogHref, policyHref, offerHref, consentHref 
         }
       } catch {
         bonus.length = 0;
+        payRub = cartTotal.value; // заказ ушёл без баллов – порог по полной сумме
         // демо: скажем, только если хотел оплатить баллами; сервер: заказа нет и в кабинете – сказать всегда
         pointsLost = API_MODE || usePoints;
       }
       setBusy(false);
     }
+    const freeDelivery = isFreeDelivery(payRub);
     const lines = [
       `Заказ ${no} с сайта ALEX KROWN`,
       '',
       ...items.map((i, n) => `${n + 1}. ${i.title}${i.size ? `, размер ${i.size}` : ''} – ${i.qty} шт. × ${fmt(i.price)}`),
       '',
       `Итого: ${fmt(cartTotal.value)} без доставки`,
-      `Доставка: ${DELIVERY.find((x) => x[0] === f.delivery)![1]}`,
+      `Доставка: ${DELIVERY.find((x) => x[0] === f.delivery)![1]}${freeDelivery ? ` – бесплатно (к оплате от ${fmt(FREE_DELIVERY_FROM)})` : ''}`,
       // картой на сайте – только если заказ записан на сервере; иначе ссылку на оплату картой пришлёт менеджер
-      `Оплата: ${payOrderId ? `${ONLINE[1]} на сайте – только товары, доставку посчитать отдельно` : (PAYMENT.find((x) => x[0] === f.payment) ?? PAYMENT[0])[1]}`,
+      `Оплата: ${payOrderId ? `${ONLINE[1]} на сайте – только товары${freeDelivery ? '' : ', доставку посчитать отдельно'}` : (PAYMENT.find((x) => x[0] === f.payment) ?? PAYMENT[0])[1]}`,
       ...bonus,
       '',
       `Имя: ${f.name.trim()}`,
@@ -319,7 +328,7 @@ export default function Order({ catalogHref, policyHref, offerHref, consentHref 
       '',
       ...Object.entries(leadFields()).map(([k, v]) => `${k}: ${v}`),
     ];
-    const order = { no, text: lines.join('\n'), lk: inLk, pointsLost, ...(payOrderId ? { payOrderId } : {}), ...(online && !payOrderId ? { cardLost: true } : {}) };
+    const order = { no, text: lines.join('\n'), freeDelivery, lk: inLk, pointsLost, ...(payOrderId ? { payOrderId } : {}), ...(online && !payOrderId ? { cardLost: true } : {}) };
     /* заказ отправлен – «покупка» в Метрике, как у корзины Тильды (оплата у ALEX KROWN – после, у менеджера) */
     ecPurchase(no, items.map((i) => ({ uid: i.uid, title: i.title, price: i.price, size: i.size, qty: i.qty })), cartTotal.value);
     try {
@@ -364,7 +373,7 @@ export default function Order({ catalogHref, policyHref, offerHref, consentHref 
         <fieldset>
           <legend>Оплата</legend>
           {card && (
-            <label class="radio"><input type="radio" name="payment" value={ONLINE[0]} checked={f.payment === ONLINE[0]} onChange={set('payment')} /><span>{ONLINE[1]}<small>Сразу на сайте. {ONLINE_NOTE}</small></span></label>
+            <label class="radio"><input type="radio" name="payment" value={ONLINE[0]} checked={f.payment === ONLINE[0]} onChange={set('payment')} /><span>{ONLINE[1]}<small>Сразу на сайте. {onlineNote(freeNow)}</small></span></label>
           )}
           {PAYMENT.map(([v, t]) => (
             <label class="radio"><input type="radio" name="payment" value={v} checked={f.payment === v} onChange={set('payment')} /><span>{t}<small>Ссылку на оплату пришлёт менеджер после подтверждения заказа</small></span></label>
@@ -417,7 +426,7 @@ export default function Order({ catalogHref, policyHref, offerHref, consentHref 
         </label>
         {/* стандарт форм: без галочки согласия кнопка неактивна (галочка по умолчанию пустая) */}
         <button type="submit" class="btn btn--solid" disabled={busy || !f.agree}>{online ? 'Оплатить картой' : 'Оформить заказ'}</button>
-        {online && <p class="pp__hint">{ONLINE_NOTE}.</p>}
+        {online && <p class="pp__hint">{onlineNote(freeNow)}.</p>}
         {tried && bad && <p class="field__err" role="alert">Проверьте отмеченные поля</p>}
         <p class="pp__hint">Нажимая «{online ? 'Оплатить картой' : 'Оформить заказ'}», вы принимаете условия <a href={offerHref} target="_blank" rel="noopener">договора оферты</a> и <a href={policyHref} target="_blank" rel="noopener">политики конфиденциальности</a>.</p>
       </form>
@@ -460,7 +469,15 @@ export default function Order({ catalogHref, policyHref, offerHref, consentHref 
             </span>
           </p>
         )}
-        <p class="dr__note">Доставка СДЭК – по тарифам службы, менеджер посчитает её после заказа.</p>
+        {freeNow ? (
+          <p class="dr__note dr__free">Доставка СДЭК – бесплатно: к оплате от {fmt(FREE_DELIVERY_FROM)}.</p>
+        ) : (
+          <p class="dr__note">
+            {cartTotal.value >= FREE_DELIVERY_FROM
+              ? `С баллами к оплате меньше ${fmt(FREE_DELIVERY_FROM)} – доставка СДЭК по тарифам службы. Спишите меньше баллов – и доставка станет бесплатной.`
+              : `До бесплатной доставки – ${fmt(toFreeDelivery(payable))}. Сейчас доставка СДЭК по тарифам службы, менеджер посчитает её после заказа.`}
+          </p>
+        )}
       </aside>
     </div>
   );
