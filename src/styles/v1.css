@@ -596,6 +596,10 @@
     flex: 0 0 82%;
     scroll-snap-align: center;
   }
+  /* одно фото у товара – на всю ширину, без «подглядывания» следующего (владелец 17.11.2026) */
+  .pp__gallery figure:only-child {
+    flex-basis: 100%;
+  }
   .pp__info,
   .summary {
     position: static;
