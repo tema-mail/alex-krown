@@ -941,6 +941,29 @@
   font-size: 14px;
   line-height: 1.6;
 }
+/* все вкладки одной высоты: карточки таблицы и фото одинаковые, блок не прыгает при переключении (17.11.2026) */
+@media (width > 760px) {
+  .sc__panel {
+    height: 500px;
+  }
+  .sc__fig {
+    position: relative;
+    min-height: 0;
+  }
+  .sc__fig img {
+    position: absolute;
+    inset: 16px 16px 0;
+    width: calc(100% - 32px);
+    height: calc(100% - 16px);
+    max-height: none;
+  }
+  .sc__fig--insole img {
+    inset: 32px;
+    width: calc(100% - 64px);
+    height: calc(100% - 64px);
+    object-position: center;
+  }
+}
 @media (width <= 760px) {
   .sc__panel {
     grid-template-columns: 1fr;
