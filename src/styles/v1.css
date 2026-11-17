@@ -843,6 +843,12 @@
   border-radius: 12px;
   padding: clamp(16px, 2.4vw, 28px);
 }
+/* подпись раздела внутри карточки (владелец 17.11.2026) */
+.sc .sc__title {
+  font: 400 clamp(24px, 2.6vw, 36px) / 1.1 var(--serif);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
 .sc__scroll {
   overflow-x: auto;
   scrollbar-width: thin;

@@ -51,6 +51,7 @@ const SHOES: [string, string][] = [
     TABLES.map((t, i) => (
       <div class={`sc__panel sc__panel--${i}`}>
         <div class="sc__main">
+          <h2 class="sc__title">{t.title}</h2>
           <div class="sc__scroll">
             <table class="sc__table">
               <thead>
@@ -84,6 +85,7 @@ const SHOES: [string, string][] = [
   }
   <div class={`sc__panel sc__panel--${TABLES.length} sc__panel--shoes`}>
     <div class="sc__main">
+      <h2 class="sc__title">Обувь</h2>
       <div class="sc__scroll">
         <table class="sc__table sc__table--shoes">
           <thead><tr><th scope="col">Размер RU</th>{SHOES.map(([ru]) => <th scope="col"><span class="sc__size">{ru}</span></th>)}</tr></thead>
