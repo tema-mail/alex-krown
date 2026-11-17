@@ -1,0 +1,32 @@
+---
+/** Контакты – как на alex-krown.com/contacts (владелец 17.11.2026: «добавить карту, контакты и соцсети»):
+    карточка «Где мы находимся / Для вопросов и предложений / Мы в соцсетях» и карта рядом. Карта – снимок
+    Яндекс Карт (public/v1/img/contacts-map.webp, static-maps 1.x): живой виджет не пускает CSP стенда
+    (только свои скрипты и кадры); по клику – Яндекс Карты. Реквизиты продавца – ЗоЗПП ст. 9, ст. 26.1. */
+import { img, PHONE, PHONE_DIGITS, EMAIL, ADDRESS, SOCIAL } from '../site';
+
+const MAP = 'https://yandex.ru/maps/?pt=82.9115,55.0613&z=17&l=map&text=' + encodeURIComponent(`ALEX KROWN, ${ADDRESS}`);
+---
+
+<div class="ct">
+  <div class="ct__card">
+    <div class="ct__row">
+      <h2>Где мы находимся</h2>
+      <p>{ADDRESS}</p>
+    </div>
+    <div class="ct__row">
+      <h2>Для вопросов и предложений</h2>
+      <p><a href={`tel:+${PHONE_DIGITS}`}>{PHONE}</a></p>
+      <p><a href={`mailto:${EMAIL}`}>{EMAIL}</a></p>
+    </div>
+    <div class="ct__row">
+      <h2>Мы в соцсетях</h2>
+      <div class="ft__social">{SOCIAL.map(([t, h]) => <a href={h} target="_blank" rel="noopener">{t}</a>)}</div>
+    </div>
+    <p class="ct__legal">Индивидуальный предприниматель Жоркин Алексей Сергеевич, ИНН 540538457234, ОГРНИП 320547600079460</p>
+  </div>
+  <a class="ct__map" href={MAP} target="_blank" rel="noopener" aria-label={`Открыть на Яндекс Картах: ${ADDRESS}`}>
+    <img src={img('contacts-map')} width="650" height="450" alt={`Карта: ${ADDRESS}`} loading="lazy" />
+    <span class="ct__map-btn">Открыть в Яндекс Картах</span>
+  </a>
+</div>

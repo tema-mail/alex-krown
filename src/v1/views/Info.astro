@@ -1,12 +1,14 @@
 ---
 /** Текстовые страницы (о бренде, контакты, доставка, возврат, уход, размеры, документы): текст оригинала.
-    Контакты – из констант сайта ссылками; размерная сетка и уход – своей вёрсткой (SizeChart, Care, 17.11.2026). */
+    Размерная сетка, уход, контакты и возврат – своей вёрсткой (SizeChart, Care, Contacts, Returns – 17.11.2026). */
 import V1 from '../../layouts/V1.astro';
 import BonusRules from './BonusRules.astro';
 import SizeChart from './SizeChart.astro';
 import Care from './Care.astro';
+import Contacts from './Contacts.astro';
+import Returns from './Returns.astro';
 import { FREE_DELIVERY_RULE } from '../delivery';
-import { v1, PHONE, PHONE_DIGITS, EMAIL, ADDRESS, SOCIAL, type InfoPage } from '../site';
+import { v1, type InfoPage } from '../site';
 
 interface Props { pg: InfoPage }
 const { pg } = Astro.props;
@@ -15,7 +17,7 @@ const JUNK = /^(Программа лояльности|Наборы со ски
 const paras = pg.paras.filter((t) => !JUNK.test(t));
 const h1 = pg.h1 || pg.title.replace(/\s*[|–-].*$/, '') || 'ALEX KROWN';
 /* свои вёрстки вместо текста Тильды подряд */
-const custom = pg.path === 'size_chart' || pg.path === 'recomendation';
+const custom = ['size_chart', 'recomendation', 'contacts', 'return'].includes(pg.path);
 const ld = [
   {
     '@context': 'https://schema.org', '@type': 'BreadcrumbList',
@@ -32,20 +34,14 @@ const ld = [
     <article class="prose">
       <h1>{h1}</h1>
       {
-        pg.path === 'contacts' ? (
-          <>
-            <p>Мы находимся по адресу: {ADDRESS}</p>
-            <p>Для вопросов и предложений: <a href={`tel:+${PHONE_DIGITS}`}>{PHONE}</a>, <a href={`mailto:${EMAIL}`}>{EMAIL}</a></p>
-            <p>{SOCIAL.map(([t, h], i) => <>{i > 0 && ' · '}<a href={h} target="_blank" rel="noopener">{t}</a></>)}</p>
-            {/* реквизиты продавца – ЗоЗПП ст. 9, ст. 26.1; из договора оферты бренда, раздел 9 */}
-            <p>Индивидуальный предприниматель Жоркин Алексей Сергеевич, ИНН 540538457234, ОГРНИП 320547600079460</p>
-          </>
-        ) : custom ? null : (
+        custom ? null : (
           <>{pg.path === 'payment_and_delivery' && <p><strong>{FREE_DELIVERY_RULE}</strong></p>}{paras.map((t) => <p>{t}</p>)}{pg.path === 'offer_agreement' && <BonusRules />}</>
         )
       }
     </article>
     {pg.path === 'size_chart' && <SizeChart />}
     {pg.path === 'recomendation' && <Care />}
+    {pg.path === 'contacts' && <Contacts />}
+    {pg.path === 'return' && <Returns />}
   </main>
 </V1>
