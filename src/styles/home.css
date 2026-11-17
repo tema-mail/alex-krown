@@ -259,7 +259,7 @@ section {
 .menu__main a {
   display: block;
   font: 400 clamp(30px, 4vw, 56px) / 1.25 var(--serif);
-  transition: padding 0.4s var(--ease), color 0.3s;
+  transition: padding 0.4s var(--ease), color 0.3s, opacity 0.3s;
 }
 .menu__main a:hover {
   padding-left: 16px;
@@ -285,6 +285,84 @@ section {
 }
 .menu__idol {
   font: italic 400 26px/1.2 var(--serif);
+}
+/* меню: фото раздела при наведении, быстрые ссылки (владелец 17.11.2026) */
+.menu__side {
+  align-self: stretch;
+  justify-content: space-between;
+  gap: 24px;
+}
+.menu__photo {
+  position: relative;
+  /* вертикальная рамка под фото товаров (3:4) – не режет головы и обувь */
+  height: min(50vh, 520px);
+  aspect-ratio: 4 / 5;
+  width: auto;
+  align-self: flex-start;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--ink-2);
+}
+.menu__photo img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 20%;
+  filter: grayscale(1);
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+.menu__photo .hp--none {
+  opacity: 1;
+}
+.menu:has(.mi:hover) .menu__photo .hp--none {
+  opacity: 0;
+}
+.menu:has(.mi--catalog-man:hover) .hp--catalog-man,
+.menu:has(.mi--catalog-woman:hover) .hp--catalog-woman,
+.menu:has(.mi--menshoes:hover) .hp--menshoes,
+.menu:has(.mi--womenshoes:hover) .hp--womenshoes,
+.menu:has(.mi--firmware:hover) .hp--firmware,
+.menu:has(.mi--accessories:hover) .hp--accessories,
+.menu:has(.mi--hats:hover) .hp--hats,
+.menu:has(.mi--perfume:hover) .hp--perfume,
+.menu:has(.mi--socks:hover) .hp--socks,
+.menu:has(.mi--sale:hover) .hp--sale {
+  opacity: 1;
+}
+
+.menu__main:has(.mi:hover) .mi {
+  opacity: 0.35;
+}
+.menu__main .mi:hover {
+  opacity: 1;
+}
+.menu__quick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.menu__quick a {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 10px 18px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition: border-color 0.2s, background 0.2s, color 0.2s;
+}
+.menu__quick a:hover {
+  background: var(--paper);
+  color: var(--ink);
+  border-color: var(--paper);
+}
+@media (max-width: 900px) {
+  .menu__photo {
+    display: none;
+  }
 }
 
 /* ---------- первый экран ---------- */

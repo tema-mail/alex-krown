@@ -13,7 +13,7 @@ import Sheets from '../v1/islands/Sheets';
 import { API_MODE } from '../v1/loyalty';
 import CookieBanner from '../v1/islands/CookieBanner';
 import Preloader from '../v1/Preloader.astro';
-import { v1, asset, MENU, FOOTER, SOCIAL, PHONE, ADDRESS } from '../v1/site';
+import { v1, asset, img, MENU, MENU_PHOTO, MENU_INFO, FOOTER, SOCIAL, PHONE, ADDRESS } from '../v1/site';
 
 interface Props {
   title: string;
@@ -111,17 +111,19 @@ const org = {
       </nav>
     </header>
 
+    {/* меню: крупный список разделов, справа фото раздела при наведении (CSS :has, home.css), быстрые ссылки и информация */}
     <div class="menu" id="menu" data-menu aria-hidden="true">
       <button type="button" class="menu__close" data-menu-close>Закрыть</button>
-      <nav class="menu__main" aria-label="Разделы магазина">{MENU.map(([t, p]) => <a href={v1(p)}>{t}</a>)}</nav>
+      <nav class="menu__main" aria-label="Разделы магазина">{MENU.map(([t, p]) => <a href={v1(p)} class={`mi mi--${p.replace('/', '-')}`}>{t}</a>)}</nav>
       <div class="menu__side">
-        <p class="menu__idol">I am your idol</p>
+        <div class="menu__photo" aria-hidden="true">
+          <img class="hp hp--none" src={asset('home/img/gal-5.webp')} alt="" loading="lazy" />
+          {MENU.map(([, p]) => <img class={`hp hp--${p.replace('/', '-')}`} src={img(MENU_PHOTO[p] + '-s')} srcset={`${img(MENU_PHOTO[p] + '-s')} 480w, ${img(MENU_PHOTO[p])} 960w`} sizes="40vw" alt="" loading="lazy" />)}
+        </div>
+        <div class="menu__quick"><a href={v1('favorites')}>♡ Избранное</a><a href={v1('account')}>Личный кабинет</a></div>
         <div>
           <p class="label">Информация</p>
-          <ul style="margin-top:14px">
-            <li><a href={v1('favorites')}>Избранное</a></li>
-            {FOOTER.flatMap(([, l]) => l).filter(([, p], i, a) => a.findIndex(([, q]) => q === p) === i).map(([t, p]) => <li><a href={v1(p)}>{t}</a></li>)}
-          </ul>
+          <ul style="margin-top:14px">{MENU_INFO.map(([t, p]) => <li><a href={v1(p)}>{t}</a></li>)}</ul>
         </div>
         <div class="ft__social">{SOCIAL.map(([t, h]) => <a href={h} target="_blank" rel="noopener">{t}</a>)}</div>
       </div>

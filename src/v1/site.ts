@@ -105,6 +105,17 @@ export const MENU = [
   ['Носки', 'socks'],
   ['Наборы со скидкой', 'sale'],
 ] as const;
+/** Меню: фото раздела при наведении (владелец 17.11.2026 выбрал вариант «фото раздела при наведении», фото – из товаров
+    раздела, не вырезки); MENU_INFO – справа под фото (юридические ссылки – только в подвале). */
+export const MENU_PHOTO: Record<string, string> = {
+  'catalog/man': '894573673672-1', 'catalog/woman': '698296891903-1', menshoes: '616315678593-1', womenshoes: '311046140923-1',
+  firmware: '580390081822-1', accessories: '249480458932-1', hats: '296025952292-1', perfume: '719239199112-1',
+  socks: '989932552462-1', sale: '797620854102-1',
+};
+export const MENU_INFO = [
+  ['О бренде', 'about'], ['Доставка и оплата', 'payment_and_delivery'], ['Контакты', 'contacts'],
+  ['Рекомендации по уходу', 'recomendation'], ['Размерная сетка', 'size_chart'], ['Обмен и возврат', 'return'],
+] as const;
 export const FOOTER = [
   ['Подробнее', [['О бренде', 'about'], ['Доставка и оплата', 'payment_and_delivery'], ['Контакты', 'contacts']]],
   ['Данные', [['Согласие на обработку персональных данных', 'processing_of_personal_data'], ['Политика конфиденциальности', 'privatepolicy'], ['Договор оферты', 'offer_agreement']]],
