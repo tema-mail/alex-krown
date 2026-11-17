@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'preact/hooks';
 import { favs, fmt, toggleFav } from '../store';
+import FavBuy from './FavBuy';
 
-/* Страница избранного: сохранённые вещи из localStorage сеткой (2 в ряд на телефоне). Размер
-   выбирается на карточке товара – сюда сохраняется сама вещь. */
+/* Страница избранного: сохранённые вещи из localStorage сеткой (2 в ряд на телефоне). Сохраняется сама вещь,
+   размер выбирается здесь же (FavBuy) или на карточке товара. */
 export default function FavPage({ catalogHref }: { catalogHref: string }) {
   const [ready, setReady] = useState(false);
   useEffect(() => setReady(true), []);
@@ -26,6 +27,7 @@ export default function FavPage({ catalogHref }: { catalogHref: string }) {
             <h2 class="prod__name">{f.title}</h2>
             <p class="prod__price">{fmt(f.price)}{f.priceOld && f.priceOld > f.price && <s>{fmt(f.priceOld)}</s>}</p>
           </a>
+          <FavBuy item={f} />
         </article>
       ))}
     </div>
