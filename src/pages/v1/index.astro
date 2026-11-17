@@ -10,7 +10,7 @@ import { v1, section, byUid } from '../../v1/site';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const link = (p: string) => v1(p);
 /* картинки категорий обрезаны 17.11.2026 – метка версии, чтобы браузеры не держали старые из кэша (у /home/img нет Cache-Control) */
-const VER: Record<string, string> = { 'cat-man': '2', 'cat-woman': '2', 'cat-menshoes': '3', 'cat-womenshoes': '2', 'cat-firmware': '2', 'cat-perfume': '2' };
+const VER: Record<string, string> = { 'cat-man': '2', 'cat-woman': '2', 'cat-menshoes': '3', 'cat-womenshoes': '2', 'cat-firmware': '2', 'cat-perfume': '2', 'bonus-loyal-card': '2' };
 const img = (n: string) => `${base}/home/img/${n}.webp${VER[n.replace(/-s$/, '')] ? `?v=${VER[n.replace(/-s$/, '')]}` : ''}`;
 /* атрибуты картинки: полная и вдвое меньшая версия (srcset), размеры против сдвига вёрстки */
 const sz = home.sizes as Record<string, [number, number]>;
@@ -221,7 +221,7 @@ const reel = [
 
       <section class="wrap">
         <div class="bonus">
-          <div class="bonus__card" data-reveal>
+          <a class="bonus__card" href={link('/bonus-program')} data-reveal>
             <div class="bonus__img">
               <div class="loyal">
                 <img class="bw" {...pic('bonus-loyal-card', '(max-width: 760px) 50vw, 18vw')} alt="Карта лояльности ALEX KROWN" />
@@ -229,7 +229,7 @@ const reel = [
               </div>
             </div>
             <span>Программа лояльности</span>
-          </div>
+          </a>
           <a class="bonus__card" href={link('/sale')} data-reveal>
             <div class="bonus__img"><img class="bw" {...pic('bonus-sets', '(max-width: 760px) 80vw, 28vw')} alt="Наборы ALEX KROWN" /></div>
             <span>Наборы со скидкой</span>
