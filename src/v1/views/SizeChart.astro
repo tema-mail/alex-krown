@@ -1,6 +1,7 @@
 ---
-/** Размерная сетка таблицами, как на alex-krown.com/size_chart (владелец 17.11.2026: «сверстать, а не картинками»):
-    мужское, женское, унисекс – таблица и фото с отметками ОГ/ОТ/ОБ; обувь – RU → длина стельки и как подобрать.
+/** Размерная сетка таблицами, данные – alex-krown.com/size_chart (владелец 17.11.2026: «сверстать, а не картинками»,
+    затем «некрасиво» → выбран вариант «вкладки»): Мужское / Женское / Унисекс / Обувь, видна одна таблица и рядом фото
+    с отметками ОГ/ОТ/ОБ. Вкладки – радиокнопки и CSS, без скрипта.
     Фото – с той же страницы Тильды, в public/v1/img/size-chart-*.webp. Блоки – div, не section: у section в home.css
     верхний отступ до 140px. */
 import { img } from '../site';
@@ -41,52 +42,65 @@ const SHOES: [string, string][] = [
 ---
 
 <div class="sc">
+  {[...TABLES.map((t) => t.title), 'Обувь'].map((_, i) => <input class="sc__radio" type="radio" name="sc-tab" id={`sc-t${i}`} checked={i === 0} />)}
+  <div class="sc__tabs" role="group" aria-label="Размерная сетка">
+    {[...TABLES.map((t) => t.title), 'Обувь'].map((t, i) => <label for={`sc-t${i}`} class={`sc__tab sc__tab--${i}`}>{t}</label>)}
+  </div>
   {
-    TABLES.map((t) => (
-      <div class="sc__block" role="group" aria-label={`Размеры: ${t.title.toLowerCase()}`}>
-        <div class="sc__scroll">
-          <table class="sc__table">
-            <thead>
-              <tr>
-                <th scope="col">{t.title}</th>
-                {t.sizes.map((s, i) => (
-                  <th scope="col">
-                    <span class="sc__size">{s}</span>
-                    {t.ru && <span class="sc__ru">{t.ru[i]}</span>}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {t.rows.map(([name, vals]) => (
+    TABLES.map((t, i) => (
+      <div class={`sc__panel sc__panel--${i}`}>
+        <div class="sc__main">
+          <div class="sc__scroll">
+            <table class="sc__table">
+              <thead>
                 <tr>
-                  <th scope="row">{name}</th>
-                  {vals.map((v) => <td>{v}</td>)}
+                  <th scope="col">Размер</th>
+                  {t.sizes.map((s, k) => (
+                    <th scope="col">
+                      <span class="sc__size">{s}</span>
+                      {t.ru && <span class="sc__ru">{t.ru[k]}</span>}
+                    </th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {t.rows.map(([name, vals]) => (
+                  <tr>
+                    <th scope="row">{name}</th>
+                    {vals.map((v) => <td>{v}</td>)}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p class="sc__legend"><b>ОГ</b> – обхват груди · <b>ОТ</b> – обхват талии{t.rows.length > 2 && <> · <b>ОБ</b> – обхват бёдер</>}</p>
         </div>
-        <img class="sc__photo" src={img(t.photo)} width={t.w} height={t.h} alt={`Где измерять: ${t.title.toLowerCase()} – ОГ грудь, ОТ талия, ОБ бёдра`} loading="lazy" />
+        <figure class="sc__fig">
+          <img src={img(t.photo)} width={t.w} height={t.h} alt={`Где измерять: ${t.title.toLowerCase()} – ОГ, ОТ, ОБ`} loading="lazy" />
+        </figure>
       </div>
     ))
   }
-  <div class="sc__shoes" role="group" aria-label="Размеры обуви">
-    <div class="sc__scroll">
-      <table class="sc__table sc__table--shoes">
-        <thead><tr><th scope="col">RU</th><th scope="col">См</th></tr></thead>
-        <tbody>{SHOES.map(([ru, cm]) => <tr><td>{ru}</td><td>{cm} см</td></tr>)}</tbody>
-      </table>
+  <div class={`sc__panel sc__panel--${TABLES.length} sc__panel--shoes`}>
+    <div class="sc__main">
+      <div class="sc__scroll">
+        <table class="sc__table sc__table--shoes">
+          <thead><tr><th scope="col">Размер RU</th>{SHOES.map(([ru]) => <th scope="col"><span class="sc__size">{ru}</span></th>)}</tr></thead>
+          <tbody><tr><th scope="row">Длина стельки</th>{SHOES.map(([, cm]) => <td>{cm} см</td>)}</tr></tbody>
+        </table>
+      </div>
+      <div class="sc__how">
+        <h2>Как подобрать размер?</h2>
+        <ol>
+          <li>Размер подбирается не по стопе, а по стельке из обуви.</li>
+          <li>Достаньте стельку из обуви.</li>
+          <li>Измерьте длину стельки от пятки до самого длинного края.</li>
+          <li>Сопоставьте получившееся значение со значением в таблице.</li>
+        </ol>
+      </div>
     </div>
-    <img class="sc__insole" src={img('size-chart-insole')} width="337" height="699" alt="Длина стельки – от пятки до самого длинного края" loading="lazy" />
-    <div class="sc__how">
-      <h2>Как подобрать размер?</h2>
-      <ul>
-        <li>Размер подбирается не по стопе, а по стельке из обуви.</li>
-        <li>Достаньте стельку из обуви.</li>
-        <li>Измерьте длину стельки от пятки до самого длинного края.</li>
-        <li>Сопоставьте получившееся значение со значением в таблице.</li>
-      </ul>
-    </div>
+    <figure class="sc__fig sc__fig--insole">
+      <img src={img('size-chart-insole')} width="337" height="699" alt="Длина стельки – от пятки до самого длинного края" loading="lazy" />
+    </figure>
   </div>
 </div>

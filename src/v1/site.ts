@@ -42,8 +42,8 @@ export const PHONE = '+7 983-005-58-59';
 export const PHONE_DIGITS = '79830055859';
 export const EMAIL = 'alex.crown2021@gmail.com';
 export const ADDRESS = 'Новосибирск, Красный проспект 161';
+/* Instagram не размещаем (владелец 17.11.2026: Meta признана в РФ экстремистской, ссылки на её сети на российском сайте – риск) */
 export const SOCIAL = [
-  ['Instagram', 'https://instagram.com/alex_krown_'],
   ['Telegram', 'https://t.me/Alex_Krown'],
   ['VK', 'https://vk.com/alex_krown'],
 ] as const;
