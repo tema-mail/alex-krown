@@ -13,7 +13,7 @@ import Sheets from '../v1/islands/Sheets';
 import { API_MODE } from '../v1/loyalty';
 import CookieBanner from '../v1/islands/CookieBanner';
 import Preloader from '../v1/Preloader.astro';
-import { v1, asset, img, MENU, MENU_PHOTO, MENU_INFO, FOOTER, SOCIAL, PHONE, ADDRESS } from '../v1/site';
+import { v1, asset, img, MENU, MENU_PHOTO, MENU_INFO, FOOTER, SOCIAL, PHONE, EMAIL, ADDRESS } from '../v1/site';
 
 interface Props {
   title: string;
@@ -144,6 +144,7 @@ const org = {
               <span>Тема</span>
             </button>
           </div>
+          <p class="ft__contacts"><a href={`tel:+${PHONE.replace(/\D/g, '')}`}>{PHONE}</a><a href={`mailto:${EMAIL}`}>{EMAIL}</a></p>
           <a class="ft__by" href="https://deford-studio.ru/" target="_blank" rel="noopener">Design by Deford</a>
         </div>
         {
