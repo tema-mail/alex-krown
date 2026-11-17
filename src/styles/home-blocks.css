@@ -516,3 +516,38 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* шапка: на телефоне значки с цифрами вместо слов (17.11.2026) */
+.hd__ib {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.hd__ico {
+  display: none;
+}
+@media (max-width: 760px) {
+  .hd__txt {
+    display: none;
+  }
+  .hd__ico {
+    display: block;
+  }
+  .hd .hd__right {
+    gap: 18px;
+  }
+  .hd .hd__ib {
+    gap: 4px;
+    font-size: 11px;
+    letter-spacing: 0.02em;
+  }
+  .hd .hd__lk .hd__crown {
+    display: inline;
+    width: 17px;
+    height: 17px;
+  }
+  .hd .hd__lk .hd__lk-word,
+  .hd .hd__lk .hd__demo {
+    display: none;
+  }
+}
