@@ -89,9 +89,11 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   border-top: 1px solid var(--line);
+  /* полоса закрыта снизу – иначе разделители обрываются под текстом (владелец 17.11.2026) */
+  border-bottom: 1px solid var(--line);
 }
 .perk {
-  padding: 28px 16px 0;
+  padding: 28px 16px;
   text-align: center;
   font-size: 12px;
   font-weight: 500;
