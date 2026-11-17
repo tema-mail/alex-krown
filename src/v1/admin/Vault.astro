@@ -4,7 +4,9 @@
     – сборка с выгрузкой (open) рисует раздел целиком – scripts/seal-admin.mjs шифрует его разметку
       логином и паролем владельца в public/v1/admin/vault/<name>.json;
     – публичная сборка рисует пустое место: после входа в кабинет (scripts/lock-admin.mjs) браузер берёт
-      тот же логин и пароль из sessionStorage и расшифровывает данные сам – второй пароль не нужен. */
+      тот же логин и пароль из sessionStorage и расшифровывает данные сам – второй пароль не нужен.
+      Расшифровка – openBox из scripts/admin-open.mjs (та же, что у замка): пара пробуется по всем входам –
+      владелец и СВЕРХ админ (коробка v3); старую коробку v2 (один вход) тоже открывает. */
 import { asset } from '../site';
 interface Props { name: string; open: boolean }
 const { name, open } = Astro.props;
@@ -21,7 +23,7 @@ const { name, open } = Astro.props;
 }
 
 <script>
-  const b64 = (s: string) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
+  import { openBox } from '../../../scripts/admin-open.mjs';
   const vault = document.getElementById('vault');
 
   async function unlock(box: HTMLElement) {
@@ -33,11 +35,9 @@ const { name, open } = Astro.props;
       const res = await fetch(box.dataset.src!, { cache: 'no-store' });
       if (!res.ok) throw new Error(res.status === 404 ? 'данные ещё не выложены' : 'ответ ' + res.status);
       const data = await res.json();
-      const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(`${auth.login}\n${auth.pass}`), 'PBKDF2', false, ['deriveKey']);
-      const key = await crypto.subtle.deriveKey({ name: 'PBKDF2', hash: 'SHA-256', salt: b64(data.salt), iterations: data.iter },
-        base, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
-      const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64(data.iv) }, key, b64(data.data));
-      box.innerHTML = new TextDecoder().decode(plain);
+      let plain: string;
+      try { plain = await openBox(data, auth.login, auth.pass); } catch { throw new Error(''); }
+      box.innerHTML = plain;
       delete box.dataset.locked;
       document.dispatchEvent(new CustomEvent('vault:open'));
     } catch (e) {
