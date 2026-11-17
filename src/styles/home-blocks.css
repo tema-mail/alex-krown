@@ -194,6 +194,14 @@
   max-height: 86%;
   width: auto;
 }
+/* фото, обрезанное снизу (наборы), – стоит на нижней кромке карточки и крупнее (владелец 17.11.2026) */
+.bonus__img--bottom {
+  align-items: flex-end;
+}
+.bonus__img--bottom img {
+  max-height: 96%;
+  transform-origin: bottom center;
+}
 .bonus__card:hover img {
   filter: grayscale(0);
   transform: scale(1.04);
