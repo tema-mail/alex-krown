@@ -777,3 +777,165 @@
   justify-self: start;
   width: auto;
 }
+
+/* размерная сетка таблицами (views/SizeChart.astro, 17.11.2026) */
+.sc {
+  display: grid;
+  align-content: start;
+  gap: clamp(40px, 6vw, 72px);
+  margin-top: 32px;
+}
+.sc__block {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(180px, 22vw, 300px);
+  align-items: end;
+  gap: 24px;
+}
+.sc__scroll {
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+.sc__table {
+  width: 100%;
+  min-width: 520px;
+  border-collapse: collapse;
+  font-size: 13px;
+  text-align: center;
+}
+.sc__table th,
+.sc__table td {
+  padding: 14px 10px;
+  border: 1px solid var(--line);
+}
+.sc__table thead th {
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 12px;
+  vertical-align: bottom;
+}
+.sc__size {
+  display: block;
+  font: 400 22px/1.1 var(--serif);
+  letter-spacing: 0;
+  margin-bottom: 8px;
+}
+.sc__ru {
+  display: block;
+  color: var(--mute);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+.sc__table tbody th {
+  text-align: left;
+  font-weight: 400;
+  white-space: nowrap;
+}
+.sc__table td {
+  color: var(--mute);
+}
+.sc__photo {
+  width: 100%;
+  height: auto;
+}
+.sc__shoes {
+  display: grid;
+  grid-template-columns: minmax(160px, 220px) 110px minmax(0, 1fr);
+  align-items: start;
+  gap: 24px;
+}
+.sc__table--shoes {
+  min-width: 0;
+}
+.sc__table--shoes th,
+.sc__table--shoes td {
+  padding: 7px 10px;
+}
+.sc__insole {
+  width: 100%;
+  height: auto;
+  background: #fff;
+  border-radius: 4px;
+  padding: 8px;
+}
+.sc__how {
+  background: var(--ink-2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: clamp(20px, 3vw, 32px);
+}
+.sc__how h2 {
+  font: 400 clamp(20px, 2.2vw, 28px) / 1.2 var(--serif);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.sc__how ul {
+  display: grid;
+  gap: 12px;
+  padding-left: 18px;
+  color: var(--soft);
+  font-size: 14px;
+  line-height: 1.6;
+}
+@media (width <= 760px) {
+  .sc__block {
+    grid-template-columns: 1fr;
+  }
+  .sc__photo {
+    max-width: 260px;
+    justify-self: center;
+  }
+  .sc__shoes {
+    grid-template-columns: minmax(0, 1fr) 90px;
+  }
+  .sc__how {
+    grid-column: 1 / -1;
+  }
+}
+
+/* рекомендации по уходу (views/Care.astro, 17.11.2026) */
+.care {
+  max-width: 1100px;
+  margin-top: 8px;
+}
+.care__lead {
+  max-width: 70ch;
+  color: var(--mute);
+  font-size: 15px;
+  line-height: 1.7;
+}
+.care__cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 28px;
+}
+.care__card {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  background: var(--ink-2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: clamp(20px, 3vw, 32px);
+  color: var(--soft);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.care__card h2 {
+  font: 400 clamp(22px, 2.4vw, 30px) / 1.1 var(--serif);
+  text-transform: uppercase;
+  color: var(--paper);
+}
+.care__key {
+  color: var(--paper);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1.5;
+}
+@media (width <= 760px) {
+  .care__cards {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,92 @@
+---
+/** Размерная сетка таблицами, как на alex-krown.com/size_chart (владелец 17.11.2026: «сверстать, а не картинками»):
+    мужское, женское, унисекс – таблица и фото с отметками ОГ/ОТ/ОБ; обувь – RU → длина стельки и как подобрать.
+    Фото – с той же страницы Тильды, в public/v1/img/size-chart-*.webp. Блоки – div, не section: у section в home.css
+    верхний отступ до 140px. */
+import { img } from '../site';
+
+interface Table { title: string; sizes: string[]; ru?: string[]; rows: [string, string[]][]; photo: string; w: number; h: number }
+const TABLES: Table[] = [
+  {
+    title: 'Мужское', sizes: ['S', 'M', 'L', 'XL', 'XXL'], ru: ['44-46', '48-50', '52-54', '56-58', '60-62'],
+    rows: [
+      ['Обхват груди (см)', ['88-92', '96-100', '104-108', '112-116', '120-124']],
+      ['Обхват талии (см)', ['80-84', '88-92', '96-100', '104-108', '112-116']],
+      ['Обхват бёдер (см)', ['90-94', '98-102', '106-110', '114-118', '122-126']],
+    ],
+    photo: 'size-chart-men', w: 643, h: 772,
+  },
+  {
+    title: 'Женское', sizes: ['XS', 'S', 'M', 'L', 'XL'], ru: ['40', '42', '44', '46', '48'],
+    rows: [
+      ['Обхват груди (см)', ['80-84', '82-86', '86-90', '90-94', '94-98']],
+      ['Обхват талии (см)', ['60-64', '62-66', '66-70', '70-74', '74-80']],
+      ['Обхват бёдер (см)', ['86-90', '90-94', '94-98', '98-102', '102-106']],
+    ],
+    photo: 'size-chart-women', w: 650, h: 860,
+  },
+  {
+    title: 'Унисекс', sizes: ['S', 'M'],
+    rows: [
+      ['Обхват груди (см)', ['88-96', '98-104']],
+      ['Обхват талии (см)', ['68-78', '80-90']],
+    ],
+    photo: 'size-chart-unisex', w: 760, h: 611,
+  },
+];
+const SHOES: [string, string][] = [
+  ['36', '24'], ['37', '24.5'], ['38', '25'], ['39', '26'], ['40', '26.5'],
+  ['41', '27.5'], ['42', '28'], ['43', '29'], ['44', '29.5'], ['45', '30.5'],
+];
+---
+
+<div class="sc">
+  {
+    TABLES.map((t) => (
+      <div class="sc__block" role="group" aria-label={`Размеры: ${t.title.toLowerCase()}`}>
+        <div class="sc__scroll">
+          <table class="sc__table">
+            <thead>
+              <tr>
+                <th scope="col">{t.title}</th>
+                {t.sizes.map((s, i) => (
+                  <th scope="col">
+                    <span class="sc__size">{s}</span>
+                    {t.ru && <span class="sc__ru">{t.ru[i]}</span>}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {t.rows.map(([name, vals]) => (
+                <tr>
+                  <th scope="row">{name}</th>
+                  {vals.map((v) => <td>{v}</td>)}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <img class="sc__photo" src={img(t.photo)} width={t.w} height={t.h} alt={`Где измерять: ${t.title.toLowerCase()} – ОГ грудь, ОТ талия, ОБ бёдра`} loading="lazy" />
+      </div>
+    ))
+  }
+  <div class="sc__shoes" role="group" aria-label="Размеры обуви">
+    <div class="sc__scroll">
+      <table class="sc__table sc__table--shoes">
+        <thead><tr><th scope="col">RU</th><th scope="col">См</th></tr></thead>
+        <tbody>{SHOES.map(([ru, cm]) => <tr><td>{ru}</td><td>{cm} см</td></tr>)}</tbody>
+      </table>
+    </div>
+    <img class="sc__insole" src={img('size-chart-insole')} width="337" height="699" alt="Длина стельки – от пятки до самого длинного края" loading="lazy" />
+    <div class="sc__how">
+      <h2>Как подобрать размер?</h2>
+      <ul>
+        <li>Размер подбирается не по стопе, а по стельке из обуви.</li>
+        <li>Достаньте стельку из обуви.</li>
+        <li>Измерьте длину стельки от пятки до самого длинного края.</li>
+        <li>Сопоставьте получившееся значение со значением в таблице.</li>
+      </ul>
+    </div>
+  </div>
+</div>

@@ -1,10 +1,12 @@
 ---
 /** Текстовые страницы (о бренде, контакты, доставка, возврат, уход, размеры, документы): текст оригинала.
-    Контакты – из констант сайта ссылками; размерная сетка – таблицы размеров товаров картинками. */
+    Контакты – из констант сайта ссылками; размерная сетка и уход – своей вёрсткой (SizeChart, Care, 17.11.2026). */
 import V1 from '../../layouts/V1.astro';
 import BonusRules from './BonusRules.astro';
+import SizeChart from './SizeChart.astro';
+import Care from './Care.astro';
 import { FREE_DELIVERY_RULE } from '../delivery';
-import { v1, img, products, PHONE, PHONE_DIGITS, EMAIL, ADDRESS, SOCIAL, type InfoPage, type Photo } from '../site';
+import { v1, PHONE, PHONE_DIGITS, EMAIL, ADDRESS, SOCIAL, type InfoPage } from '../site';
 
 interface Props { pg: InfoPage }
 const { pg } = Astro.props;
@@ -12,7 +14,8 @@ const { pg } = Astro.props;
 const JUNK = /^(Программа лояльности|Наборы со скидкой|подарочные сертификаты|Бонусы|Мы в соцсетях|ALEX KROWN)$/i;
 const paras = pg.paras.filter((t) => !JUNK.test(t));
 const h1 = pg.h1 || pg.title.replace(/\s*[|–-].*$/, '') || 'ALEX KROWN';
-const charts: Photo[] = pg.path === 'size_chart' ? [...new Map(products.filter((p) => p.sizeChart).map((p) => [p.sizeChart!.name, p.sizeChart!])).values()] : [];
+/* свои вёрстки вместо текста Тильды подряд */
+const custom = pg.path === 'size_chart' || pg.path === 'recomendation';
 const ld = [
   {
     '@context': 'https://schema.org', '@type': 'BreadcrumbList',
@@ -37,12 +40,12 @@ const ld = [
             {/* реквизиты продавца – ЗоЗПП ст. 9, ст. 26.1; из договора оферты бренда, раздел 9 */}
             <p>Индивидуальный предприниматель Жоркин Алексей Сергеевич, ИНН 540538457234, ОГРНИП 320547600079460</p>
           </>
-        ) : charts.length ? (
-          charts.map((c) => <img data-src={img(c.name)} width={c.w} height={c.h} alt="Таблица размеров ALEX KROWN" loading="lazy" />)
-        ) : (
+        ) : custom ? null : (
           <>{pg.path === 'payment_and_delivery' && <p><strong>{FREE_DELIVERY_RULE}</strong></p>}{paras.map((t) => <p>{t}</p>)}{pg.path === 'offer_agreement' && <BonusRules />}</>
         )
       }
     </article>
+    {pg.path === 'size_chart' && <SizeChart />}
+    {pg.path === 'recomendation' && <Care />}
   </main>
 </V1>
