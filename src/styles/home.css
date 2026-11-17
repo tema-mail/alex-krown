@@ -355,6 +355,16 @@ section {
   text-transform: uppercase;
   transition: border-color 0.2s, background 0.2s, color 0.2s;
 }
+.menu__quick a,
+.menu__quick button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.mq__ico {
+  flex: none;
+  margin-top: -1px;
+}
 .menu__quick a:hover,
 .menu__quick button:hover {
   background: var(--paper);
