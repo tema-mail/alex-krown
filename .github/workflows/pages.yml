@@ -24,6 +24,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      # тесты замка админки (оба входа открывают, неверный – нет)
+      - run: npm test
       # сайт живёт в подпапке tema-mail.github.io/alex-krown/
       # публичный показ: магазин «Вариант 1», новая главная и концепты; копия Тильды не публикуется
       - run: npm run build
@@ -37,6 +39,9 @@ jobs:
         env:
           ADMIN_LOGIN: ${{ secrets.ADMIN_LOGIN }}
           ADMIN_PASS: ${{ secrets.ADMIN_PASS }}
+          # второй вход – СВЕРХ админ Артёма; нет секретов – один вход владельца и предупреждение
+          SVERH_LOGIN: ${{ secrets.SVERH_LOGIN }}
+          SVERH_PASS: ${{ secrets.SVERH_PASS }}
       - name: Убрать ресурсы копии Тильды из публикации
         run: rm -rf dist/_t dist/no-leads.js
       - name: Закрыть копию от поисковиков

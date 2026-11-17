@@ -5,13 +5,18 @@
 // правило владельца 17.10.2026 для всех кабинетов, образец – TEYES). «Выйти» в шапке сбрасывает оба.
 // Владелец 16.10.2026: «любой ЛК закрыт по логину и паролю… не конкретный внутренний, а весь».
 // Запуск – в GitHub Actions после сборки (секреты ADMIN_LOGIN, ADMIN_PASS); без них сборка падает,
-// чтобы админка не ушла в публикацию открытой.
+// чтобы админка не ушла в публикацию открытой. Второй вход – СВЕРХ админ (SVERH_LOGIN, SVERH_PASS): страница
+// под случайным ключом, его копии – под каждым входом (admin-crypto.mjs makeRing); без СВЕРХ – один вход и предупреждение.
+// LOCK_DIST – другая папка сборки (для теста), по умолчанию dist.
 import fs from 'node:fs';
 import path from 'node:path';
-import { credentials, secretOf, seal } from './admin-crypto.mjs';
+import { makeRing, sealRing, secrets } from './admin-crypto.mjs';
+import { openBox } from './admin-open.mjs';
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
-const DIR = path.join(ROOT, 'dist', 'v1', 'admin');
+const BASE = process.env.LOCK_DIST || path.join(ROOT, 'dist');
+// кабинет живёт в /v1/admin; общий тест замка (admin-lock.test.mjs, одинаков во всех проектах) кладёт страницы в /admin
+const DIR = fs.existsSync(path.join(BASE, 'v1', 'admin')) ? path.join(BASE, 'v1', 'admin') : path.join(BASE, 'admin');
 
 const GATE_CSS = `.login{max-width:380px;margin:12vh auto;background:#fff;border:1px solid #d9dedc;border-radius:16px;padding:28px}
 .login h1{margin:0 0 6px;font-size:22px;font-weight:600;letter-spacing:.04em}.login p{margin:0 0 20px;font-size:14px;color:#6b7472}
@@ -21,16 +26,14 @@ const GATE_CSS = `.login{max-width:380px;margin:12vh auto;background:#fff;border
 .login .keep{display:flex;align-items:center;gap:8px;margin:0 0 14px;font-size:14px;color:#1e1e1e;cursor:pointer}
 .login .keep input{width:18px;height:18px;margin:0}`;
 
-// Расшифровка в браузере: тот же ключ, что в admin-crypto.mjs; скрипты страницы запускаются заново,
+// Расшифровка в браузере: openBox из admin-open.mjs (пара пробуется по всем входам); скрипты страницы запускаются заново,
 // потому что разметка, вставленная через innerHTML, свои <script> не выполняет
 const GATE_JS = `(function(){
 var K='ak_admin_auth',L='ak_admin_keep',box=JSON.parse(document.getElementById('lock-data').textContent),f=document.getElementById('lock-form'),err=f.querySelector('.err');
-function b64(s){return Uint8Array.from(atob(s),function(c){return c.charCodeAt(0)})}
+var openBox=${openBox.toString()};
 async function open(login,pass,quiet,keep){
   try{
-    var base=await crypto.subtle.importKey('raw',new TextEncoder().encode(login+'\\n'+pass),'PBKDF2',false,['deriveKey']);
-    var key=await crypto.subtle.deriveKey({name:'PBKDF2',hash:'SHA-256',salt:b64(box.salt),iterations:box.iter},base,{name:'AES-GCM',length:256},false,['decrypt']);
-    var html=new TextDecoder().decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:b64(box.iv)},key,b64(box.data)));
+    var html=await openBox(box,login,pass);
   }catch(e){try{sessionStorage.removeItem(K);if(quiet)localStorage.removeItem(L)}catch(_){} if(!quiet)err.textContent='Неверный логин или пароль';return}
   var a=JSON.stringify({login:login,pass:pass});
   try{sessionStorage.setItem(K,a);if(keep)localStorage.setItem(L,a)}catch(_){}
@@ -52,7 +55,7 @@ const gate = (data) => `<body class="adm"><style>${GATE_CSS}</style>
 
 const walk = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]));
 
-const secret = secretOf(credentials());
+const ring = makeRing(secrets());
 const pages = fs.existsSync(DIR) ? walk(DIR).filter((f) => f.endsWith('.html')) : [];
 if (!pages.length) throw new Error('в dist нет страниц админки – сначала сборка');
 for (const file of pages) {
@@ -65,6 +68,6 @@ for (const file of pages) {
   const headScripts = [];
   const head = html.slice(0, h).replace(/<script\b[\s\S]*?<\/script>/g, (m) => (headScripts.push(m), ''));
   const inner = html.slice(html.indexOf('>', b0) + 1, b1) + headScripts.join('');
-  fs.writeFileSync(file, head + '</head>' + gate(seal(inner, secret)) + html.slice(b1 + '</body>'.length));
+  fs.writeFileSync(file, head + '</head>' + gate(sealRing(inner, ring)) + html.slice(b1 + '</body>'.length));
 }
-console.log(`Админка закрыта логином и паролем: ${pages.length} стр.`);
+console.log(`Админка закрыта логином и паролем: ${pages.length} стр., входов: ${ring.keys.length}`);
