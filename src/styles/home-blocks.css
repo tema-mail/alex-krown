@@ -283,6 +283,7 @@
 
 /* ---------- подвал ---------- */
 .ft {
+  container-type: inline-size;
   margin-top: clamp(72px, 10vw, 140px);
   border-top: 1px solid var(--line);
   padding: 56px var(--gut) 0;
@@ -290,8 +291,9 @@
 }
 .ft__top {
   display: grid;
-  /* логотип + 4 колонки одной ширины (владелец 17.11.2026: «не выровнен») */
-  grid-template-columns: 1.3fr repeat(4, minmax(0, 1fr));
+  /* логотип прижат влево, последняя колонка – вправо, промежутки равные (владелец 17.11.2026: «не выровнен») */
+  grid-template-columns: repeat(5, auto);
+  justify-content: space-between;
   gap: 32px;
   padding-bottom: 48px;
 }
@@ -350,8 +352,9 @@
 }
 .ft__word {
   border-top: 1px solid var(--line);
-  /* слово целиком по ширине подвала, без обрезки краёв */
-  font: 400 clamp(56px, 14.6vw, 250px) / 1 var(--serif);
+  /* слово ровно по ширине подвала (от края до края сетки): единицы контейнера .ft, запасной вариант – vw */
+  font: 400 15.2vw / 1 var(--serif);
+  font-size: 16cqw;
   white-space: nowrap;
   text-align: center;
   letter-spacing: -0.01em;
@@ -522,8 +525,7 @@
     height: 94%;
     right: 5%;
   }
-  .brand__word,
-  .ft__word {
+  .brand__word {
     font-size: 14.2vw;
   }
   .hero__word {
