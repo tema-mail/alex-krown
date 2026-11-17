@@ -941,26 +941,36 @@
   font-size: 14px;
   line-height: 1.6;
 }
-/* все вкладки одной высоты: карточки таблицы и фото одинаковые, блок не прыгает при переключении (17.11.2026) */
+/* все вкладки одной высоты, фото – во всю карточку (17.11.2026) */
 @media (width > 760px) {
   .sc__panel {
-    height: 500px;
+    height: 460px;
+  }
+  .sc__main {
+    align-content: center;
   }
   .sc__fig {
     position: relative;
     min-height: 0;
+    padding: 0;
   }
   .sc__fig img {
     position: absolute;
-    inset: 16px 16px 0;
-    width: calc(100% - 32px);
-    height: calc(100% - 16px);
+    inset: 0;
+    width: 100%;
+    height: 100%;
     max-height: none;
+    object-fit: cover;
+    object-position: center 20%;
+  }
+  .sc__fig--insole {
+    padding: 0;
   }
   .sc__fig--insole img {
     inset: 32px;
     width: calc(100% - 64px);
     height: calc(100% - 64px);
+    object-fit: contain;
     object-position: center;
   }
 }
@@ -970,9 +980,23 @@
   }
   .sc__fig {
     min-height: 0;
+    padding: 0;
+    aspect-ratio: 4 / 5;
   }
   .sc__fig img {
-    max-height: 340px;
+    width: 100%;
+    height: 100%;
+    max-height: none;
+    object-fit: cover;
+    object-position: center 20%;
+  }
+  .sc__fig--insole {
+    aspect-ratio: auto;
+    padding: 24px;
+  }
+  .sc__fig--insole img {
+    max-height: 300px;
+    object-fit: contain;
   }
   .sc__tab {
     flex: none;
