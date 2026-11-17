@@ -117,7 +117,7 @@ const org = {
       <nav class="menu__main" aria-label="Разделы магазина">{MENU.map(([t, p]) => <a href={v1(p)} class={`mi mi--${p.replace('/', '-')}`}>{t}</a>)}</nav>
       <div class="menu__side">
         <div class="menu__photo" aria-hidden="true">
-          <img class="hp hp--none" src={asset('home/img/gal-5.webp')} alt="" loading="lazy" />
+          <img class="hp hp--none" src={img('883110873202-1-s')} srcset={`${img('883110873202-1-s')} 480w, ${img('883110873202-1')} 960w`} sizes="40vw" alt="" loading="lazy" />
           {MENU.map(([, p]) => <img class={`hp hp--${p.replace('/', '-')}`} src={img(MENU_PHOTO[p] + '-s')} srcset={`${img(MENU_PHOTO[p] + '-s')} 480w, ${img(MENU_PHOTO[p])} 960w`} sizes="40vw" alt="" loading="lazy" />)}
         </div>
         <div class="menu__quick"><a href={v1('favorites')}>♡ Избранное</a><a href={v1('account')}>Личный кабинет</a></div>
