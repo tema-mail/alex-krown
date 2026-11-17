@@ -1,16 +1,17 @@
 ---
 /** Все страницы магазина «Вариант 1» по адресам оригинала: разделы каталога, карточки товаров,
-    текстовые страницы. Главная, избранное, заказ и фиды – отдельные файлы в src/pages/v1/. */
+    текстовые страницы. Главная, избранное, заказ и фиды – отдельные файлы в src/pages/v1/.
+    Адреса разделов и товаров – pagePath (каталог/раздел/подраздел/товар, 17.11.2026). */
 import Catalog from '../../v1/views/Catalog.astro';
 import ProductPage from '../../v1/views/ProductPage.astro';
 import Info from '../../v1/views/Info.astro';
 import About from '../../v1/views/About.astro';
-import { products, sections, infoPages } from '../../v1/site';
+import { products, sections, infoPages, pagePath } from '../../v1/site';
 
 export function getStaticPaths() {
   return [
-    ...sections.map((s) => ({ params: { path: s.path }, props: { kind: 'section' as const, s } })),
-    ...products.map((p) => ({ params: { path: p.path }, props: { kind: 'product' as const, p } })),
+    ...sections.map((s) => ({ params: { path: pagePath(s.path) }, props: { kind: 'section' as const, s } })),
+    ...products.map((p) => ({ params: { path: pagePath(p.path) }, props: { kind: 'product' as const, p } })),
     ...infoPages.map((pg) => ({ params: { path: pg.path }, props: { kind: 'info' as const, pg } })),
   ];
 }

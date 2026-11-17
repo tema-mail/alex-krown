@@ -1,6 +1,7 @@
 import { signal } from '@preact/signals';
 import type { LoyaltyProgram, ShopApi } from '../vendor/shop-engine/shop-engine.js';
 import program from '../data/v1/loyalty.json';
+import { sectionUrl } from './urls';
 
 // Бонусная программа ALEX KROWN и связь магазина «Вариант 1» с кабинетом покупателя (docs/ПЛАН-ЛК.md, решения 2–3).
 // Перенос milovini-samara/src/lib/loyalty.ts: по умолчанию (Pages) кабинет – демо в браузере покупателя (localStorage,
@@ -38,7 +39,10 @@ const BASE = (import.meta.env.BASE_URL || '/').replace(/\/$/, '');
  * Адрес страницы магазина – то же, что v1() из site.ts, но без его импорта: site.ts тянет в остров JSON товаров,
  * разделов и страниц (~370 КБ), а островам кабинета и баллов нужен только адрес.
  */
-export const v1url = (path = '') => `${BASE}/v1/${path.replace(/^\/|\/$/g, '')}${path ? '/' : ''}`.replace(/\/{2,}/g, '/');
+export const v1url = (path = '') => {
+  const p = sectionUrl(path);
+  return `${BASE}/v1/${p}${p ? '/' : ''}`.replace(/\/{2,}/g, '/');
+};
 
 /**
  * Позиция для движка – товар + размер, как позиция корзины (store.ts: id = `${uid}:${size}`): у части вещей цена

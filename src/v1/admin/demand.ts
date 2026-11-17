@@ -12,7 +12,7 @@
     - ценовые группы: где смотрят и где покупают;
     - небрендовый поиск: по каким видам товаров сайт находят без названия бренда.
     Товары сопоставляются по названию (Метрика хранит название, как его передала Тильда). */
-import { allProducts, allSections, sectionName, type Product } from '../site';
+import { allProducts, allSections, pagePath, sectionName, type Product } from '../site';
 
 export interface MetrikaTable { totals?: number[]; rows?: { dims: string[]; m: number[] }[]; error?: string }
 export interface Metrika { products: MetrikaTable; productEntries?: MetrikaTable; phrases?: MetrikaTable }
@@ -45,9 +45,11 @@ export function demand(m: Slice) {
   const q75 = sorted[Math.floor(sorted.length * 0.75)] ?? 0;
   for (const d of list) d.segment = d.qty > 0 ? 'Хит' : d.views >= Math.max(q75, 10) ? 'Смотрят, но не покупают' : d.views < 5 ? 'Тихий' : 'Без покупок';
   /* карточка товара как вход на сайт: адрес /…/tproduct/<номер>-… → товар, каналы Метрики → группы */
+  const byPage = new Map(allProducts.map((x) => [pagePath(x.path), x.uid]));
   const ent = new Map<string, Entry>();
   for (const r of m.productEntries?.rows ?? []) {
-    const uid = r.dims[0].match(/tproduct\/(\d+)/)?.[1];
+    /* старый адрес Тильды – номер в пути; новый (каталог/раздел/товар, 17.11.2026) – по таблице адресов */
+    const uid = r.dims[0].match(/tproduct\/(\d+)/)?.[1] ?? byPage.get(r.dims[0].replace(/^https?:\/\/[^/]+/, '').replace(/^\/(alex-krown\/)?(v1\/)?|\/$|[?#].*$/g, ''));
     if (!uid) continue;
     const e = ent.get(uid) ?? { uid, p: allProducts.find((x) => x.uid === uid) ?? null, all: 0, search: 0, direct: 0, social: 0, ads: 0, other: 0 };
     const src = r.dims[1] ?? '', v = r.m[0];

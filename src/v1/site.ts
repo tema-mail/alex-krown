@@ -4,6 +4,7 @@
 import productsJson from '../data/v1/products.json';
 import sectionsJson from '../data/v1/sections.json';
 import pagesJson from '../data/v1/pages.json';
+import { productSlug, sectionUrl, trimPath } from './urls';
 
 export interface Photo { name: string; w: number; h: number }
 export interface Size { size: string; price: number; priceOld: number | null }
@@ -49,8 +50,31 @@ export const SOCIAL = [
 ] as const;
 
 const BASE = (import.meta.env.BASE_URL || '/').replace(/\/$/, '');
-/** Адрес страницы магазина: путь как на оригинале → /<base>/v1/<путь>/ */
-export const v1 = (path = '') => `${BASE}/v1/${path.replace(/^\/|\/$/g, '')}${path ? '/' : ''}`.replace(/\/{2,}/g, '/');
+/* Адрес товара «каталог/раздел/подраздел/товар» (владелец 17.11.2026): в данных путь как на Тильде
+   (catalog/man/tproduct/<номер>-<название>), на сайте – самый узкий раздел товара + название без номера:
+   /catalog/man/t-shirts/futbolka-black-cross/. Совпадение названий в одном разделе – суффикс -2, -3. */
+const productUrls = new Map<string, string>();
+{
+  const used = new Set(sections.map((s) => sectionUrl(s.path)));
+  for (const p of allProducts) {
+    const home = p.hidden ? undefined : homeSection(p);
+    const base = home ? sectionUrl(home.path) : sectionUrl(p.path.split('/tproduct/')[0]);
+    const slug = productSlug(p.path);
+    let url = `${base}/${slug}`;
+    for (let k = 2; used.has(url); k++) url = `${base}/${slug}-${k}`;
+    used.add(url);
+    productUrls.set(trimPath(p.path), url);
+  }
+}
+/** Путь страницы на сайте: товар – по таблице выше, раздел – внутри каталога, остальное как есть */
+export const pagePath = (path: string) => productUrls.get(trimPath(path)) ?? sectionUrl(path);
+/** Старые адреса товаров (Тильда) → новые – для перенаправлений 301 */
+export const productRedirects = () => [...productUrls].map(([from, to]) => [from, to] as const);
+/** Адрес страницы магазина: путь из данных → /<base>/v1/<путь на сайте>/ */
+export const v1 = (path = '') => {
+  const p = pagePath(path);
+  return `${BASE}/v1/${p}${p ? '/' : ''}`.replace(/\/{2,}/g, '/');
+};
 /** Адрес файла из public/ с учётом подпапки */
 export const asset = (p: string) => `${BASE}/${p.replace(/^\//, '')}`;
 export const img = (name: string) => asset(`v1/img/${name}.webp`);
@@ -63,7 +87,12 @@ export const section = (path: string) => sections.find((s) => s.path === path);
 export const subsOf = (path: string) => sections.filter((s) => s.path.startsWith(path + '/') && !s.path.slice(path.length + 1).includes('/') && s.uids.length);
 /** Самый узкий раздел товара – для хлебных крошек и «похожих» */
 export function homeSection(p: Product): Section | undefined {
-  const own = sections.filter((s) => s.uids.includes(p.uid) && s.path !== 'catalog' && s.path !== 'sale');
+  /* сначала – раздел, где товар лежит в данных (hats, catalog/man…), и его подразделы: бейсболка из «Головных уборов»
+     не уезжает в «Мужскую одежду» (17.11.2026, адрес «каталог/раздел/подраздел/товар»); нет таких – любой раздел */
+  const origin = p.path.split('/tproduct/')[0];
+  const all = sections.filter((s) => s.uids.includes(p.uid) && s.path !== 'catalog' && s.path !== 'sale');
+  const mine = all.filter((s) => s.path === origin || s.path.startsWith(origin + '/'));
+  const own = mine.length ? mine : all;
   return own.sort((a, b) => b.path.split('/').length - a.path.split('/').length || a.uids.length - b.uids.length)[0];
 }
 /** Короткое имя раздела для меню и крошек */
