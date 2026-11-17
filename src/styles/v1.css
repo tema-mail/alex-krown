@@ -730,3 +730,9 @@
   width: 14px;
   height: 14px;
 }
+
+/* ссылка на текст согласия ПДн в подписи галочки – видно, что это ссылка */
+.consent-link {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

@@ -420,12 +420,13 @@ export default function Order({ catalogHref, policyHref, offerHref, consentHref 
           <input type="checkbox" checked={f.agree} onChange={set('agree')} />
           <span>
             {/* 152-ФЗ ст. 9 (с 01.09.2025): согласие на обработку ПДн – отдельно от других документов */}
-            Даю <a href={consentHref} target="_blank" rel="noopener">согласие на обработку персональных данных</a>
+            {/* 17.11.2026: текст – часть подписи галочки (клик ставит галочку), ссылка на текст согласия – отдельно и подчёркнута */}
+            Даю согласие на обработку персональных данных (<a href={consentHref} target="_blank" rel="noopener" class="consent-link" onClick={(e) => e.stopPropagation()}>текст согласия</a>)
             {err('agree') && <> {err('agree')}</>}
           </span>
         </label>
-        {/* стандарт форм: без галочки согласия кнопка неактивна (галочка по умолчанию пустая) */}
-        <button type="submit" class="btn btn--solid" disabled={busy || !f.agree}>{online ? 'Оплатить картой' : 'Оформить заказ'}</button>
+        {/* кнопка активна всегда: нажатие без галочки и полей показывает, что заполнить (17.11.2026) */}
+        <button type="submit" class="btn btn--solid" disabled={busy}>{online ? 'Оплатить картой' : 'Оформить заказ'}</button>
         {online && <p class="pp__hint">{onlineNote(freeNow)}.</p>}
         {tried && bad && <p class="field__err" role="alert">Проверьте отмеченные поля</p>}
         <p class="pp__hint">Нажимая «{online ? 'Оплатить картой' : 'Оформить заказ'}», вы принимаете условия <a href={offerHref} target="_blank" rel="noopener">договора оферты</a> и <a href={policyHref} target="_blank" rel="noopener">политики конфиденциальности</a>.</p>

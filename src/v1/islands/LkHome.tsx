@@ -82,6 +82,7 @@ function Login({ shop }: { shop: ShopApi }) {
       {error && <p class="field__err" role="alert">{error}</p>}
       {sent === null ? (
         <form class="lk-form" onSubmit={run(async () => {
+          if (!agree) throw new Error('Нужно согласие на обработку персональных данных');
           const r = await shop.requestCode(email);
           setDemoCode(r.demoCode ?? '');
           setSent(email);
@@ -89,8 +90,8 @@ function Login({ shop }: { shop: ShopApi }) {
           <label class="field">Почта
             <input ref={first} type="email" autoComplete="email" required maxLength={254} value={email} onInput={(e) => setEmail((e.target as HTMLInputElement).value)} /></label>
           <label class="lk-check"><input type="checkbox" checked={agree} onChange={(e) => setAgree((e.target as HTMLInputElement).checked)} />
-            <span>Даю <a href={v1('processing_of_personal_data')} target="_blank" rel="noopener">согласие на обработку персональных данных</a></span></label>
-          <button type="submit" class="btn btn--solid" disabled={busy || !agree}>Получить код</button>
+            <span>Даю согласие на обработку персональных данных (<a href={v1('processing_of_personal_data')} target="_blank" rel="noopener" class="consent-link" onClick={(e) => e.stopPropagation()}>текст согласия</a>)</span></label>
+          <button type="submit" class="btn btn--solid" disabled={busy}>Получить код</button>
         </form>
       ) : (
         <form class="lk-form" onSubmit={run(async (form) => {
