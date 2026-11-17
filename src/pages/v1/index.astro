@@ -131,7 +131,7 @@ const reel = [
         <div class="cats">
           {
             cats.map(([t, d, h, im]) => (
-              <a class="cat" href={link(h)} data-reveal>
+              <a class={`cat cat--${im.replace('cat-', '')}`} href={link(h)} data-reveal>
                 <h3>{t}</h3>
                 <p>{d}</p>
                 <span class="btn">Смотреть</span>
