@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import { cart, cartCount, cartTotal, favs, fmt, MAX_QTY, removeFromCart, setQty, sheet, toast, toggleFav } from '../store';
 import { BASE_RATE, earnFor, pointsWord, snap, v1url } from '../loyalty';
 import { FREE_DELIVERY_FROM, isFreeDelivery, toFreeDelivery } from '../delivery';
+import FavBuy from './FavBuy';
 
 /* Шторки магазина «Вариант 1»: корзина, избранное и всплывашка «добавлено». Открываются кнопками
    шапки (data-open-sheet, v1/client.ts) и из блока покупки на карточке. Справа на компьютере,
@@ -156,7 +157,7 @@ export default function Sheets({ catalogHref, orderHref, favHref }: { catalogHre
                 <div class="dr__info">
                   <a href={f.path} class="dr__name">{f.title}</a>
                   <b>{fmt(f.price)}</b>
-                  <a href={f.path} class="dr__link">Выбрать размер</a>
+                  <FavBuy item={f} compact />
                 </div>
                 <button type="button" class="dr__del" aria-label={`Убрать из избранного: ${f.title}`} onClick={() => toggleFav(f)}>×</button>
               </li>
