@@ -716,25 +716,6 @@
 .cookie-banner__decline{align-self:center;padding:8px;background:none;border:0;color:var(--mute);font:inherit;font-size:13px;text-decoration:underline;cursor:pointer}
 @media (min-width:768px){.cookie-backdrop{align-items:center;padding:16px}.cookie-banner{width:min(100%,34rem);min-height:0;padding:32px;border-radius:20px;box-shadow:0 24px 60px rgba(0,0,0,.5)}}
 
-/* переключатель темы в подвале – «таблетка» как у соцсетей (17.11.2026) */
-.ft__theme.hd__theme {
-  width: auto;
-  height: auto;
-  gap: 8px;
-  padding: 7px 14px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  font-size: 12px;
-  transition: border-color 0.2s;
-}
-.ft__theme.hd__theme:hover {
-  border-color: var(--paper);
-}
-.ft__theme svg {
-  width: 14px;
-  height: 14px;
-}
-
 /* ссылка на текст согласия ПДн в подписи галочки – видно, что это ссылка */
 .consent-link {
   text-decoration: underline;
@@ -1191,4 +1172,43 @@
   .rt {
     grid-template-columns: 1fr;
   }
+}
+
+/* плавающий виджет слева внизу: «Наверх» и тема (18.11.2026) */
+.fl {
+  position: fixed;
+  left: var(--gut);
+  bottom: 20px;
+  z-index: 55;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.fl__btn,
+.fl .hd__theme {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--paper);
+  background: var(--hd-bg);
+  border: 1px solid var(--line);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+  transition: border-color 0.2s, opacity 0.3s, transform 0.3s;
+}
+.fl__btn:hover {
+  border-color: var(--paper);
+}
+.fl__up {
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+}
+.fl__up.is-on {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
 }

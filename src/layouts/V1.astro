@@ -135,15 +135,7 @@ const org = {
       <div class="ft__top">
         <div>
           <a href={v1('')} aria-label="ALEX KROWN – на главную"><span class="logo" style="width:44px"></span></a>
-          {/* переключатель темы – в подвале рядом с соцсетями (владелец 17.11.2026: убрать из шапки) */}
-          <div class="ft__social">
-            {SOCIAL.map(([t, h]) => <a href={h} target="_blank" rel="noopener">{t}</a>)}
-            <button type="button" class="hd__theme ft__theme" data-theme-toggle aria-label="Включить светлую тему" aria-pressed="false">
-              <svg class="is-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2" /><path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M5.3 5.3 7 7M17 17l1.7 1.7M5.3 18.7 7 17M17 7l1.7-1.7" /></svg>
-              <svg class="is-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14.2A8.5 8.5 0 1 1 9.8 3.5a6.8 6.8 0 0 0 10.7 10.7Z" /></svg>
-              <span>Тема</span>
-            </button>
-          </div>
+          <div class="ft__social">{SOCIAL.map(([t, h]) => <a href={h} target="_blank" rel="noopener">{t}</a>)}</div>
           <p class="ft__contacts"><a href={`tel:+${PHONE.replace(/\D/g, '')}`}>{PHONE}</a><a href={`mailto:${EMAIL}`}>{EMAIL}</a></p>
           <a class="ft__by" href="https://deford-studio.ru/" target="_blank" rel="noopener">Design by Deford</a>
         </div>
@@ -158,6 +150,34 @@ const org = {
       </div>
       <p class="ft__word" aria-hidden="true">ALEX KROWN</p>
     </footer>
+
+    {/* плавающий виджет слева внизу (владелец 18.11.2026): «Наверх» – появляется, когда листают вверх; под ним – тема */}
+    <div class="fl">
+      <button type="button" class="fl__btn fl__up" data-to-top aria-label="Наверх" tabindex="-1">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7" /></svg>
+      </button>
+      <button type="button" class="fl__btn hd__theme" data-theme-toggle aria-label="Включить светлую тему" aria-pressed="false">
+        <svg class="is-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2" /><path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M5.3 5.3 7 7M17 17l1.7 1.7M5.3 18.7 7 17M17 7l1.7-1.7" /></svg>
+        <svg class="is-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14.2A8.5 8.5 0 1 1 9.8 3.5a6.8 6.8 0 0 0 10.7 10.7Z" /></svg>
+      </button>
+    </div>
+    <script is:inline>
+      (function () {
+        var up = document.querySelector('[data-to-top]');
+        if (!up) return;
+        var last = scrollY;
+        addEventListener('scroll', function () {
+          var y = scrollY, d = y - last, on = up.classList.contains('is-on');
+          if (y <= 600 || d > 2) on = false; else if (d < -2) on = true;
+          up.classList.toggle('is-on', on);
+          up.tabIndex = on ? 0 : -1;
+          last = y;
+        }, { passive: true });
+        up.addEventListener('click', function () {
+          scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+        });
+      })();
+    </script>
 
     <Sheets client:idle catalogHref={v1('catalog')} orderHref={v1('checkout')} favHref={v1('favorites')} />
     {metrika > 0 && <CookieBanner client:idle policyHref={v1('privatepolicy')} />}
