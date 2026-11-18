@@ -106,15 +106,18 @@
   border-radius: 999px;
   padding: 8px 14px;
 }
+/* подразделы видны все сразу, переносом строк – без прокрутки вбок (владелец 18.11.2026) */
 .chips--scroll {
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  scrollbar-width: none;
-  margin: 0 calc(-1 * var(--gut));
-  padding: 0 var(--gut) 4px;
+  flex-wrap: wrap;
 }
-.chips--scroll::-webkit-scrollbar {
-  display: none;
+@media (width <= 760px) {
+  .chips--scroll {
+    gap: 6px;
+  }
+  .chips--scroll .chip {
+    padding: 7px 12px;
+    font-size: 11px;
+  }
 }
 .prod__badge {
   position: absolute;
