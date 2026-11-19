@@ -88,9 +88,12 @@ export default function ProductsAdmin({ items, secs, labels, imgBase, siteBase }
     const s = q.trim().toLowerCase();
     const inCur = (p: Raw) => (cur === 'all' ? true : cur === 'hidden' ? p.hidden : sections.find((x) => x.path === cur)?.uids.includes(p.uid));
     let out = raw.filter((p) => inCur(p) && (!s || p.title.toLowerCase().includes(s) || p.uid.includes(s)));
-    if (cur !== 'all' && cur !== 'hidden' && sort === 'site') {
-      const ord = order ?? sections.find((x) => x.path === cur)!.uids;
-      out = [...out].sort((a, b) => ord.indexOf(a.uid) - ord.indexOf(b.uid));
+    /* «Как на сайте»: раздел – по его списку, «Все товары» – по общему каталогу (страница /catalog/) */
+    const op = cur === 'all' ? 'catalog' : cur === 'hidden' ? null : cur;
+    if (op && sort === 'site') {
+      const ord = order ?? sections.find((x) => x.path === op)?.uids ?? [];
+      const at = (u: string) => (ord.indexOf(u) < 0 ? 1e9 : ord.indexOf(u));
+      out = [...out].sort((a, b) => at(a.uid) - at(b.uid));
     }
     if (sort === 'price-asc') out = [...out].sort((a, b) => a.price - b.price);
     if (sort === 'price-desc') out = [...out].sort((a, b) => b.price - a.price);
@@ -209,8 +212,11 @@ export default function ProductsAdmin({ items, secs, labels, imgBase, siteBase }
   const count = (path: string) => sections.find((s) => s.path === path)?.uids.length ?? 0;
   const isSection = cur !== 'all' && cur !== 'hidden';
 
-  /* менять порядок можно в разделе, при сортировке «Как на сайте» и без поиска – иначе список не тот, что на сайте */
-  const canSort = isSection && sort === 'site' && !q.trim();
+  /* менять порядок можно в разделе и во «Все товары» (порядок общего каталога /catalog/), при сортировке
+     «Как на сайте» и без поиска – иначе список не тот, что на сайте */
+  const orderPath = cur === 'all' ? 'catalog' : isSection ? cur : null;
+  const orderLabel = cur === 'all' ? 'Все товары (общий каталог)' : label(cur);
+  const canSort = !!orderPath && sort === 'site' && !q.trim();
   const moveTo = (uid: string, to: number) => {
     const ids = shown.map((p) => p.uid);
     const from = ids.indexOf(uid);
@@ -222,10 +228,12 @@ export default function ProductsAdmin({ items, secs, labels, imgBase, siteBase }
   };
   const saveOrder = async () => {
     if (!order) return;
-    const sec = sections.find((s) => s.path === cur);
+    const sec = sections.find((s) => s.path === orderPath);
     if (!sec) return setOrder(null);
-    const rest = sec.uids.filter((u) => !order.includes(u)); // uid без товара в каталоге – в хвост, как были
-    await persist(raw, sections.map((s) => (s.path === cur ? { ...s, uids: [...order, ...rest] } : s)), `порядок товаров в «${label(cur)}»`);
+    const known = new Set(sec.uids);
+    const next = cur === 'all' ? order : order.filter((u) => known.has(u)); // общий каталог – все товары
+    const rest = sec.uids.filter((u) => !next.includes(u)); // uid без товара в каталоге – в хвост, как были
+    await persist(raw, sections.map((s) => (s.path === orderPath ? { ...s, uids: [...next, ...rest] } : s)), `порядок товаров в «${orderLabel}»`);
     setOrder(null);
   };
   /* уход из раздела с несохранённым порядком – переспросить */
@@ -286,8 +294,8 @@ export default function ProductsAdmin({ items, secs, labels, imgBase, siteBase }
               <button class="btn ghost" onClick={() => setOrder(null)}>Отменить</button>
             </div>
           )}
-          {isSection && !canSort && !order && <p class="muted pa__hint">Чтобы менять порядок товаров, выберите «Как на сайте» и очистите поиск</p>}
-          {canSort && !order && <p class="muted pa__hint">Порядок как на сайте: перетащите строку или нажмите ↑ ↓ «Наверх», потом «Сохранить порядок»</p>}
+          {!!orderPath && !canSort && !order && <p class="muted pa__hint">Чтобы менять порядок товаров, выберите «Как на сайте» и очистите поиск</p>}
+          {canSort && !order && <p class="muted pa__hint">{cur === 'all' ? 'Порядок общего каталога на сайте' : 'Порядок как на сайте'}: перетащите строку или нажмите ↑ ↓ «Наверх», потом «Сохранить порядок»</p>}
 
           {sel.size > 0 && (
             <div class="pa__bulk">
