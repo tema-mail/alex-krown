@@ -30,6 +30,11 @@ export default function ProductsAdmin({ items, secs, labels, imgBase, siteBase }
   const [csv, setCsv] = useState(false);
   const [newSec, setNewSec] = useState<string | null>(null);
   const [status, setStatus] = useState<Status>({ kind: 'idle', text: '' });
+  /* порядок товаров в открытом разделе: правится локально (перетаскивание, ↑ ↓ «Наверх»), на сайт уходит
+     одним коммитом по «Сохранить порядок» – иначе каждое движение = отдельная пересборка сайта */
+  const [order, setOrder] = useState<string[] | null>(null);
+  const [dragUid, setDragUid] = useState<string | null>(null);
+  const [overUid, setOverUid] = useState<string | null>(null);
 
   /* с ключом – свежие данные прямо из репозитория: собранный сайт отстаёт на время сборки */
   const reload = async () => {
@@ -84,14 +89,14 @@ export default function ProductsAdmin({ items, secs, labels, imgBase, siteBase }
     const inCur = (p: Raw) => (cur === 'all' ? true : cur === 'hidden' ? p.hidden : sections.find((x) => x.path === cur)?.uids.includes(p.uid));
     let out = raw.filter((p) => inCur(p) && (!s || p.title.toLowerCase().includes(s) || p.uid.includes(s)));
     if (cur !== 'all' && cur !== 'hidden' && sort === 'site') {
-      const order = sections.find((x) => x.path === cur)!.uids;
-      out = [...out].sort((a, b) => order.indexOf(a.uid) - order.indexOf(b.uid));
+      const ord = order ?? sections.find((x) => x.path === cur)!.uids;
+      out = [...out].sort((a, b) => ord.indexOf(a.uid) - ord.indexOf(b.uid));
     }
     if (sort === 'price-asc') out = [...out].sort((a, b) => a.price - b.price);
     if (sort === 'price-desc') out = [...out].sort((a, b) => b.price - a.price);
     if (sort === 'name') out = [...out].sort((a, b) => a.title.localeCompare(b.title, 'ru'));
     return out;
-  }, [raw, sections, cur, q, sort]);
+  }, [raw, sections, cur, q, sort, order]);
 
   /** сохранить товары и каталоги (и новые фото) одним коммитом */
   const persist = async (nextRaw: Raw[], nextSecs: Sec[], message: string, extra: FileChange[] = []) => {
@@ -204,6 +209,33 @@ export default function ProductsAdmin({ items, secs, labels, imgBase, siteBase }
   const count = (path: string) => sections.find((s) => s.path === path)?.uids.length ?? 0;
   const isSection = cur !== 'all' && cur !== 'hidden';
 
+  /* менять порядок можно в разделе, при сортировке «Как на сайте» и без поиска – иначе список не тот, что на сайте */
+  const canSort = isSection && sort === 'site' && !q.trim();
+  const moveTo = (uid: string, to: number) => {
+    const ids = shown.map((p) => p.uid);
+    const from = ids.indexOf(uid);
+    const at = Math.max(0, Math.min(ids.length - 1, to));
+    if (from < 0 || from === at) return;
+    ids.splice(from, 1);
+    ids.splice(at, 0, uid);
+    setOrder(ids);
+  };
+  const saveOrder = async () => {
+    if (!order) return;
+    const sec = sections.find((s) => s.path === cur);
+    if (!sec) return setOrder(null);
+    const rest = sec.uids.filter((u) => !order.includes(u)); // uid без товара в каталоге – в хвост, как были
+    await persist(raw, sections.map((s) => (s.path === cur ? { ...s, uids: [...order, ...rest] } : s)), `порядок товаров в «${label(cur)}»`);
+    setOrder(null);
+  };
+  /* уход из раздела с несохранённым порядком – переспросить */
+  const openSec = (path: string) => {
+    if (path === cur) return;
+    if (order && !confirm('Новый порядок не сохранён. Уйти из раздела без сохранения?')) return;
+    setOrder(null);
+    setCur(path);
+  };
+
   return (
     <div>
       <div class={`sync sync--${connected ? 'on' : 'off'}`}>
@@ -216,11 +248,11 @@ export default function ProductsAdmin({ items, secs, labels, imgBase, siteBase }
       <div class="pa">
         <aside class="pa__side">
           <p class="pa__cap">Разделы</p>
-          <button class={cur === 'all' ? 'on' : ''} onClick={() => setCur('all')}>Все товары<span>{raw.length}</span></button>
+          <button class={cur === 'all' ? 'on' : ''} onClick={() => openSec('all')}>Все товары<span>{raw.length}</span></button>
           {tree.map((t) => (
-            <button class={cur === t.path ? 'on' : ''} style={t.depth ? 'padding-left:26px;font-size:12.5px' : ''} onClick={() => setCur(t.path)}>{t.label}<span>{count(t.path)}</span></button>
+            <button class={cur === t.path ? 'on' : ''} style={t.depth ? 'padding-left:26px;font-size:12.5px' : ''} onClick={() => openSec(t.path)}>{t.label}<span>{count(t.path)}</span></button>
           ))}
-          <button class={cur === 'hidden' ? 'on' : ''} onClick={() => setCur('hidden')}>Скрытые<span>{raw.filter((p) => p.hidden).length}</span></button>
+          <button class={cur === 'hidden' ? 'on' : ''} onClick={() => openSec('hidden')}>Скрытые<span>{raw.filter((p) => p.hidden).length}</span></button>
           {newSec === null ? (
             <button class="pa__addpart" onClick={() => setNewSec('')}>+ Добавить раздел</button>
           ) : (
@@ -246,6 +278,17 @@ export default function ProductsAdmin({ items, secs, labels, imgBase, siteBase }
             <button class="btn primary" onClick={() => setEdit(blank())}>+ Добавить товар</button>
           </div>
 
+          {order && (
+            <div class="pa__bulk pa__order">
+              <b>Порядок изменён</b>
+              <span class="muted">На сайте применится после сохранения</span>
+              <button class="btn primary" onClick={saveOrder}>Сохранить порядок</button>
+              <button class="btn ghost" onClick={() => setOrder(null)}>Отменить</button>
+            </div>
+          )}
+          {isSection && !canSort && !order && <p class="muted pa__hint">Чтобы менять порядок товаров, выберите «Как на сайте» и очистите поиск</p>}
+          {canSort && !order && <p class="muted pa__hint">Порядок как на сайте: перетащите строку или нажмите ↑ ↓ «Наверх», потом «Сохранить порядок»</p>}
+
           {sel.size > 0 && (
             <div class="pa__bulk">
               <b>Выбрано: {sel.size}</b>
@@ -265,11 +308,30 @@ export default function ProductsAdmin({ items, secs, labels, imgBase, siteBase }
               <label><input type="checkbox" checked={allOn} onChange={() => setSel(allOn ? new Set() : new Set(shown.map((p) => p.uid)))} aria-label="Выбрать все" /></label>
               <span></span><span>Товар</span><span>Разделы</span><span>Цена</span><span>Наличие</span><span>На сайте</span>
             </div>
-            {shown.map((p) => (
-              <div class={`pt__row${sel.has(p.uid) ? ' is-sel' : ''}${p.hidden ? ' is-off' : ''}`} onClick={() => setEdit(toAdm(p))}>
+            {shown.map((p, i) => (
+              <div
+                class={`pt__row${sel.has(p.uid) ? ' is-sel' : ''}${p.hidden ? ' is-off' : ''}${dragUid === p.uid ? ' is-drag' : ''}${canSort && dragUid && overUid === p.uid && dragUid !== p.uid ? (shown.findIndex((x) => x.uid === dragUid) < i ? ' is-over-down' : ' is-over-up') : ''}`}
+                onClick={() => setEdit(toAdm(p))}
+                draggable={canSort}
+                onDragStart={canSort ? (e) => { e.dataTransfer?.setData('text/plain', p.uid); if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move'; setDragUid(p.uid); } : undefined}
+                onDragOver={canSort ? (e) => { e.preventDefault(); if (overUid !== p.uid) setOverUid(p.uid); } : undefined}
+                onDrop={canSort ? (e) => { e.preventDefault(); if (dragUid) moveTo(dragUid, i); setDragUid(null); setOverUid(null); } : undefined}
+                onDragEnd={canSort ? () => { setDragUid(null); setOverUid(null); } : undefined}
+              >
                 <label onClick={(e) => e.stopPropagation()}><input type="checkbox" checked={sel.has(p.uid)} onChange={() => toggle(p.uid)} aria-label={`Выбрать ${p.title}`} /></label>
-                {p.photos[0] ? <img class="thumb" src={`${imgBase}/${p.photos[0].name}-s.webp`} alt="" loading="lazy" /> : <span class="thumb" />}
-                <div><span class="pname">{p.title}</span><span class="muted pt__sku">№ {p.uid}{(p.priceOld ?? 0) > p.price && <i class="pt__mark">-{Math.round((1 - p.price / p.priceOld!) * 100)}%</i>}{p.hidden && <i class="pt__off">скрыт</i>}</span></div>
+                {p.photos[0] ? <img class="thumb" src={`${imgBase}/${p.photos[0].name}-s.webp`} alt="" loading="lazy" draggable={false} /> : <span class="thumb" />}
+                <div>
+                  <span class="pname">{p.title}</span><span class="muted pt__sku">№ {p.uid}{(p.priceOld ?? 0) > p.price && <i class="pt__mark">-{Math.round((1 - p.price / p.priceOld!) * 100)}%</i>}{p.hidden && <i class="pt__off">скрыт</i>}</span>
+                  {canSort && (
+                    <span class="pt__mv" onClick={(e) => e.stopPropagation()}>
+                      <span class="pt__grip" title="Перетащите строку" aria-hidden="true">⠿</span>
+                      <b class="pt__pos">{i + 1}</b>
+                      <button type="button" disabled={i === 0} onClick={() => moveTo(p.uid, i - 1)} aria-label={`«${p.title}» выше`}>↑</button>
+                      <button type="button" disabled={i === shown.length - 1} onClick={() => moveTo(p.uid, i + 1)} aria-label={`«${p.title}» ниже`}>↓</button>
+                      <button type="button" disabled={i === 0} onClick={() => moveTo(p.uid, 0)}>Наверх</button>
+                    </span>
+                  )}
+                </div>
                 <div>{secOf(p.uid).slice(0, 3).map((s) => <span class="chip">{label(s)}</span>)}{secOf(p.uid).length > 3 && <span class="chip">+{secOf(p.uid).length - 3}</span>}</div>
                 <div class="pt__price"><b>{fmt(p.price)}</b>{p.priceOld && <s>{fmt(p.priceOld)}</s>}{p.sizes?.length > 0 && <small class="muted" style="display:block;font-size:11.5px">{p.sizes.map((s: any) => s.size).join(' ')}</small>}</div>
                 <span class="muted">{p.preorder ? 'Под заказ' : 'В наличии'}</span>

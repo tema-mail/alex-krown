@@ -174,3 +174,17 @@ details.pcat[open] .caret{transform:rotate(90deg)}
 /* 10 вкладок с «Бонусами»: на ноутбуке «Выйти» не должна уезжать на вторую строку */
 @media (max-width:1560px){.topnav{gap:16px;font-size:13.5px}.topnav .brand{margin-right:2px}.topnav .site{font-size:12.5px}}
 @media (max-width:1400px){.topnav .site{display:none}.topnav .logout{margin-left:auto}}
+/* порядок товаров в разделе (19.11.2026): перетаскивание строки, ↑ ↓ «Наверх», сохранение одной кнопкой */
+.pa__order{position:sticky;top:8px;z-index:5;background:#eef6f0;border-color:#b9dcc4}
+.pa__hint{font-size:12.5px;margin:0 0 10px}
+.pt__mv{display:flex;align-items:center;gap:6px;margin-top:6px;flex-wrap:wrap}
+.pt__mv button{min-width:34px;height:30px;padding:0 9px;border:1px solid #d5dad8;border-radius:7px;background:#fff;font:inherit;font-size:13px;cursor:pointer}
+.pt__mv button:hover:not(:disabled){background:#f1f3f2}
+.pt__mv button:disabled{opacity:.35;cursor:default}
+.pt__grip{cursor:grab;color:#99a3a0;font-size:16px;line-height:1}
+.pt__pos{font-size:12px;color:#55605d;min-width:20px;text-align:right}
+.pt__row[draggable=true]{cursor:grab}
+.pt__row.is-drag{opacity:.4}
+.pt__row.is-over-up{box-shadow:inset 0 3px 0 #2f7a4b}
+.pt__row.is-over-down{box-shadow:inset 0 -3px 0 #2f7a4b}
+@media(max-width:900px){.pt__grip{display:none}.pt__mv{gap:5px;flex-wrap:nowrap}.pt__mv button{height:34px;min-width:40px}.pt__head,.pt__row{grid-template-columns:28px 48px minmax(0,1fr);gap:12px}}
