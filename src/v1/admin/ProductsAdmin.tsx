@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'preact/hooks';
 import ProductEditor, { type AdmProduct, type SectionOpt } from './ProductEditor';
 import GhConnect from './GhConnect';
 import CsvImport, { downloadCsv } from './CsvImport';
+import type { Upload } from './media';
 import { IMG_DIR, PRODUCTS_PATH, SECTIONS_PATH, buildOf, commit, getToken, humanError, readJson, slugify, toWebp, type FileChange } from './gh';
 
 /* «Каталоги и товары» магазина «Вариант 1» (по образцу Тильды и админки Elite Rose). Каталоги – из
@@ -133,10 +134,10 @@ export default function ProductsAdmin({ items, secs, labels, imgBase, siteBase }
   const toAdm = (p: Raw): AdmProduct => ({
     uid: p.uid, path: p.path, title: p.title, price: p.price, priceOld: p.priceOld, sizes: p.sizes ?? [], kind: p.kind ?? '', color: p.color ?? '',
     descr: p.descr ?? '', composition: p.composition ?? '', photos: p.photos ?? [], hidden: !!p.hidden, seoTitle: p.seoTitle ?? '', seoDescr: p.seoDescr ?? '', sections: secOf(p.uid),
-    preorder: !!p.preorder, weight: p.weight ?? '', dims: p.dims ?? '',
+    preorder: !!p.preorder, weight: p.weight ?? '', dims: p.dims ?? '', videos: p.videos ?? [],
   });
 
-  const save = async (a: AdmProduct, files: File[]) => {
+  const save = async (a: AdmProduct, files: File[], extra: Upload[] = []) => {
     if (!a.title.trim()) return setStatus({ kind: 'error', text: 'Укажите название товара' });
     if (!a.price && !a.sizes.some((s) => s.price)) return setStatus({ kind: 'error', text: 'Укажите цену' });
     const isNew = !a.uid;
@@ -144,7 +145,7 @@ export default function ProductsAdmin({ items, secs, labels, imgBase, siteBase }
     const top = a.sections.find((s) => s.startsWith('catalog/man')) ? 'catalog/man' : a.sections.find((s) => s.startsWith('catalog/woman')) ? 'catalog/woman' : 'catalog';
     const path = a.path || `${top}/tproduct/${uid}-${slugify(a.title)}`;
     const photos = [...a.photos];
-    const uploads: FileChange[] = [];
+    const uploads: FileChange[] = [...extra]; // видео и их превью (media.ts)
     let n = photos.reduce((m, ph) => Math.max(m, Number(ph.name.match(/-(\d+)$/)?.[1] ?? 0)), 0) + 1;
     setStatus({ kind: 'saving', text: files.length ? 'Сжимаем фото…' : 'Сохраняем…' });
     try {
@@ -166,6 +167,7 @@ export default function ProductsAdmin({ items, secs, labels, imgBase, siteBase }
       descr: a.descr.trim(), composition: a.composition.trim(), photos, hidden: a.hidden,
       ...(a.seoTitle.trim() ? { seoTitle: a.seoTitle.trim() } : { seoTitle: undefined }), ...(a.seoDescr.trim() ? { seoDescr: a.seoDescr.trim() } : { seoDescr: undefined }),
       preorder: a.preorder || undefined, stock: undefined, weight: a.weight.trim() || undefined, dims: a.dims.trim() || undefined,
+      videos: a.videos.length ? a.videos : undefined,
     };
     const nextRaw = isNew ? [next, ...raw] : raw.map((x) => (x.uid === uid ? next : x));
     setEdit(null);
@@ -208,7 +210,7 @@ export default function ProductsAdmin({ items, secs, labels, imgBase, siteBase }
     s.has(uid) ? s.delete(uid) : s.add(uid);
     setSel(s);
   };
-  const blank = (): AdmProduct => ({ uid: '', path: '', title: '', price: 0, priceOld: null, sizes: ['S', 'M', 'L', 'XL'].map((size) => ({ size, price: 0, priceOld: null })), kind: '', color: '', descr: '', composition: '', photos: [], hidden: false, seoTitle: '', seoDescr: '', sections: cur !== 'all' && cur !== 'hidden' ? [cur] : [], preorder: false, weight: '', dims: '' });
+  const blank = (): AdmProduct => ({ uid: '', path: '', title: '', price: 0, priceOld: null, sizes: ['S', 'M', 'L', 'XL'].map((size) => ({ size, price: 0, priceOld: null })), kind: '', color: '', descr: '', composition: '', photos: [], hidden: false, seoTitle: '', seoDescr: '', sections: cur !== 'all' && cur !== 'hidden' ? [cur] : [], preorder: false, weight: '', dims: '', videos: [] });
   const count = (path: string) => sections.find((s) => s.path === path)?.uids.length ?? 0;
   const isSection = cur !== 'all' && cur !== 'hidden';
 

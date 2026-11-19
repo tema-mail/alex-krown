@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'preact/hooks';
+import { VIDEO, VIDEO_RULE, prepareVideo, firstFrame, preparePoster, uploadsOf, type Video, type Upload } from './media';
 
 /* Редактор товара магазина «Вариант 1» – вкладки как у эталона Elite Rose (src/islands/admin/ProductEditor.tsx):
    «Основное», «Фото», «Разделы», «Варианты», «Размеры и вес», «SEO». Варианты – размеры одежды со своей ценой.
@@ -12,18 +13,45 @@ export interface AdmProduct {
   hidden: boolean; seoTitle: string; seoDescr: string; sections: string[];
   /** наличие: остатки не ведём (владелец 28.10.2026) – только «в наличии» или «под заказ» */
   preorder: boolean; weight: string; dims: string;
+  /** видео товара (как в TEYES): на сайте – после обложки, само и без звука */
+  videos: Video[];
 }
 export interface SectionOpt { path: string; label: string; depth: number }
+/** видео в ленте редактора: уже на сайте (src – адрес) или новое (base64 – загрузится при сохранении) */
+type VMedia = { file: string; src: string; base64?: string; sound: boolean; poster?: { name: string; src: string; base64?: string } };
 
 const TABS = ['Основное', 'Фото', 'Разделы', 'Варианты', 'Размеры и вес', 'SEO'] as const;
 const digits = (v: string) => v.replace(/\D/g, '');
 
 export default function ProductEditor({ product, sections, imgBase, siteBase, onClose, onSave, onDelete }: {
   product: AdmProduct; sections: SectionOpt[]; imgBase: string; siteBase: string;
-  onClose: () => void; onSave: (p: AdmProduct, files: File[]) => void; onDelete: (p: AdmProduct) => void;
+  onClose: () => void; onSave: (p: AdmProduct, files: File[], extra: Upload[]) => void; onDelete: (p: AdmProduct) => void;
 }) {
   const [p, setP] = useState<AdmProduct>(product);
   const [files, setFiles] = useState<{ file: File; url: string }[]>([]);
+  const vidBase = imgBase.replace(/img\/?$/, 'video/p');
+  const [vids, setVids] = useState<VMedia[]>(product.videos.map((v) => ({ file: v.file, src: `${vidBase}/${v.file}`, sound: v.sound,
+    poster: v.poster ? { name: v.poster, src: `${imgBase}/${v.poster}.webp` } : undefined })));
+  const [vnote, setVnote] = useState('');
+  const [verrs, setVerrs] = useState<string[]>([]);
+  const addVideos = async (list: File[]) => {
+    if (vnote) return;
+    const errs: string[] = [], out: VMedia[] = [];
+    setVnote('Проверяю видео…');
+    for (const f of list) {
+      if (vids.length + out.length >= VIDEO.maxCount) { errs.push(`«${f.name}»: у товара уже ${VIDEO.maxCount} видео – больше нельзя`); continue; }
+      try {
+        const r = await prepareVideo(f);
+        if ([...vids, ...out].some((m) => m.file === r.name)) { errs.push(`«${f.name}»: такое видео уже есть у товара`); continue; }
+        let poster: VMedia['poster'];
+        try { const fr = await firstFrame(r.url, `v-${r.name.split('.')[0]}`); poster = { name: fr.name, src: fr.url, base64: fr.base64 }; } catch { /* без превью – браузер покажет кадр сам */ }
+        out.push({ file: r.name, src: r.url, base64: r.base64, sound: false, poster });
+      } catch (e: any) { errs.push(e.message); }
+    }
+    setVids([...vids, ...out]); setVerrs(errs); setVnote('');
+  };
+  const moveVid = (i: number, j: number) => { if (j < 0 || j >= vids.length) return; const a = [...vids]; [a[i], a[j]] = [a[j], a[i]]; setVids(a); };
+  const doSave = () => onSave({ ...p, videos: vids.map((m) => ({ file: m.file, poster: m.poster?.name || '', sound: !!m.sound })) }, files.map((f) => f.file), uploadsOf(vids));
   const [tab, setTab] = useState<(typeof TABS)[number]>('Основное');
   const isNew = !product.uid;
   useEffect(() => setP(product), [product]);
@@ -57,7 +85,7 @@ export default function ProductEditor({ product, sections, imgBase, siteBase, on
             <span />{p.hidden ? 'Скрыт' : 'Опубликован'}
           </label>
           <button class="btn" onClick={onClose}>Закрыть</button>
-          <button class="btn primary" onClick={() => onSave(p, files.map((f) => f.file))}>Сохранить</button>
+          <button class="btn primary" onClick={doSave}>Сохранить</button>
         </header>
         <nav class="ed__tabs">{TABS.map((t) => <button class={t === tab ? 'on' : ''} onClick={() => setTab(t)}>{t}</button>)}</nav>
 
@@ -123,6 +151,37 @@ export default function ProductEditor({ product, sections, imgBase, siteBase, on
                   <b>+</b><span>Загрузить фото</span><small>JPG, PNG или WebP</small>
                 </label>
               </div>
+
+              <h3 style="margin:22px 0 10px;font-size:15px">Видео</h3>
+              <div class="gal">
+                {vids.map((m, i) => (
+                  <figure class={`gal__item gal__item--video${m.base64 ? ' gal__item--new' : ''}`}>
+                    <video src={m.src} poster={m.poster?.src} muted autoplay loop playsInline preload="metadata" />
+                    {m.base64 && <span class="gal__badge">загрузится при сохранении</span>}
+                    <button class="gal__del" title="Убрать видео" onClick={() => setVids(vids.filter((_, n) => n !== i))}>×</button>
+                    <span style="position:absolute;left:6px;top:6px;display:flex;gap:4px">
+                      <button class="btn" style="height:26px;padding:0 8px" title="Левее" disabled={i === 0} onClick={() => moveVid(i, i - 1)}>←</button>
+                      <button class="btn" style="height:26px;padding:0 8px" title="Правее" disabled={i === vids.length - 1} onClick={() => moveVid(i, i + 1)}>→</button>
+                    </span>
+                    <div class="gal__vopts">
+                      <label><input type="checkbox" checked={!!m.sound} onChange={(e) => setVids(vids.map((x, n) => (n === i ? { ...x, sound: (e.target as HTMLInputElement).checked } : x)))} /> Со звуком</label>
+                      <label class="gal__poster"><span>{m.poster ? 'Превью: заменить' : 'Загрузить превью'}</span>
+                        <input type="file" hidden accept="image/jpeg,image/png,image/webp" onChange={async (e) => {
+                          const f = (e.target as HTMLInputElement).files?.[0]; (e.target as HTMLInputElement).value = ''; if (!f) return;
+                          try { const r = await preparePoster(f, `v-${m.file.split('.')[0]}-${Date.now().toString(36)}`); setVids(vids.map((x, n) => (n === i ? { ...x, poster: { name: r.name, src: r.url, base64: r.base64 } } : x))); setVerrs([]); }
+                          catch (er: any) { setVerrs([er.message]); }
+                        }} /></label>
+                    </div>
+                  </figure>
+                ))}
+                <label class={`gal__add${vnote ? ' is-busy' : ''}`}>
+                  <input type="file" disabled={!!vnote} accept="video/mp4,video/webm,.mov" multiple hidden onChange={(e) => { const fl = [...((e.target as HTMLInputElement).files || [])]; (e.target as HTMLInputElement).value = ''; addVideos(fl); }} />
+                  <b>+</b><span>Загрузить видео</span><small>MP4 или WebM</small>
+                </label>
+              </div>
+              <p class="muted" style="margin:8px 0 0;font-size:12px">{VIDEO_RULE}</p>
+              {vnote && <p class="muted" style="margin:10px 0 0">{vnote}</p>}
+              {verrs.length > 0 && <div class="gal__err" role="alert"><b>Не загружено:</b><ul>{verrs.map((x) => <li>{x}</li>)}</ul></div>}
             </div>
           )}
 

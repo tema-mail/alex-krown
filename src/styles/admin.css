@@ -188,3 +188,13 @@ details.pcat[open] .caret{transform:rotate(90deg)}
 .pt__row.is-over-up{box-shadow:inset 0 3px 0 #2f7a4b}
 .pt__row.is-over-down{box-shadow:inset 0 -3px 0 #2f7a4b}
 @media(max-width:900px){.pt__grip{display:none}.pt__mv{gap:5px;flex-wrap:nowrap}.pt__mv button{height:34px;min-width:40px}.pt__head,.pt__row{grid-template-columns:28px 48px minmax(0,1fr);gap:12px}}
+/* видео товара в редакторе (19.11.2026, из TEYES) */
+.gal__add.is-busy{opacity:.5;pointer-events:none}
+.gal__err{margin:12px 0 0;padding:10px 14px;border:1px solid #f1c2c2;background:#fff5f5;border-radius:10px;color:#8a1f1f;font-size:13px}
+.gal__err ul{margin:6px 0 0;padding-left:18px}
+.gal__item--video{aspect-ratio:auto;display:grid;grid-template-rows:minmax(0,1fr) auto;background:#1c201f;cursor:default}
+.gal__item--video video{width:100%;aspect-ratio:4/5;height:auto;object-fit:cover;display:block}
+.gal__vopts{display:grid;gap:6px;padding:8px;background:#fff;font-size:12.5px}
+.gal__vopts label{display:flex;align-items:center;gap:6px;cursor:pointer;min-height:28px}
+.gal__poster span{text-decoration:underline}
+.gal__item--video .gal__badge{bottom:auto;top:38px}
