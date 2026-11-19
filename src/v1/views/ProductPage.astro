@@ -7,7 +7,7 @@ import ProductCard from '../ProductCard.astro';
 import ProductBuy from '../islands/ProductBuy';
 import { BASE_RATE, PROGRAM } from '../loyalty';
 import { FREE_DELIVERY_RULE } from '../delivery';
-import { v1, img, srcset, rub, byUid, homeSection, sectionName, sections, infoPages, metaDescription, minPrice, priceVaries, BRAND, type Product } from '../site';
+import { v1, img, asset, srcset, rub, byUid, homeSection, sectionName, sections, infoPages, metaDescription, minPrice, priceVaries, BRAND, type Product } from '../site';
 
 interface Props { p: Product }
 const { p } = Astro.props;
@@ -47,6 +47,8 @@ const ld = [
   { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: crumbs.map(([n, x], i) => ({ '@type': 'ListItem', position: i + 1, name: n, item: abs(v1(x)) })) },
 ];
 const first = p.photos[0];
+/* видео товара – после обложки, само и без звука; звук – только по кнопке (браузеры не дают запускать со звуком) */
+const videos = (p.videos ?? []).filter((v) => v.file);
 ---
 
 <V1
@@ -62,15 +64,29 @@ const first = p.photos[0];
       <div class="pp__gallery">
         {
           p.photos.map((ph, i) => (
-            <figure>
-              <img
-                src={img(ph.name + '-s')} srcset={srcset(ph)} sizes={i === 0 ? '(max-width: 900px) 82vw, 52vw' : '(max-width: 900px) 82vw, 26vw'}
-                width={ph.w} height={ph.h} alt={i === 0 ? p.title : `${p.title}, фото ${i + 1}`}
-                loading={i === 0 ? 'eager' : 'lazy'} fetchpriority={i === 0 ? 'high' : undefined} decoding="async"
-              />
-            </figure>
+            <>
+              <figure>
+                <img
+                  src={img(ph.name + '-s')} srcset={srcset(ph)} sizes={i === 0 ? '(max-width: 900px) 82vw, 52vw' : '(max-width: 900px) 82vw, 26vw'}
+                  width={ph.w} height={ph.h} alt={i === 0 ? p.title : `${p.title}, фото ${i + 1}`}
+                  loading={i === 0 ? 'eager' : 'lazy'} fetchpriority={i === 0 ? 'high' : undefined} decoding="async"
+                />
+              </figure>
+              {(i === 0) && videos.map((v) => (
+                <figure class="pp__video">
+                  <video src={asset(`v1/video/p/${v.file}`)} poster={v.poster ? img(v.poster) : undefined} autoplay muted loop playsinline preload="metadata" aria-label={`${p.title}, видео`} />
+                  {v.sound && <button type="button" class="pp__sound" data-unmute aria-label="Включить звук">🔇 Включить звук</button>}
+                </figure>
+              ))}
+            </>
           ))
         }
+        {p.photos.length === 0 && videos.map((v) => (
+          <figure class="pp__video">
+            <video src={asset(`v1/video/p/${v.file}`)} poster={v.poster ? img(v.poster) : undefined} autoplay muted loop playsinline preload="metadata" aria-label={`${p.title}, видео`} />
+            {v.sound && <button type="button" class="pp__sound" data-unmute aria-label="Включить звук">🔇 Включить звук</button>}
+          </figure>
+        ))}
       </div>
       <div class="pp__info">
         <h1>{p.title}</h1>
@@ -117,4 +133,15 @@ const first = p.photos[0];
       )
     }
   </main>
+  <script>
+    // звук видео – только по кнопке: браузеры не дают запускать видео со звуком сами (как в TEYES)
+    document.querySelectorAll<HTMLButtonElement>('[data-unmute]').forEach((b) => b.addEventListener('click', () => {
+      const v = b.parentElement?.querySelector('video');
+      if (!v) return;
+      v.muted = !v.muted;
+      if (!v.muted) v.play().catch(() => {});
+      b.textContent = v.muted ? '🔇 Включить звук' : '🔊 Выключить звук';
+      b.setAttribute('aria-label', v.muted ? 'Включить звук' : 'Выключить звук');
+    }));
+  </script>
 </V1>

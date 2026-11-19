@@ -11,6 +11,8 @@ export interface Product {
   uid: string; path: string; title: string; price: number; priceOld: number | null; sizes: Size[];
   kind: string; color: string; descr: string; composition: string; sizeChart: Photo | null;
   parts: string[]; sort: number; photos: Photo[];
+  /** видео товара (админка, как в TEYES): файл в public/v1/video/p, превью – фото в public/v1/img */
+  videos?: { file: string; poster: string; sound: boolean }[];
   /** скрыт с сайта (админка) */
   hidden?: boolean;
   seoTitle?: string;
