@@ -516,10 +516,10 @@
     right: 4%;
   }
   .cat--menshoes img {
-    width: 50%;
-    height: auto;
-    -webkit-mask-image: linear-gradient(transparent, #000 22%);
-    mask-image: linear-gradient(transparent, #000 22%);
+    width: 48%;
+    height: 76%;
+    right: 3%;
+    bottom: 12%;
   }
   .cat--firmware img {
     width: 60%;
@@ -591,5 +591,16 @@
   .hd .hd__lk .hd__lk-word,
   .hd .hd__lk .hd__demo {
     display: none;
+  }
+}
+
+/* ботинок без штанины – по центру правой части карточки (владелец 24.11.2026) */
+.cat--menshoes img {
+  object-position: center;
+}
+@media (min-width: 761px) {
+  .cat--menshoes img {
+    height: 80%;
+    bottom: 10%;
   }
 }
