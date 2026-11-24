@@ -9,7 +9,7 @@ import { productSlug, sectionUrl, trimPath } from './urls';
 export interface Photo { name: string; w: number; h: number }
 export interface Size { size: string; price: number; priceOld: number | null }
 export interface Product {
-  uid: string; path: string; title: string; price: number; priceOld: number | null; sizes: Size[];
+  uid: string; path: string; title: string; price: number; priceOld: number | null; sizes: Size[]; optLabel?: string;
   kind: string; color: string; descr: string; composition: string; sizeChart: Photo | null;
   parts: string[]; sort: number; photos: Photo[];
   /** скрыт с сайта (админка) */

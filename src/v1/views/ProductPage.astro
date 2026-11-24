@@ -86,7 +86,7 @@ const first = p.photos[0];
         <script type="application/json" id="ec-detail" set:html={JSON.stringify({ uid: p.uid, title: p.title, price: p.price, category: home ? sectionName(home) : '' }).replace(/</g, '\\u003c')} />
         <ProductBuy
           client:visible
-          p={{ uid: p.uid, title: p.title, price: p.price, priceOld: p.priceOld, img: first ? img(first.name + '-s') : '', path: v1(p.path), sizes: p.sizes, orderHref: v1('checkout') }}
+          p={{ uid: p.uid, title: p.title, price: p.price, priceOld: p.priceOld, img: first ? img(first.name + '-s') : '', path: v1(p.path), sizes: p.sizes, orderHref: v1('checkout'), optLabel: p.optLabel }}
         />
         <div class="acc">
           {p.descr && <details open><summary>Описание</summary><div class="acc__body">{p.descr}</div></details>}

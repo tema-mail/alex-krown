@@ -5,7 +5,9 @@ import { Points } from './Sheets';
 
 /* Блок покупки на карточке товара: выбор размера (цена у размера своя), «В корзину», «Купить сразу»,
    избранное, баллы за вещь (docs/ПЛАН-ЛК.md, решение 3; гостю – «Войдите, чтобы копить»). Товары без размеров (парфюм, аксессуары) кладутся в корзину без размера. */
-interface P { uid: string; title: string; price: number; priceOld: number | null; img: string; path: string; sizes: { size: string; price: number; priceOld: number | null }[]; orderHref: string }
+interface P { uid: string; title: string; price: number; priceOld: number | null; img: string; path: string; sizes: { size: string; price: number; priceOld: number | null }[]; orderHref: string; optLabel?: string }
+/** подпись варианта: коды без пробелов и кириллицы (id позиции на сервере), на экране – «30 мл», «5 000 ₽» */
+const optText = (v: string, l?: string) => (l === 'Объём' ? v.replace('ml', ' мл') : l === 'Номинал' ? `${Number(v).toLocaleString('ru-RU')} ₽` : v);
 
 export default function ProductBuy({ p }: { p: P }) {
   const [ready, setReady] = useState(false);
@@ -36,20 +38,20 @@ export default function ProductBuy({ p }: { p: P }) {
     <div class="pb">
       {needSize && (
         <div>
-          <p class="pp__label" id={`sz-${p.uid}`}>Размер</p>
+          <p class="pp__label" id={`sz-${p.uid}`}>{p.optLabel ?? 'Размер'}</p>
           <div class="chips" role="radiogroup" aria-labelledby={`sz-${p.uid}`}>
             {p.sizes.map((s) => (
               <button
                 type="button" role="radio" aria-checked={size === s.size} class={`chip${size === s.size ? ' is-on' : ''}`}
                 onClick={() => (setSize(s.size), setErr(false))}
               >
-                {s.size}
+                {optText(s.size, p.optLabel)}
               </button>
             ))}
           </div>
         </div>
       )}
-      {cur && <p class="pp__price" style={{ marginTop: '14px' }} aria-live="polite">Размер {cur.size}: {price.toLocaleString('ru-RU').replace(/\u00a0/g, ' ')} ₽</p>}
+      {cur && <p class="pp__price" style={{ marginTop: '14px' }} aria-live="polite">{p.optLabel ?? 'Размер'} {optText(cur.size, p.optLabel)}: {price.toLocaleString('ru-RU').replace(/\u00a0/g, ' ')} ₽</p>}
       <p class="pb__pts">
         <Points price={price} size={15} />
         {ready && snap.value.email !== null ? (
