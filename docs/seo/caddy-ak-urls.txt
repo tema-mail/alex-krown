@@ -1276,6 +1276,18 @@
 		/socks /catalog/socks/
 		/womenshoes/ /catalog/womenshoes/
 		/womenshoes /catalog/womenshoes/
+		/catalog/man/tproduct/693072083303-pidzhak-full /catalog/man/blazers/pidzhak-full/
+		/catalog/man/tproduct/693072083303-pidzhak-full/ /catalog/man/blazers/pidzhak-full/
+		/tproduct/693072083303 /catalog/man/blazers/pidzhak-full/
+		/tproduct/693072083303/ /catalog/man/blazers/pidzhak-full/
+		/tproduct/693072083303-pidzhak-full /catalog/man/blazers/pidzhak-full/
+		/tproduct/693072083303-pidzhak-full/ /catalog/man/blazers/pidzhak-full/
+		/catalog/man/tproduct/528117563523-pidzhak-geometry-black /catalog/man/blazers/pidzhak-geometry-black/
+		/catalog/man/tproduct/528117563523-pidzhak-geometry-black/ /catalog/man/blazers/pidzhak-geometry-black/
+		/tproduct/528117563523 /catalog/man/blazers/pidzhak-geometry-black/
+		/tproduct/528117563523/ /catalog/man/blazers/pidzhak-geometry-black/
+		/tproduct/528117563523-pidzhak-geometry-black /catalog/man/blazers/pidzhak-geometry-black/
+		/tproduct/528117563523-pidzhak-geometry-black/ /catalog/man/blazers/pidzhak-geometry-black/
 		# служебные и старые страницы Тильды (24.11.2026)
 		/mens /catalog/man/
 		/mens/ /catalog/man/
@@ -1347,10 +1359,6 @@
 	@ak_any_tp {
 		path_regexp aktp ^/.+/tproduct/([0-9]+)(-[^/]*)?/?$
 		expression `{ak_new} == ""`
-		not path */693072083303-* */528117563523-*
 	}
 	redir @ak_any_tp /tproduct/{re.aktp.1} 301
-	# пиджаков «Full» и «Geometry Black» на новом сайте ещё нет: временно в раздел (302, снять при добавлении)
-	@ak_new_goods path */tproduct/693072083303* */tproduct/528117563523* /tproduct/693072083303* /tproduct/528117563523*
-	redir @ak_new_goods /catalog/man/blazers/ 302
 	# <<< ak-urls
