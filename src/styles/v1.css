@@ -1215,3 +1215,7 @@
   transform: none;
   pointer-events: auto;
 }
+
+.fl.is-lift {
+  flex-direction: row-reverse;
+}

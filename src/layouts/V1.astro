@@ -173,6 +173,16 @@ const org = {
           up.tabIndex = on ? 0 : -1;
           last = y;
         }, { passive: true });
+        // у подвала виджет встаёт над словом ALEX KROWN, чтобы не перекрывать его
+        var fl = up.parentNode, word = document.querySelector('.ft__word');
+        function lift() {
+          var b = word ? innerHeight - word.getBoundingClientRect().top + 10 : 0, on = b > 20;
+          fl.classList.toggle('is-lift', on);
+          fl.style.bottom = on ? b + 'px' : '';
+        }
+        addEventListener('scroll', lift, { passive: true });
+        addEventListener('resize', lift);
+        lift();
         up.addEventListener('click', function () {
           scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
         });
