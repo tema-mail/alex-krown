@@ -10,7 +10,7 @@ import { v1, byUid } from '../../v1/site';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const link = (p: string) => v1(p);
 /* картинки категорий обрезаны 17.11.2026 – метка версии, чтобы браузеры не держали старые из кэша (у /home/img нет Cache-Control) */
-const VER: Record<string, string> = { 'cat-man': '4', 'cat-woman': '4', 'cat-menshoes': '4', 'cat-womenshoes': '6', 'cat-firmware': '4', 'cat-perfume': '4', 'bonus-loyal-card': '4' };
+const VER: Record<string, string> = { 'cat-man': '4', 'cat-woman': '4', 'cat-menshoes': '5', 'cat-womenshoes': '6', 'cat-firmware': '4', 'cat-perfume': '4', 'bonus-loyal-card': '4' };
 const img = (n: string) => `${base}/home/img/${n}.webp${VER[n.replace(/-s$/, '')] ? `?v=${VER[n.replace(/-s$/, '')]}` : ''}`;
 /* атрибуты картинки: полная и вдвое меньшая версия (srcset), размеры против сдвига вёрстки */
 const sz = home.sizes as Record<string, [number, number]>;

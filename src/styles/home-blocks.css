@@ -516,9 +516,10 @@
     right: 4%;
   }
   .cat--menshoes img {
-    width: 68%;
-    height: 78%;
-    right: -6px;
+    width: 50%;
+    height: auto;
+    -webkit-mask-image: linear-gradient(transparent, #000 22%);
+    mask-image: linear-gradient(transparent, #000 22%);
   }
   .cat--firmware img {
     width: 60%;
