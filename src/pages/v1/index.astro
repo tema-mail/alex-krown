@@ -26,7 +26,18 @@ const pic = (n: string, sizes: string, native = false) => {
 const vid = (n: string) => `${base}/concepts/video/${n}`;
 const rub = (n: number) => n.toLocaleString('ru-RU').replace(/\u00a0/g, ' ') + ' ₽';
 /* «Уже в продаже» – раздел «Горячие предложения» оригинала (тот же, что на /sale) */
-const hot = (section('sale')?.uids ?? []).map((u) => byUid.get(u)!).filter(Boolean);
+/* сначала восемь товаров по списку владельца (24.11.2026), затем остальные из раздела; сам /sale не меняется */
+const hotFirst = [
+  '936826484312', // Худи “Black Lightning Black”
+  '473797695712', // Рубашка “AK MEN”
+  '486523206593', // Джоггеры “Cardiogram White”
+  '199951775162', // Джогеры “Black Smoke”
+  '119034214372', // Худи “White Lightning woman”
+  '215567713503', // Брюки (джинс) “BLACK EXPLOSION”
+  '180696771693', // Куртка “BLACK SMOKE WOMAN”
+  '368068799422', // Куртка зимняя (Black Cross)
+];
+const hot = [...new Set([...hotFirst, ...(section('sale')?.uids ?? [])])].map((u) => byUid.get(u)!).filter(Boolean);
 const cats = [
   ['Мужское', 'Коллекция мужской одежды, которая сочетает в себе открытость и смелость', '/catalog/man', 'cat-man'],
   ['Женское', 'Уникальная и смелая одежда для харизматичных женщин и девушек', '/catalog/woman', 'cat-woman'],
