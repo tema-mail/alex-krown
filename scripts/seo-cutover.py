@@ -4,7 +4,7 @@
 import os, re, shutil, sys
 src, dst = sys.argv[1:3]
 OLD, NEW = 'https://crown.deford.ru', 'https://alex-krown.com'
-CLOSED = ('admin', 'account', 'checkout', 'checkout-paid', 'favorites', 'karta', 'versions', 'concepts', '404.html')
+CLOSED = ('admin', 'account', 'checkout', 'checkout-paid', 'favorites', 'karta', 'versions', 'concepts', 'soglasovanie', '404.html')
 assert not os.path.exists(dst), 'папка уже есть'
 shutil.copytree(src, dst)
 opened = closed = 0
@@ -18,7 +18,7 @@ for d, dirs, files in os.walk(dst):
             else:
                 n = re.sub(r'<meta name="robots" content="noindex, nofollow"\s*/?>', '', n); opened += 1
         if n != s: open(p, 'w', encoding='utf8', newline='').write(n)
-open(os.path.join(dst, 'robots.txt'), 'w').write('User-agent: *\n' + ''.join(f'Disallow: /{x}/\n' for x in ('admin', 'account', 'checkout', 'checkout-paid', 'favorites', 'concepts', 'karta', 'versions'))
+open(os.path.join(dst, 'robots.txt'), 'w').write('User-agent: *\n' + ''.join(f'Disallow: /{x}/\n' for x in ('admin', 'account', 'checkout', 'checkout-paid', 'favorites', 'concepts', 'soglasovanie', 'karta', 'versions'))
     + f'\nSitemap: {NEW}/sitemap.xml\n')
 locs = re.findall(r'<loc>' + NEW + r'([^<]*)', open(os.path.join(dst, 'sitemap.xml')).read())
 bad = []
