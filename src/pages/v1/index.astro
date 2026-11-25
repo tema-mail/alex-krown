@@ -52,14 +52,7 @@ const subs = [
   ['Топы', '/catalog/woman/tops', 'sub-tops'],
   ['Свитшоты', '/catalog/woman/sweatshirts', 'sub-sweatshirts'],
 ];
-/* капсулы «Total look»: ссылки – как на живой главной (у «Куртки-жакета» там ссылка на джоггеры) */
-const caps = [
-  [['Топ «No Rules»', 3400, '/catalog/woman/tproduct/827495152472-top-no-rules'], ['Шорты «No Rules»', 4300, '/catalog/woman/tproduct/761894198242-shorti-no-rules']],
-  [['Утепленный пуловер', 6900, '/catalog/man/tproduct/320757651222-uteplennii-pulover'], ['Брюки White man', 8200, '/catalog/man/tproduct/550765990892-dzhoggeri-white-man-uteplennie']],
-  [['Лосины', 8900, '/catalog/woman/tproduct/634469130762-losini'], ['Куртка-жакет', 15500, '/catalog/man/tproduct/550765990892-dzhoggeri-white-man-uteplennie']],
-  [['Майка «Geometry black»', 5500, '/catalog/man/tproduct/841640507702-maika-geometry-black'], ['Шорты «Geometry black»', 6500, '/catalog/man/tproduct/424007587352-shorti-geometry-black']],
-] as const;
-/* пять образов владельца (25.11.2026) – первыми, из данных товаров: [главное фото, [товар, номер фото]…] */
+/* капсулы «Total look»: пять образов владельца (25.11.2026), из данных товаров: [главное фото, [товар, номер фото]…] */
 const looks: [string, [string, number][]][] = [
   ['764867709973', [['764867709973', 5], ['486523206593', 1]]], // Cardiogram White
   ['783641647262', [['783641647262', 6], ['566132933262', 1]]], // Trapeze black + Black AK
@@ -71,7 +64,6 @@ const photo = (uid: string, n: number, sizes: string) => {
   const ph = byUid.get(uid)!.photos[n - 1];
   return { 'data-src': pimg(`${ph.name}-s`), 'data-srcset': srcset(ph), sizes, width: ph.w, height: ph.h, loading: 'lazy' as const, decoding: 'async' as const };
 };
-const total = looks.length + caps.length;
 /* «Новая коллекция»: костюм Cardiogram Black – цены и размеры с сайта (по 6 900 ₽, S–XXL),
    видео – клипы VK бренда (scripts/collection-media.mjs). У худи на сайте нет фото – кадр из клипа. */
 const hv = (n: string) => `${base}/home/video/${n}`;
@@ -222,7 +214,7 @@ const reel = [
                 <div class="cap__nav">
                   <button type="button" data-cap-prev aria-label="Предыдущая капсула">←</button>
                   <button type="button" data-cap-next aria-label="Следующая капсула">→</button>
-                  <span class="cap__count" aria-live="polite">{i + 1} / {total}</span>
+                  <span class="cap__count" aria-live="polite">{i + 1} / {looks.length}</span>
                 </div>
                 <div class="cap__items">
                   {items.map(([uid, n]) => {
@@ -235,35 +227,6 @@ const reel = [
                       </a>
                     );
                   })}
-                </div>
-              </div>
-            </div>
-          ))
-        }
-        {
-          caps.map((items, i) => (
-            <div class="cap" data-cap>
-              <div class="cap__main">
-                <img class="bw" {...pic(`cap-${i + 1}`, '(max-width: 760px) 92vw, 48vw')} alt="Готовый образ ALEX KROWN" />
-              </div>
-              <div class="cap__side">
-                <p class="label">Готовая капсула</p>
-                <h2 class="h2" style="margin-top:12px">Total look</h2>
-                <div class="cap__nav">
-                  <button type="button" data-cap-prev aria-label="Предыдущая капсула">←</button>
-                  <button type="button" data-cap-next aria-label="Следующая капсула">→</button>
-                  <span class="cap__count" aria-live="polite">{looks.length + i + 1} / {total}</span>
-                </div>
-                <div class="cap__items">
-                  {items.map(([t, price, h], k) => (
-                    <a class="prod" href={link(h)}>
-                      <div class="prod__img">
-                        <img class="bw" {...pic(`cap-${i + 1}${k ? 'b' : 'a'}`, '(max-width: 760px) 46vw, 23vw')} alt={t} />
-                      </div>
-                      <p class="prod__name">{t}</p>
-                      <p class="prod__price">{rub(price)}</p>
-                    </a>
-                  ))}
                 </div>
               </div>
             </div>
