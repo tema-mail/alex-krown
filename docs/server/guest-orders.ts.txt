@@ -1,0 +1,105 @@
+// Заказ без входа в кабинет (владелец ALEX KROWN, 25.11.2026): заявка сразу в админку и в уведомления менеджеру.
+// На каждый заказ – свой технический клиент без доступа к чужим аккаунтам: почта из формы никем не подтверждена, поэтому
+// к существующему клиенту заказ не привязывается, баллов и приветственного бонуса нет (customer.registered не пишется).
+// Почта покупателя – только в recipient. Отдельная cookie гостя открывает оплату и статус только его заказа.
+import { randomUUID } from "node:crypto";
+import type { FastifyInstance, FastifyReply } from "fastify";
+import type pg from "pg";
+import { z } from "zod";
+import { claim, complete, completeRefusal, release, requestHash } from "../../../../packages/kernel/idempotency.ts";
+import type { SettingsStore } from "../../../../packages/kernel/settings-store.ts";
+import { normalizePhone } from "../../../../modules/customers/api.ts";
+import { createSession } from "../../../../modules/customers/login.ts";
+import { CheckoutRefused, placeOrder } from "../../../../modules/orders/checkout.ts";
+import { cleanAttribution } from "../../../../modules/orders/store.ts";
+import { CONSENT_VERSIONS } from "./auth.ts";
+
+export const GUEST_COOKIE = "__Host-gsid";
+const GUEST_PER_MINUTE = 6;
+const GUEST_COOKIE_DAYS = 7;
+
+const text = (max: number) => z.string().trim().min(1).max(max);
+const Body = z.strictObject({
+  lines: z.array(z.strictObject({ productId: z.string().min(1).max(64), qty: z.number().int().min(1).max(99) })).min(1).max(50),
+  meta: z.strictObject({ externalNum: z.string().max(40), attribution: z.unknown().optional() }),
+  recipient: z.strictObject({
+    name: text(100).min(2),
+    phone: z.string().trim().regex(/^\+?[0-9 ()-]{10,20}$/),
+    email: text(254).optional(),
+    city: text(300),
+    address: text(300).optional(),
+    delivery: text(100),
+    payment: text(100),
+    comment: text(300).optional(),
+  }),
+  consent: z.strictObject({ pdn: z.literal(true) }),
+});
+
+const bad = (reply: FastifyReply, status: number, error: string, message: string) => reply.status(status).send({ error, message });
+
+/** Технический клиент гостя и согласие на ПДн – одной транзакцией; токен – для cookie гостя. */
+async function createGuest(pool: pg.Pool, name: string, rawPhone: string): Promise<{ customerId: string; token: string }> {
+  let phone: string | null = null;
+  try {
+    phone = normalizePhone(rawPhone);
+  } catch {
+    // телефон в форме – в recipient как есть; в карточку клиента неразобранный не пишем
+  }
+  const email = `guest-${randomUUID()}@guest.invalid`;
+  const c = await pool.connect();
+  try {
+    await c.query("BEGIN");
+    const r = await c.query("INSERT INTO customers.customer (email, email_norm, name, phone) VALUES ($1, $1, $2, $3) RETURNING id::text AS id", [email, name, phone]);
+    const customerId = r.rows[0].id as string;
+    await c.query("INSERT INTO customers.consent (customer_id, kind, text_version) VALUES ($1, 'pdn', $2)", [customerId, CONSENT_VERSIONS.pdn]);
+    const token = await createSession(c, customerId);
+    await c.query("COMMIT");
+    return { customerId, token };
+  } catch (e) {
+    await c.query("ROLLBACK").catch(() => undefined);
+    throw e;
+  } finally {
+    c.release();
+  }
+}
+
+export async function guestOrdersRoutes(app: FastifyInstance, deps: { pool: pg.Pool; settings: SettingsStore }): Promise<void> {
+  const { pool, settings } = deps;
+  app.post("/api/guest-orders", { config: { rateLimit: { max: GUEST_PER_MINUTE, timeWindow: "1 minute" } } }, async (req, reply) => {
+    const key = String(req.headers["idempotency-key"] ?? "");
+    if (!/^[A-Za-z0-9_.:-]{20,200}$/.test(key)) return bad(reply, 400, "idempotency_key", "Нужен заголовок Idempotency-Key (20–200 знаков)");
+    const body = Body.safeParse(req.body);
+    if (!body.success) return bad(reply, 400, "bad_request", "Проверьте имя, телефон и город");
+    const { lines, meta, recipient } = body.data;
+    // CHECK kernel.idempotency допускает только customer:N и staff:N; клиента ещё нет, сотрудника 0 не бывает
+    const scope = "staff:0:guest POST /api/guest-orders";
+    const c = await claim(pool, { scope, key, customerId: null, requestHash: requestHash({ lines, externalNum: meta.externalNum, recipient }) });
+    if (c.kind === "done") return reply.status(c.statusCode).send(c.response);
+    if (c.kind === "conflict") return bad(reply, 409, "idempotency_conflict", "Этот заказ уже отправлен с другими данными – обновите страницу");
+    if (c.kind === "busy") return bad(reply, 409, "idempotency_busy", "Заказ уже оформляется – подождите");
+    try {
+      const guest = await createGuest(pool, recipient.name, recipient.phone);
+      let response: Record<string, unknown> = {};
+      await placeOrder(
+        pool,
+        settings,
+        { customerId: guest.customerId, lines, usePoints: false, externalNum: meta.externalNum, attribution: cleanAttribution(meta.attribution), recipient },
+        async (tx, o) => {
+          response = { orderId: o.id, pointsUsed: 0, earn: 0, payRub: Number(o.quote.total) / 100 };
+          await complete(tx, { scope, key, lockToken: c.lockToken, statusCode: 201, response });
+        },
+      );
+      reply.setCookie(GUEST_COOKIE, guest.token, { path: "/", httpOnly: true, secure: true, sameSite: "lax", maxAge: GUEST_COOKIE_DAYS * 86400 });
+      return reply.status(201).send(response);
+    } catch (e) {
+      if (e instanceof CheckoutRefused) {
+        const status = e.code === "stock.short" || e.code === "cart.unavailable" ? 409 : 400;
+        const refusal = { error: e.code, message: e.message };
+        await completeRefusal(pool, { scope, key, lockToken: c.lockToken, statusCode: status, response: refusal });
+        return reply.status(status).send(refusal);
+      }
+      await release(pool, { scope, key, lockToken: c.lockToken });
+      throw e;
+    }
+  });
+}
