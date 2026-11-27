@@ -44,7 +44,7 @@
 /* подкатегории */
 .subs {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 12px;
   margin-top: 12px;
 }
@@ -451,6 +451,13 @@
   }
   .subs {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  /* пятая карточка – на всю ширину */
+  .sub:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+  .sub:last-child:nth-child(odd) .sub__img {
+    aspect-ratio: 2.2 / 1.1;
   }
   .promo {
     grid-template-columns: 1fr;
