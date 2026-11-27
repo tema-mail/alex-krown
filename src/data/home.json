@@ -393,5 +393,25 @@
  "sub-trousers-n": [
   409,
   900
+ ],
+ "sub-shirts-p": [
+  800,
+  1422
+ ],
+ "sub-tshirts-p": [
+  800,
+  1422
+ ],
+ "sub-tops2-p": [
+  800,
+  1422
+ ],
+ "sub-hoodie-p": [
+  800,
+  1066
+ ],
+ "sub-trousers-p": [
+  800,
+  1422
  ]
 }
